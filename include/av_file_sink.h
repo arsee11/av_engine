@@ -35,6 +35,7 @@ public:
 struct AvStreamInfo
 {
 	CodecID codecid;
+	PixelFormat pixel_format;
 };
 
 class AvFileSink : public Transformation<AVParam>
