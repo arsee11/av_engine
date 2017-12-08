@@ -35,7 +35,18 @@ public:
 struct AvStreamInfo
 {
 	CodecID codecid;
-	PixelFormat pixel_format;
+		union{
+		struct{
+			PixelFormat pixel_format;
+			int width;
+			int height;
+		}vi;
+		struct{
+			int sample_rate;
+			int channel;
+			SampleFormat sample_format;
+		}ai;
+	};
 };
 
 class AvFileSink : public Transformation<AVParam>
