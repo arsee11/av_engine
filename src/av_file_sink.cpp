@@ -41,10 +41,10 @@ void AvFileSink::addStream(const AvStreamInfo& s)throw(AvFileSinkException)
 
 		_video_stream->codecpar->codec_id = codec->id;
 		_video_stream->codecpar->codec_type = codec->type;
-		_video_stream->codecpar->width = 320;
-		_video_stream->codecpar->height = 240;
+		_video_stream->codecpar->width = s.vi.width;
+		_video_stream->codecpar->height = s.vi.height;
 		_video_stream->codecpar->bit_rate = 320 * 1024;
-		_video_stream->codecpar->format = _2ffmpeg_format(PixelFormat::FORMAT_YUV420);
+		_video_stream->codecpar->format = _2ffmpeg_format(s.vi.pixel_format);
 
 		_video_stream->id = _format_ctx->nb_streams - 1;
 	}
@@ -60,10 +60,10 @@ void AvFileSink::addStream(const AvStreamInfo& s)throw(AvFileSinkException)
 		//_audio_stream->time_base = AVRational{ 1, 44100 };
 		_audio_stream->codecpar->codec_id = codec->id;
 		_audio_stream->codecpar->codec_type = codec->type;
-		_audio_stream->codecpar->sample_rate = 44100;
-		_audio_stream->codecpar->channels = 2;
+		_audio_stream->codecpar->sample_rate = s.ai.sample_rate;
+		_audio_stream->codecpar->channels = s.ai.channel;
 		_audio_stream->codecpar->channel_layout = AV_CH_LAYOUT_STEREO;
-		_audio_stream->codecpar->format = _2ffmpeg_format(SampleFormat::S16P);
+		_audio_stream->codecpar->format = _2ffmpeg_format(s.ai.sample_format);
 		
 		_audio_stream->id = _format_ctx->nb_streams - 1;
 	}
