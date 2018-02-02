@@ -1,11 +1,12 @@
 
-//  camera.cpp
+//  av_camera.cpp
 
 
-#include "camera.h"
+#include "av_camera.h"
 #include <stdio.h>
 #include <iostream>
 #include "codec_specify.h"
+#include "av_log.h"
 
 using namespace std;
 
@@ -21,13 +22,13 @@ extern "C"
 
 #include "codec_specify.h"
 
-Camera::Camera(Transformation<Param>* ts)
+AvCamera::AvCamera(Transformation<Param>* ts)
 	:Source(ts)
 {
 	
 }
 
-bool Camera::open(const char* device, int framerate, int width, int height)
+bool AvCamera::open(const char* device, int framerate, int width, int height)
 {
 	if (_is_opened)
 		return true;
@@ -37,7 +38,7 @@ bool Camera::open(const char* device, int framerate, int width, int height)
     AVDictionary* options = NULL;
 
     char optstr[32]={0};
-    sprintf(optstr, "%dx%d", width, height);
+    snprintf(optstr, 31, "%dx%d", width, height);
     av_dict_set(&options, "video_size", optstr, 0);
     av_dict_set_int(&options,"framerate", framerate, 0);
 #else
@@ -45,9 +46,9 @@ bool Camera::open(const char* device, int framerate, int width, int height)
     AVDictionary* options = NULL;
     
     char optstr[32]={0};
-    sprintf(optstr, "%dx%d", width, height);
+    snprintf(optstr, 32, "%dx%d", width, height);
     av_dict_set(&options, "video_size", optstr, 0);
-    sprintf(optstr, "%d", framerate);
+    snprintf(optstr, 32, "%d", framerate);
     av_dict_set(&options,"framerate",optstr,0);
 #endif
 
@@ -55,7 +56,8 @@ bool Camera::open(const char* device, int framerate, int width, int height)
     if((ec=avformat_open_input(&_format_ctx, device, ifmt, &options))!=0)
     {
         char buf[128];
-        cout<<"Couldn't open camera. error:"<<av_make_error_string(buf, 128, ec)<<endl;
+		av_make_error_string(buf, 128, ec);
+		av_log_output(LOGL_ERROR, (std::string("Couldn't open AvCamera. error:") + std::string(buf)).c_str());
         avformat_free_context(_format_ctx);
         return false;
     }
@@ -64,7 +66,8 @@ bool Camera::open(const char* device, int framerate, int width, int height)
     if( (ec=avformat_find_stream_info(_format_ctx, NULL)) < 0 )
     {
         char buf[128];
-        printf("Couldn't open camera. error:%s\n", av_make_error_string(buf, 128, ec));
+		av_make_error_string(buf, 128, ec);
+        av_log_output(LOGL_ERROR, (std::string("Couldn't open AvCamera. error:")+std::string(buf)).c_str());
 		avformat_free_context(_format_ctx);
         return false; // Couldn't find stream information
     }
@@ -86,7 +89,7 @@ bool Camera::open(const char* device, int framerate, int width, int height)
     return true;
 }
 
-bool Camera::transform(AVParam*& p)
+AVParam* AvCamera::get()
 {
 	assert(_format_ctx);
     AVPacket* packet = av_packet_alloc();
@@ -108,12 +111,10 @@ bool Camera::transform(AVParam*& p)
 		av_packet_unref(packet);
 	}
 	av_packet_free(&packet);
-
-	p = _param;
-	return true;
+	return _param;
 }
 
-void Camera::close()
+void AvCamera::close()
 {
     avformat_close_input(&_format_ctx);
     _is_opened = false;

@@ -1,8 +1,8 @@
-//  camera.h
+//  av_camera.h
 
 
-#ifndef CAMERA_H
-#define CAMERA_H
+#ifndef AV_CAMERA_H
+#define AV_CAMERA_H
 
 #include <functional>
 #include <string>
@@ -18,11 +18,11 @@ extern "C"{
 #include "av_util.h"
 #include "source.h"
 
-class Camera :public Source<AVParam>
+class AvCamera :public Source<AVParam>
 {
 public:
-	Camera(Transformation<Param>* ts);
-    ~Camera(){
+	AvCamera(Transformation<Param>* ts);
+    ~AvCamera(){
         close();
         _param->release();
     }
@@ -30,8 +30,9 @@ public:
     bool open(const char* device, int framerate, int width, int height);
     void close();
 
-private:
-	bool transform(AVParam*& p)override;
+	AVParam* get()override;
+
+private:	
 	AVParam* _param = AVParam::create();
 
 
@@ -45,4 +46,4 @@ private:
     bool _is_opened=false;
 };
 
-#endif /* CAMERA_H */
+#endif /* AV_CAMERA_H */

@@ -5,9 +5,7 @@
 
 
 extern "C"{
-	#ifndef AVCODEC_AVCODEC_H
 	#include <libavcodec/avcodec.h>
-	#endif 
 }
 
 class RawCodec

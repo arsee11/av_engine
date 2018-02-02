@@ -13,7 +13,7 @@ extern "C"{
 #include "av_exception.h"
 #endif
 
-#include "transformation.h"
+#include "sink.h"
 #include "av_util.h"
 #include <vector>
 
@@ -34,10 +34,22 @@ public:
 
 struct AvStreamInfo
 {
-	CodecID codecid;
+    CodecID codecid;
+    MediaType media_type;
+    union{
+        struct{
+            int width;
+            int height;
+        }vi;
+        struct{
+            int sample_rate;
+            int channel;
+            SampleFormat sample_format;
+        }ai;
+    };
 };
 
-class AvFileSink : public Transformation<AVParam>
+class AvFileSink : public Sink<AVParam>
 {	
 public:
 	static AvFileSink* create(const std::vector<AvStreamInfo>& ss
@@ -49,6 +61,8 @@ public:
 			return nullptr;
 		}
 	}
+
+	void put(AVParam* p)override;
 
 	void destroy() { delete this; }
 
@@ -67,11 +81,7 @@ private:
 	enum{ BUF_SIZE=1024*1240*4};
 
 	void write(AVPacket* packet) throw(AvFileSinkException);
-	void put(AVParam* p)override;
 
-	void get(AVParam* p)override {
-
-	}
 
 private:
 	AVFormatContext* _format_ctx;

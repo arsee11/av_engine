@@ -7,7 +7,7 @@
 #include "rtp_wrapper.h"
 #include "av_exception.h"
 #include "av_util.h"
-#include "transformation.h"
+#include "Sink.h"
 
 using namespace jrtplib;
 
@@ -26,7 +26,7 @@ public:
 };
 
 ///@brief send rtp packets to network.
-class AvRtpSink:public Transformation<AVParam>
+class AvRtpSink:public Sink<AVParam>
 {
 	typedef RtpWrapper::rtp_wrapper_ptr_t rtp_wrapper_ptr_t;
 
@@ -46,10 +46,6 @@ public:
 		_rtp->sendPacket(p->getData(), p->len);
 	}
 
-	void get(AVParam* p)override {
-
-	}
-	
 	void addPeer(const char* ip, uint16_t port)
 	{
 		_rtp->addPeer(ip, port);

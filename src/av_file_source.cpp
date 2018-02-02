@@ -5,7 +5,7 @@
 
 
 
-bool AvFileSource::transform(AVParam*& p)
+AVParam* AvFileSource::get()
 {
 	AVPacket *pack = av_packet_alloc();
 	av_init_packet(pack);
@@ -23,10 +23,11 @@ bool AvFileSource::transform(AVParam*& p)
 		isok =true;
 	}
 
-	p = _param;
 	av_packet_free(&pack);
-	return isok;
-	
+	if (isok)
+		return _param;
+
+	return nullptr;
 }
 
 void AvFileSource::open(const std::string& filename)throw(AvException)

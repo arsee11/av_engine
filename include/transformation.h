@@ -8,7 +8,7 @@ class Transformation
 {
 public:
 	virtual void put(Param* p)=0;
-	virtual void get(Param* p)=0;
+	virtual Param* get()=0;
 };
 
 #endif /*TRANSFORMATION_H*/

@@ -1,45 +1,38 @@
-//  microphone.h
+//  av_AvMicrophone.h
 
 
-#ifndef MICROPHONE_H
-#define MICROPHONE_H
+#ifndef AvMicrophone_H
+#define AvMicrophone_H
 
 #include <stdio.h>
 #include <thread>
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
+extern "C"{
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libavdevice/avdevice.h>
 #include <libavutil/avutil.h>
 #include <libavutil/error.h>
-
-#ifdef __cplusplus
 }
-#endif
 
 #include "source.h"
 #include "av_util.h"
 
-class Microphone :public Source<AVParam>
+class AvMicrophone :public Source<AVParam>
 {
 public:
-	Microphone(Transformation<Param>* ts);
-	~Microphone() {
+	AvMicrophone(Transformation<Param>* ts);
+	~AvMicrophone() {
 		_param->release();
 	}
 
     bool open(const char* dev, int sample_rate, int sample_size);
     void close();
     
+	AVParam* get()override;
 
 private:
-	bool transform(AVParam*& p)override;
 	AVParam* _param = AVParam::create();
 
 private:
@@ -49,4 +42,4 @@ private:
 
 };
 
-#endif /* MICROPHONE_H */
+#endif /* AvMicrophone_H */

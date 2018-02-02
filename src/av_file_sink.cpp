@@ -1,6 +1,7 @@
 //av_file_output_filter.cpp
 
 #include "av_file_sink.h"
+#include "av_log.h"
 
 AvFileSink::AvFileSink(const std::vector<AvStreamInfo>& ss, const std::string& filename) throw(AvFileSinkException)
 	:_filename(filename)
@@ -26,11 +27,7 @@ AvFileSink::AvFileSink(const std::vector<AvStreamInfo>& ss, const std::string& f
 
 void AvFileSink::addStream(const AvStreamInfo& s)throw(AvFileSinkException)
 {
-	AVCodec* codec = avcodec_find_encoder(_2ffmpeg_id(s.codecid));
-	if (codec == NULL)
-		throw AvFileSinkException("encoder not found", __FILE__, __LINE__);
-
-	if (codec->type == AVMEDIA_TYPE_VIDEO )
+	if (s.media_type == MEDIA_VIDEO )
 	{
 		if (_video_stream != nullptr)
 			throw AvFileSinkException("video stream existed", __FILE__, __LINE__);
@@ -39,16 +36,17 @@ void AvFileSink::addStream(const AvStreamInfo& s)throw(AvFileSinkException)
 		if (_video_stream == NULL)
 			throw AvFileSinkException("Failed to allocating output stream", __FILE__, __LINE__);
 
-		_video_stream->codecpar->codec_id = codec->id;
-		_video_stream->codecpar->codec_type = codec->type;
-		_video_stream->codecpar->width = 320;
-		_video_stream->codecpar->height = 240;
-		_video_stream->codecpar->bit_rate = 320 * 1024;
-		_video_stream->codecpar->format = _2ffmpeg_format(PixelFormat::FORMAT_YUV420);
+		_video_stream->codecpar->codec_id = _2ffmpeg_id(s.codecid);
+		_video_stream->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
+        _video_stream->codecpar->width = s.vi.width;
+        _video_stream->codecpar->height = s.vi.height;
+        _video_stream->codecpar->bit_rate = s.vi.width*s.vi.height* 1024;
+        //_video_stream->codecpar->format = _2ffmpeg_format(s.vi.pixel_format);
 
 		_video_stream->id = _format_ctx->nb_streams - 1;
+    
 	}
-	else if (codec->type == AVMEDIA_TYPE_AUDIO)
+	else if (s.media_type == MEDIA_AUDIO)
 	{
 		if (_audio_stream != nullptr)
 			throw AvFileSinkException("audio stream existed", __FILE__, __LINE__);
@@ -58,17 +56,17 @@ void AvFileSink::addStream(const AvStreamInfo& s)throw(AvFileSinkException)
 			throw AvFileSinkException("Failed to allocating output stream", __FILE__, __LINE__);
 
 		//_audio_stream->time_base = AVRational{ 1, 44100 };
-		_audio_stream->codecpar->codec_id = codec->id;
-		_audio_stream->codecpar->codec_type = codec->type;
-		_audio_stream->codecpar->sample_rate = 44100;
-		_audio_stream->codecpar->channels = 2;
-		_audio_stream->codecpar->channel_layout = AV_CH_LAYOUT_STEREO;
-		_audio_stream->codecpar->format = _2ffmpeg_format(SampleFormat::S16P);
+		_audio_stream->codecpar->codec_id = _2ffmpeg_id(s.codecid);
+		_audio_stream->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
+        _audio_stream->codecpar->sample_rate = s.ai.sample_rate;
+        _audio_stream->codecpar->channels = s.ai.channel;
+        _audio_stream->codecpar->channel_layout = AV_CH_LAYOUT_STEREO;
+        _audio_stream->codecpar->format = _2ffmpeg_format(s.ai.sample_format);
 		
 		_audio_stream->id = _format_ctx->nb_streams - 1;
 	}
 	else
-		throw AvFileSinkException("Invalid stream type", __FILE__, __LINE__);
+		av_log_error()<<"not support media type["<<s.media_type<<"]"<<end_log();
 }
 
 void AvFileSink::write(AVPacket* packet) throw(AvFileSinkException)
@@ -108,6 +106,7 @@ void AvFileSink::put(AVParam* p)
 		write(pack);
 	}
 	catch (AvFileSinkException& e){
+		av_log_output(LOGL_ERROR, e.what());
 		return;
 	}
 	

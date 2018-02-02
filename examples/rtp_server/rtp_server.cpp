@@ -20,7 +20,7 @@ using namespace std;
 #include <av_rtp_sink.h>
 #include <av_frame_scale_filter.h>
 #include <av_exception.h>
-#include <camera.h>
+#include <av_camera.h>
 
 
 
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
         AvEncodeFilter* ef = AvEncodeFilter::create(CodecID::H264, 30, rtp);
         AvFrameScaleFilter * pf = AvFrameScaleFilter::create(PixelFormat::FORMAT_YUV420, 320, 240, ef);
 
-		Camera c(pf);
+		AvCamera c(pf);
 #ifdef WIN32
 		c.open("video=USB2.0 Camera", 30, 320, 240);
 #else

@@ -10,6 +10,7 @@
 extern "C"{
 #include <libavutil/error.h>
 }
+
 class AvException:std::exception
 {
 public:

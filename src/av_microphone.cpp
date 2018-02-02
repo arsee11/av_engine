@@ -1,16 +1,17 @@
-//  microphone.cpp
+//  av_microphone.cpp
 
 
-#include "microphone.h"
+#include "av_microphone.h"
 #include <system_error>
+#include "av_log.h"
 
-Microphone::Microphone(Transformation<Param>* ts)
+AvMicrophone::AvMicrophone(Transformation<Param>* ts)
 	:Source(ts)
 {
 
 }
 
-bool Microphone::open(const char* dev, int sample_rate, int sample_size)
+bool AvMicrophone::open(const char* dev, int sample_rate, int sample_size)
 {
 #ifdef WIN32
     AVInputFormat *ifmt=av_find_input_format("dshow");
@@ -29,14 +30,15 @@ bool Microphone::open(const char* dev, int sample_rate, int sample_size)
     int ec;
     if((ec=avformat_open_input(&_format_ctx, dev, ifmt, &options))!=0)
     {
-        //fprintf(stderr, "Couldn't open Microphone. error:%s\n", av_err2str(ec));
+        //fprintf(stderr, "Couldn't open AvMicrophone. error:%s\n", av_err2str(ec));
         return false;
     }    
     
     if( (ec=avformat_find_stream_info(_format_ctx, NULL)) < 0 )
     {
         char buf[128];
-        printf("Couldn't open Microphone. error:%s\n", av_make_error_string(buf, 128, ec));
+ 		av_make_error_string(buf, 128, ec);
+		av_log_output(LOGL_ERROR, (std::string("Couldn't open AvMicrophone. error:") + std::string(buf)).c_str());
         return false; // Couldn't find stream information
     }
     
@@ -54,26 +56,27 @@ bool Microphone::open(const char* dev, int sample_rate, int sample_size)
     avcodec_parameters_to_context(_codec_ctx, par);
     AVCodec* pCodec = avcodec_find_decoder(par->codec_id);
     if( pCodec == NULL ) {
-        fprintf(stderr, "Unsupported codec:\n");
-        return false; // Codec not found
+		av_log_output(LOGL_ERROR, "Unsupported codec");
+        return false; 
     }
     
     if( avcodec_open2(_codec_ctx, pCodec, NULL) < 0 ) {
-        return false; // Could not open codec
+		av_log_output(LOGL_ERROR, "Could not open codec");
+        return false; 
     }    
     
 	return true;    
 }
 
 
-void Microphone::close()
+void AvMicrophone::close()
 {
     avformat_close_input(&_format_ctx);
     avcodec_free_context(&_codec_ctx);
 }
 
 
-bool Microphone::transform(AVParam*& p)
+AVParam* AvMicrophone::get()
 {
 	AVPacket* packet = av_packet_alloc();
 	AVFrame *avframe = av_frame_alloc();
@@ -90,7 +93,7 @@ bool Microphone::transform(AVParam*& p)
 						continue;
 					else
 					{
-						return false;
+						return nullptr;
 					}
 				}
 
@@ -101,7 +104,7 @@ bool Microphone::transform(AVParam*& p)
 						continue;
 					else
 					{
-						return false;
+						return nullptr;
 					}
 				}
 	
@@ -135,6 +138,5 @@ bool Microphone::transform(AVParam*& p)
 
 	av_packet_free(&packet);
 	av_frame_free(&avframe);
-	p = _param;
-	return true;
+	return _param;
 }

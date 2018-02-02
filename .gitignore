@@ -7,7 +7,7 @@
 *.sln.docstates
 a.out
 *.o
-
+*.exe
 
 # Build results
 

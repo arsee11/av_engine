@@ -3,7 +3,16 @@
 #ifndef CODE_SPECIFY_H
 #define CODE_SPECIFY_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+    
 #include <libavcodec/avcodec.h>
+    
+#ifdef __cplusplus
+}
+#endif
 
 enum CodecID
 {

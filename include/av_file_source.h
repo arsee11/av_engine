@@ -22,14 +22,15 @@ extern "C"{
 class AvFileSource : public Source<AVParam>
 {
 public:
-	static AvFileSource* create(Filter<AVParam>* next_filter = nullptr)
+	static AvFileSource* create(Transformation<AVParam>* next = nullptr)
 	{
-		return new AvFileSource(next_filter);
+		return new AvFileSource(next);
 	}	
 
 	enum AvReadRet{ AV_EOF, AV_READ_OK };	
 
 	void open(const std::string& filename)throw(AvException);
+    AVParam* get()override;
 	void close();
 
 	int framerate() { return _framerate; }
@@ -48,7 +49,7 @@ private:
     void initParams() throw(AvException);
 	AvReadRet readp(AVPacket* packet);
 
-	bool transform(AVParam*& p)override;
+	
 	AVParam* _param = AVParam::create();
 
 private:

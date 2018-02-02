@@ -2,15 +2,15 @@
 #define SOURCE_H
 
 #include <assert.h>
-#include "filter.h"
-
+#include "transformation.h"
+#include "av_exception.h"
 
 template<class Param>
-class Source :public Filter<Param>
+class Source :Transformation<Param>
 {
 public:
-	Source(Transformation<Param>* ts)
-	:_trans(ts)
+	Source(Transformation<Param>* next)
+	:_next_trans(next)
 	{
 		
 	}
@@ -19,10 +19,10 @@ public:
 	int read()
 	{
 		Param* p = nullptr;
-		if (this->transform(p))
+		if ( (p=this->get()) != nullptr)
 		{
-			if(_trans != nullptr)
-				_trans->put(p);
+			if(_next_trans != nullptr)
+				_next_trans->put(p);
 			else
 			{
 				//_storage->put(p);
@@ -37,9 +37,9 @@ public:
 
 	
 private:
-	void put(Param* p)override {}
-
-	Transformation<Param>* _trans = nullptr;
+	void put(Param* p)override { throw AvException("not implemented!");}
+	
+	Transformation<Param>* _next_trans = nullptr;
 };
 
 #endif/*SOURCE_H*/

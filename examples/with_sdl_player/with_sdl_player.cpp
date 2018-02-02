@@ -22,13 +22,14 @@ using namespace std;
 #include <av_exception.h>
 #include <av_file_source.h>
 #include <av_encode_filter.h>
-
+#include <av_log.h>
 #include "../av_displayer.h"
 
 int main(int argc, char* argv[])
 {
 
 	av_init();
+	av_set_logger(stdout_log);
 
 	try {
 		AVDisplayer dis;
@@ -36,7 +37,7 @@ int main(int argc, char* argv[])
 		AvDecodeFilter* df = AvDecodeFilter::create(CodecID::CODEC_ID_NONE, &dis);
 
 		AvFileSource* avfile = AvFileSource::create(df);
-		avfile->open("e:/test.asf");
+		avfile->open("e:/test.asf");//replace this filename
 
         while(true)
         {

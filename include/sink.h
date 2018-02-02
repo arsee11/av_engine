@@ -5,26 +5,16 @@
 #define SINK_H
 
 #include "transformation.h"
-
+#include "av_exception.h"
 
 template<class Param>
 class Sink : public Transformation<Param>
 {
-public:
-	Sink()
-	{
+
+private:
+	Param* get()override {
+		throw AvException("not implemented!");
 	}
-
-	void put(Param* p)override {
-		
-	}
-
-	size_t get(Param* p)override {
-
-	}
-
-protected:
-	bool transform(Param*& p)override{};
 };
 
 #endif /* SINK_H */

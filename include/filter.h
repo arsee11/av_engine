@@ -24,8 +24,8 @@ public:
         }
     }
     
-	void get(Param* p)override{
-
+	Param* get()override{
+		return nullptr;
 	}
 
 protected:

@@ -11,6 +11,7 @@ extern "C"
 }
 
 #include "codec_specify.h"
+#include "av_log.h"
 
 bool AvEncodeFilter::transform(AVParam*& p)
 {
@@ -56,7 +57,10 @@ bool AvEncodeFilter::open(PixelFormat f, int width, int height, int framerate)
 {
     AVCodec* codec = avcodec_find_encoder(  _2ffmpeg_id(_codec_id) );
     if(codec == NULL )
+    {
+        av_log_output(LOGL_ERROR, "encoder not found");
         return false;
+    }
     
     _codec_ctx = avcodec_alloc_context3(codec);
     if(_codec_ctx == NULL)
@@ -75,8 +79,12 @@ bool AvEncodeFilter::open(PixelFormat f, int width, int height, int framerate)
     _codec_ctx->pix_fmt = _2ffmpeg_format(f);
     AVDictionary* opts=NULL;
     av_dict_set(&opts, "allow_sw", "1", 0); //allows software encoding
-    if( avcodec_open2(_codec_ctx, codec, &opts) < 0)
+    int ret=0;
+    if( (ret=avcodec_open2(_codec_ctx, codec, &opts)) < 0)
     {
+        char buf[256];
+        av_make_error_string(buf, 256, ret);
+        av_log_error()<<"encoder avcodec_open2 failed:"<<buf<<end_log();
 		avcodec_close(_codec_ctx);
 		_codec_ctx = nullptr;
         return false;

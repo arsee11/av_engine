@@ -32,7 +32,7 @@ typedef struct Param {
 	int64_t dts;
 	CodecID codecid;
 	int flag;
-	int nb_samples;
+	int64_t nb_samples;
 	int channels;
 	int sample_rate;
 	MediaType type;
@@ -120,7 +120,7 @@ private:
 inline int av_init()
 {
 	av_register_all();
-	//avcodec_register_all();	
+	avcodec_register_all();	
 	avdevice_register_all();
 	return 0;
 }

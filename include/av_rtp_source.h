@@ -41,18 +41,16 @@ public:
 
 	rtp_wrapper_ptr_t getRtpWrapper() const { return _rtp; }
 
-protected:
-	bool transform(AVParam*& p)override {
+	AVParam* get()override {
 		uint8_t* buf = nullptr;
 		int size = _rtp->readFrame(&buf);
 		if (size > 0)
 		{
 			_param->setData(buf, size);
-			p = _param;
-			return true;
+			return _param;
 		}
 
-		return false;
+		return nullptr;
 	}
 
 private:
