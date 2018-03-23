@@ -7,7 +7,7 @@ depends on these thirdparty libs below:<br>
 [ffmpeg](https://www.ffmpeg.org) <br>
 [jrtplib](http://research.edm.uhasselt.be/jori/page/Main/HomePage.html)
 
-examples/rtp_client and example/width_sdl_player project dependos on [SDL](http://www.libsdl.org/) libs.
+examples/rtp_client and example/width_sdl_player project depends on [SDL](http://www.libsdl.org/) libs.
 
 needs c++11 support.
 
