@@ -31,9 +31,9 @@ class AvRtpSink:public Sink<AVParam>
 	typedef RtpWrapper::rtp_wrapper_ptr_t rtp_wrapper_ptr_t;
 
 public:
-	static AvRtpSink* create(uint16_t localPort=8000)
+	static AvRtpSink* create(uint16_t localPort, uint8_t playload_type, int HZ, uint8_t framerate)
 	{
-		return new AvRtpSink(localPort);
+		return new AvRtpSink(localPort, HZ, playload_type, framerate);
 	}
 
 	static AvRtpSink* create(rtp_wrapper_ptr_t& rtp)
@@ -52,11 +52,11 @@ public:
 	}	
 
 private:
-	AvRtpSink(uint16_t localPort=8000)
+	AvRtpSink(uint16_t localPort, int HZ, uint8_t playload_type, uint8_t framerate)
 		:_rtp(nullptr)
 	{
 		_rtp = rtp_wrapper_ptr_t(new RtpWrapper); 
-		_rtp->open(localPort);	
+		_rtp->open(localPort, HZ, playload_type, framerate);
 	}
 
 	AvRtpSink(rtp_wrapper_ptr_t& rtp)

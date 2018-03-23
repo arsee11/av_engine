@@ -8,6 +8,8 @@
 #include <iostream>
 
 #include "rtp_wrapper.h"
+#include "h264_rtp_packer.h"
+#include "av_log.h"
 
 using namespace std;
 
@@ -62,22 +64,24 @@ private:
 	uint32_t _size;
 };
 	
-void RtpWrapper::open(int localPort, int HZ, uint8_t playloadType, uint8_t frameRate) throw(AvRtpException)
+void RtpWrapper::open(int local_port, int HZ, uint8_t playload_type, uint8_t framerate) throw(AvRtpException)
 {
+    _hz = HZ;
+    _framerate = framerate;
+    _payload_type = playload_type;
 	RTPUDPv4TransmissionParams transparams;
 	RTPSessionParams sessparams;
 
-	sessparams.SetOwnTimestampUnit(1.0/frameRate);
+	sessparams.SetOwnTimestampUnit(1.0/framerate);
 	sessparams.SetAcceptOwnPackets(true);
-	transparams.SetPortbase(localPort);
+	transparams.SetPortbase(local_port);
 	sessparams.SetMaximumPacketSize(MAX_PACKET_SIZE);
 	int ret = _rtpSession.Create(sessparams,&transparams);		
 	if(ret < 0 )
 		throw AvRtpException( getErrorStr(ret).c_str() );
 
-	_rtpSession.SetDefaultMark(true);
-	_rtpSession.SetDefaultPayloadType(playloadType);
-	_rtpSession.SetDefaultTimestampIncrement( 1.0/frameRate * 1000 );//ms
+	_rtpSession.SetDefaultPayloadType(playload_type);
+
 }
 
 bool RtpWrapper::addPeer(const char* ip, uint16_t port)
@@ -95,38 +99,59 @@ bool RtpWrapper::addPeer(const char* ip, uint16_t port)
 	return true;
 }
 
+static std::tuple<uint8_t*, uint16_t> mediaPack(int media_type, uint8_t* data, int offset, int len, bool is_fragment, bool is_end )
+{
+    if(media_type == 96)
+    {
+        return H264RTPPacker::pack(data, offset, len, is_fragment, is_end);
+    }
+    
+    return std::make_tuple(nullptr, 0);
+}
+
 int RtpWrapper::sendPacket(void* buf, size_t len)
 {
 	int ret = 0;
-	int n = len / MAX_PAYLOAD_SIZE;
-	int m = len %MAX_PAYLOAD_SIZE;
-	int i=0;
+    uint8_t* bufs=nullptr;
+    uint16_t buf_len=0;
+	if(len <= MAX_PAYLOAD_SIZE)
+    {
+        std::tie(bufs, buf_len)= mediaPack(_payload_type, (uint8_t*)buf, 0, len, false, true);
+        ret = _rtpSession.SendPacket(bufs, buf_len, _payload_type, true, _hz/_framerate);
+        if(ret < 0)
+            av_log_error()<<getErrorStr(ret)<<end_log();
+        
+        return ret;
+    }
+    
+    int n = len / MAX_PAYLOAD_SIZE;
+    int m = len %MAX_PAYLOAD_SIZE;
+    n += m>0?1:0;
+    int i=0;
 	for( i=0; i<n; i++)
 	{
 		int in = i*MAX_PAYLOAD_SIZE;
-		if(m==0 && i==n-1)
-			_rtpSession.SetDefaultMark(true);
-		else
-			_rtpSession.SetDefaultMark(false);
-
-		ret = _rtpSession.SendPacket( (uint8_t*)buf+in, MAX_PAYLOAD_SIZE);
+        bool mark=false;
+        uint32_t timestamp=0;
+        if(i==n-1)
+        {
+            int l = m>0?m:MAX_PAYLOAD_SIZE;
+            mark = true;
+            timestamp = _hz/_framerate;
+            std::tie(bufs, buf_len) = mediaPack(_payload_type, (uint8_t*)buf, in, l, true, true);
+        }
+        else
+        {
+            _rtpSession.SetDefaultMark(false);
+            std::tie(bufs, buf_len) = mediaPack(_payload_type, (uint8_t*)buf, in, MAX_PAYLOAD_SIZE, true, false);
+        }
+		ret = _rtpSession.SendPacket( bufs, buf_len, _payload_type, mark, timestamp);
 		if(ret < 0)
-			cout<<getErrorStr(ret)<<endl;
-
-		//RTPTime::Wait(0.001);
+			av_log_error()<<getErrorStr(ret)<<end_log();
+	
 	}
-	if(m > 0 )
-	{
-		_rtpSession.SetDefaultMark(true);
-		ret = _rtpSession.SendPacket( (uint8_t*)buf+i*MAX_PAYLOAD_SIZE, m);
-		if(ret < 0)
-			cout<<getErrorStr(ret)<<endl;
-
-		n+= 1;
-	}
-
-	cout<<"send "<<n<<" packets."<<endl;
-	return 0;
+	
+	return ret;
 }
 
 std::tuple<int, bool, uint8_t*> RtpWrapper::readPacket()
@@ -179,7 +204,6 @@ int RtpWrapper::readFrame(uint8_t** frame)
 
 	}
 	_rtpSession.EndDataAccess();
-	cout << "receive " << count << "packets" << endl;
 	uint32_t len=0;
 	std::tie(len, *frame) = buf.Retrieve();
 	return len;

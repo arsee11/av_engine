@@ -43,6 +43,8 @@
 		96B5DD6820172BE200A28AE9 /* frame_scaler.h in Headers */ = {isa = PBXBuildFile; fileRef = 96B5DD6720172BE200A28AE9 /* frame_scaler.h */; };
 		96B5DD6B20172BF200A28AE9 /* av_camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96B5DD6920172BF200A28AE9 /* av_camera.cpp */; };
 		96B5DD6C20172BF200A28AE9 /* av_microphone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96B5DD6A20172BF200A28AE9 /* av_microphone.cpp */; };
+		96B5DD6E201B131D00A28AE9 /* h264_rtp_packer.h in Headers */ = {isa = PBXBuildFile; fileRef = 96B5DD6D201B131D00A28AE9 /* h264_rtp_packer.h */; };
+		96B5DD70201B146100A28AE9 /* h264_rtp_packer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96B5DD6F201B146100A28AE9 /* h264_rtp_packer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -83,6 +85,8 @@
 		96B5DD6720172BE200A28AE9 /* frame_scaler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = frame_scaler.h; path = ../include/frame_scaler.h; sourceTree = "<group>"; };
 		96B5DD6920172BF200A28AE9 /* av_camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = av_camera.cpp; path = ../src/av_camera.cpp; sourceTree = "<group>"; };
 		96B5DD6A20172BF200A28AE9 /* av_microphone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = av_microphone.cpp; path = ../src/av_microphone.cpp; sourceTree = "<group>"; };
+		96B5DD6D201B131D00A28AE9 /* h264_rtp_packer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = h264_rtp_packer.h; path = ../include/h264_rtp_packer.h; sourceTree = "<group>"; };
+		96B5DD6F201B146100A28AE9 /* h264_rtp_packer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = h264_rtp_packer.cpp; path = ../src/h264_rtp_packer.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +103,8 @@
 		9697F3ED1F988B0000F3D7EB = {
 			isa = PBXGroup;
 			children = (
+				96B5DD6D201B131D00A28AE9 /* h264_rtp_packer.h */,
+				96B5DD6F201B146100A28AE9 /* h264_rtp_packer.cpp */,
 				96B5DD6920172BF200A28AE9 /* av_camera.cpp */,
 				96B5DD6A20172BF200A28AE9 /* av_microphone.cpp */,
 				96B5DD6720172BE200A28AE9 /* frame_scaler.h */,
@@ -171,6 +177,7 @@
 				9697F4681F98927700F3D7EB /* codec_specify.h in Headers */,
 				9697F4701F98927700F3D7EB /* sink.h in Headers */,
 				96B5DD6820172BE200A28AE9 /* frame_scaler.h in Headers */,
+				96B5DD6E201B131D00A28AE9 /* h264_rtp_packer.h in Headers */,
 				96B5DD6320172ABC00A28AE9 /* buffer_sink.h in Headers */,
 				9697F4631F98927700F3D7EB /* av_resample_filter.h in Headers */,
 				9697F4711F98927700F3D7EB /* source.h in Headers */,
@@ -243,6 +250,7 @@
 				9697F43C1F98925300F3D7EB /* av_encode_filter.cpp in Sources */,
 				9697F43B1F98925300F3D7EB /* av_decode_filter.cpp in Sources */,
 				9697F43F1F98925300F3D7EB /* av_frame_scale_filter.cpp in Sources */,
+				96B5DD70201B146100A28AE9 /* h264_rtp_packer.cpp in Sources */,
 				9697F4401F98925300F3D7EB /* av_resample_filter.cpp in Sources */,
 				96B5DD3D2015D90700A28AE9 /* av_log.cpp in Sources */,
 				9697F43A1F98925300F3D7EB /* av_audio_encode_filter.cpp in Sources */,

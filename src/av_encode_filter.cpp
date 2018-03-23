@@ -58,7 +58,7 @@ bool AvEncodeFilter::open(PixelFormat f, int width, int height, int framerate)
     AVCodec* codec = avcodec_find_encoder(  _2ffmpeg_id(_codec_id) );
     if(codec == NULL )
     {
-        av_log_output(LOGL_ERROR, "encoder not found");
+        av_log_error()<<"encoder[id="<<_codec_id<<"] not found"<<end_log();
         return false;
     }
     
@@ -73,7 +73,7 @@ bool AvEncodeFilter::open(PixelFormat f, int width, int height, int framerate)
     rate.num = 1;
     rate.den = framerate;
     _codec_ctx->time_base= rate;
-    _codec_ctx->gop_size = 0;
+    _codec_ctx->gop_size = 8;
     _codec_ctx->max_b_frames=1;
     _codec_ctx->thread_count = 4;
     _codec_ctx->pix_fmt = _2ffmpeg_format(f);

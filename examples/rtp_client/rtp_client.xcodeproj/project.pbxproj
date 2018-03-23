@@ -16,7 +16,7 @@
 		9697F42C1F988F9B00F3D7EB /* libSDL2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9697F42B1F988F9B00F3D7EB /* libSDL2.dylib */; };
 		9697F42E1F988FA500F3D7EB /* libav_engine.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9697F42D1F988FA500F3D7EB /* libav_engine.a */; };
 		9697F4741F98935F00F3D7EB /* libjrtp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9697F4731F98935F00F3D7EB /* libjrtp.dylib */; };
-		9697F4761F98A06400F3D7EB /* rtp_client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9697F4751F98A06400F3D7EB /* rtp_client.cpp */; };
+		96A2DC29201F1E5F00D81678 /* rtph264_upack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96A2DC28201F1E5F00D81678 /* rtph264_upack.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,7 +33,6 @@
 
 /* Begin PBXFileReference section */
 		9697F4111F988CB400F3D7EB /* rtp_client */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rtp_client; sourceTree = BUILT_PRODUCTS_DIR; };
-		9697F41B1F988D2800F3D7EB /* av_displayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = av_displayer.h; sourceTree = SOURCE_ROOT; };
 		9697F41F1F988F6900F3D7EB /* libavcodec.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavcodec.dylib; path = ../../../../../../../usr/local/lib/libavcodec.dylib; sourceTree = "<group>"; };
 		9697F4201F988F6900F3D7EB /* libavdevice.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavdevice.dylib; path = ../../../../../../../usr/local/lib/libavdevice.dylib; sourceTree = "<group>"; };
 		9697F4211F988F6900F3D7EB /* libavformat.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavformat.dylib; path = ../../../../../../../usr/local/lib/libavformat.dylib; sourceTree = "<group>"; };
@@ -43,7 +42,7 @@
 		9697F42B1F988F9B00F3D7EB /* libSDL2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL2.dylib; path = ../../../../../../../usr/local/lib/libSDL2.dylib; sourceTree = "<group>"; };
 		9697F42D1F988FA500F3D7EB /* libav_engine.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libav_engine.a; path = ../../projects/build/Debug/libav_engine.a; sourceTree = "<group>"; };
 		9697F4731F98935F00F3D7EB /* libjrtp.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libjrtp.dylib; path = ../../../../../../../usr/local/lib/libjrtp.dylib; sourceTree = "<group>"; };
-		9697F4751F98A06400F3D7EB /* rtp_client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rtp_client.cpp; sourceTree = SOURCE_ROOT; };
+		96A2DC28201F1E5F00D81678 /* rtph264_upack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rtph264_upack.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,8 +85,7 @@
 		9697F4131F988CB400F3D7EB /* rtp_client */ = {
 			isa = PBXGroup;
 			children = (
-				9697F4751F98A06400F3D7EB /* rtp_client.cpp */,
-				9697F41B1F988D2800F3D7EB /* av_displayer.h */,
+				96A2DC28201F1E5F00D81678 /* rtph264_upack.cpp */,
 			);
 			path = rtp_client;
 			sourceTree = "<group>";
@@ -165,7 +163,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9697F4761F98A06400F3D7EB /* rtp_client.cpp in Sources */,
+				96A2DC29201F1E5F00D81678 /* rtph264_upack.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

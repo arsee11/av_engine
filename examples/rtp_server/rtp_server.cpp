@@ -21,7 +21,7 @@ using namespace std;
 #include <av_frame_scale_filter.h>
 #include <av_exception.h>
 #include <av_camera.h>
-
+#include <av_log.h>
 
 
 int main(int argc, char* argv[])
@@ -32,12 +32,13 @@ int main(int argc, char* argv[])
 #endif
 
 	av_init();
-
+    av_set_logger(stdout_log);
+    
 	try {
 		
-		AvRtpSink* rtp = AvRtpSink::create();
+		AvRtpSink* rtp = AvRtpSink::create(9000, 96, 90000, 25);
 		rtp->addPeer("172.16.3.25", 8000);
-        AvEncodeFilter* ef = AvEncodeFilter::create(CodecID::H264, 30, rtp);
+        AvEncodeFilter* ef = AvEncodeFilter::create(CodecID::H264,25, rtp);
         AvFrameScaleFilter * pf = AvFrameScaleFilter::create(PixelFormat::FORMAT_YUV420, 320, 240, ef);
 
 		AvCamera c(pf);

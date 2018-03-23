@@ -38,12 +38,12 @@ public:
 	typedef std::shared_ptr<RtpWrapper> rtp_wrapper_ptr_t;
 	enum { 
 		MAX_PACKET_SIZE= 8*1024,
-		MAX_PAYLOAD_SIZE= MAX_PACKET_SIZE-12
+		MAX_PAYLOAD_SIZE= 1400
 	};
 
 public:
 	bool addPeer(const char* ip, uint16_t port);	
-	void open(int localPort, int HZ=8000, uint8_t playloadType=96, uint8_t frameRate=30.0) throw(AvRtpException);
+	void open(int localPort, int HZ, uint8_t playloadType, uint8_t framerate) throw(AvRtpException);
 	void close() { _rtpSession.Destroy(); }
 	int sendPacket(void* buf, size_t len);
 	std::tuple<int, bool, uint8_t*> readPacket();
@@ -56,6 +56,9 @@ private:
 
 private:
 	RTPSession _rtpSession;
+    int _payload_type=0;
+    int _hz;
+    int _framerate;
 };
 
 #endif /*RTP_WRAPPER_H*/

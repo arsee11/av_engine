@@ -22,7 +22,7 @@ using namespace std;
 #include "av_rtp_source.h"
 #include "av_decode_filter.h"
 #include "av_exception.h"
-#include "av_displayer.h"
+#include "../av_displayer.h"
 
 int main(int argc, char* argv[])
 {
