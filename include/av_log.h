@@ -34,6 +34,9 @@ public:
     Logger& operator<<(const char* str);
     Logger& operator<<(const std::string& str);
     Logger& operator<<(int val);
+    Logger& operator<<(unsigned int val);
+    Logger& operator<<(long val);
+    Logger& operator<<(unsigned long val);
     Logger& operator<<(float val);
     Logger& operator<<(double val);
     Logger& operator<<(const end_log&);

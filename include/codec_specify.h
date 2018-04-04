@@ -3,22 +3,16 @@
 #ifndef CODE_SPECIFY_H
 #define CODE_SPECIFY_H
 
-#ifdef __cplusplus
 extern "C"
 {
-#endif
-    
 #include <libavcodec/avcodec.h>
-    
-#ifdef __cplusplus
 }
-#endif
 
 enum CodecID
 {
 	/*video*/
 	CODEC_ID_NONE,
-    H264,
+    	H264,
 	MPEG4,
 	MSMPEG4V3,
 
@@ -28,6 +22,8 @@ enum CodecID
 	AAC,
 	G729,
 	WMAV2,
+	PCMU,
+	PCMA
 };
 
 enum PixelFormat

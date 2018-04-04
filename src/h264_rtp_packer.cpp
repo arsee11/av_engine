@@ -1,4 +1,4 @@
-//  H264RTPPacker.cpp
+//  h264_rtp_packer.cpp
 
 
 #include "h264_rtp_packer.h"
@@ -63,24 +63,63 @@ std::tuple<uint8_t*, uint16_t> trim(uint8_t* data, uint16_t len)
 static FU_INDICATOR fui;
 static NALU_HEADER naluh;
 
-uint8_t* H264RTPPacker::s_buf=nullptr;
-uint16_t  H264RTPPacker::s_buf_len=0;
 
-void H264RTPPacker::resetBuf(int len)
+void H264RtpPacker::resetBuf(int len)
 {
-    if(s_buf_len < len)
+    if(_buf_len < len)
     {
-        if(s_buf!=nullptr)
-            delete[] s_buf;
+        if(_buf!=nullptr)
+            delete[] _buf;
         
-        s_buf = new uint8_t[len];
+        _buf = new uint8_t[len];
     }
        
-    s_buf_len = len;
+    _buf_len = len;
+}
+
+std::vector<RtpPack> H264RtpPacker::pack(uint8_t* data, int len)
+{
+	uint32_t timestamp = _hz/_framerate;
+	std::vector<RtpPack> pkgs;
+
+    	int ret = 0;
+    	uint8_t* bufs=nullptr;
+    	uint16_t buf_len=0;
+    	if(len <= _max_pack_size)
+    	{
+    	    	std::tie(bufs, buf_len)= pack((uint8_t*)data, 0, len, false, true);
+    	    	pkgs.push_back( RtpPack(bufs, buf_len, true, timestamp) );
+    	    
+    	    	return std::move(pkgs);
+    	}
+    	
+    	int n = len / _max_pack_size;
+    	int m = len %_max_pack_size;
+    	n += m>0?1:0;
+    	int i=0;
+	for( i=0; i<n; i++)
+	{
+		int in = i*_max_pack_size;
+        	if(i==n-1)
+        	{
+        	    	int l = m>0?m:_max_pack_size;
+        	    	std::tie(bufs, buf_len) = pack((uint8_t*)data, in, l, true, true);
+        		pkgs.push_back( RtpPack(bufs, buf_len, true, timestamp) );
+        	}
+        	else
+        	{
+        	    	std::tie(bufs, buf_len) = pack((uint8_t*)data, in, _max_pack_size, true, false);
+        		pkgs.push_back( RtpPack(bufs, buf_len, false, 0) );
+        	}
+	
+	}
+	
+	return std::move(pkgs);
+
 }
 
 FILE* fp = fopen("./test.h264", "wb");
-std::tuple<uint8_t*, uint16_t> H264RTPPacker::pack(uint8_t* data, int offset, int len, bool is_fragment, bool is_end)
+std::tuple<uint8_t*, uint16_t> H264RtpPacker::pack(uint8_t* data, int offset, int len, bool is_fragment, bool is_end)
 {
     uint8_t* tmp=nullptr;
     int16_t tmp_len=0;
@@ -100,9 +139,9 @@ std::tuple<uint8_t*, uint16_t> H264RTPPacker::pack(uint8_t* data, int offset, in
             fuh.TYPE = naluh.TYPE;
             
             resetBuf(tmp_len+1);
-            s_buf[0] = *((uint8_t*)&fui);
-            s_buf[1] = *((uint8_t*)&fuh);
-            memcpy(s_buf+2, tmp+1, tmp_len-1);
+            _buf[0] = *((uint8_t*)&fui);
+            _buf[1] = *((uint8_t*)&fuh);
+            memcpy(_buf+2, tmp+1, tmp_len-1);
             
             NALU_HEADER nh;
             nh.TYPE = fuh.TYPE;
@@ -111,7 +150,7 @@ std::tuple<uint8_t*, uint16_t> H264RTPPacker::pack(uint8_t* data, int offset, in
             
             fwrite(&start_code4, sizeof(start_code4), 1, fp);
             fwrite(&nh, 1, 1, fp);
-            fwrite(s_buf+2, tmp_len-1, 1, fp);
+            fwrite(_buf+2, tmp_len-1, 1, fp);
             fflush(fp);
         }
         else if(is_end) //the last fragment
@@ -121,9 +160,9 @@ std::tuple<uint8_t*, uint16_t> H264RTPPacker::pack(uint8_t* data, int offset, in
             fuh.TYPE = naluh.TYPE;
             
             resetBuf(tmp_len+2);
-            s_buf[0] = *((uint8_t*)&fui);
-            s_buf[1] = *((uint8_t*)&fuh);
-            memcpy(s_buf+2, tmp, tmp_len);
+            _buf[0] = *((uint8_t*)&fui);
+            _buf[1] = *((uint8_t*)&fuh);
+            memcpy(_buf+2, tmp, tmp_len);
             
             fwrite(tmp, tmp_len, 1, fp);
             fflush(fp);
@@ -134,9 +173,9 @@ std::tuple<uint8_t*, uint16_t> H264RTPPacker::pack(uint8_t* data, int offset, in
             fuh.TYPE = naluh.TYPE;
             
             resetBuf(tmp_len+2);
-            s_buf[0] = *((uint8_t*)&fui);
-            s_buf[1] = *((uint8_t*)&fuh);
-            memcpy(s_buf+2, tmp, tmp_len);
+            _buf[0] = *((uint8_t*)&fui);
+            _buf[1] = *((uint8_t*)&fuh);
+            memcpy(_buf+2, tmp, tmp_len);
             
             fwrite(tmp, tmp_len, 1, fp);
             fflush(fp);
@@ -146,14 +185,14 @@ std::tuple<uint8_t*, uint16_t> H264RTPPacker::pack(uint8_t* data, int offset, in
     {
         NALU_HEADER* nh = (NALU_HEADER*)tmp;
         resetBuf(tmp_len);
-        memcpy(s_buf, tmp, tmp_len);
+        memcpy(_buf, tmp, tmp_len);
         
         fwrite(&start_code4, sizeof(start_code4), 1, fp);
         fwrite(tmp, tmp_len, 1, fp);
         fflush(fp);
     }
     
-    return std::make_tuple(s_buf, s_buf_len);
+    return std::make_tuple(_buf, _buf_len);
 }
     
 

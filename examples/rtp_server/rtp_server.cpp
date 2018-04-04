@@ -17,11 +17,14 @@ using namespace std;
 
 
 #include <av_encode_filter.h>
+#include <av_audio_encode_filter.h>
 #include <av_rtp_sink.h>
 #include <av_frame_scale_filter.h>
 #include <av_exception.h>
 #include <av_camera.h>
+#include <av_microphone.h>
 #include <av_log.h>
+#include <pcma_rtp_packer.h>
 
 
 int main(int argc, char* argv[])
@@ -32,14 +35,13 @@ int main(int argc, char* argv[])
 #endif
 
 	av_init();
-    av_set_logger(stdout_log);
+	av_set_logger(stdout_log);
     
 	try {
-		
-		AvRtpSink* rtp = AvRtpSink::create(9000, 96, 90000, 25);
+/*		AvRtpSink* rtp = AvRtpSink::create(9000, 96, 90000, 25);
 		rtp->addPeer("172.16.3.25", 8000);
-        AvEncodeFilter* ef = AvEncodeFilter::create(CodecID::H264,25, rtp);
-        AvFrameScaleFilter * pf = AvFrameScaleFilter::create(PixelFormat::FORMAT_YUV420, 320, 240, ef);
+		AvEncodeFilter* ef = AvEncodeFilter::create(CodecID::H264,25, rtp);
+        	AvFrameScaleFilter * pf = AvFrameScaleFilter::create(PixelFormat::FORMAT_YUV420, 320, 240, ef);
 
 		AvCamera c(pf);
 #ifdef WIN32
@@ -47,11 +49,28 @@ int main(int argc, char* argv[])
 #else
 		c.open("0", 30, 320, 240);
 #endif
+*/
+		AvRtpSink<PcmaRtpPacker>* rtp = AvRtpSink<PcmaRtpPacker>::create(9000, PcmaRtpPacker(20, 2));
+		rtp->addPeer("192.168.0.6", 8000);
+		AvAudioEncodeFilter* ef = AvAudioEncodeFilter::create(CodecID::PCMA, rtp);
+		ef->open(8000, 2, SampleFormat::S16);
+		AvMicrophone m(ef);
+#ifdef WIN32
+		c.open("video=USB2.0 Camera", 30, 320, 240);
+#endif
 
-        while(true)
-        {
-            c.read();
-        }
+#ifdef MACOS
+		c.open("0", 30, 320, 240);
+#endif
+
+#ifdef LINUX
+		m.open("hw:0", 8000, 16);
+#endif
+        	while(true)
+       		{
+       	     		m.read();
+       	     		//c.read();
+       		}
 	}
 	catch (AvException& e) {
 		cout << e.what() << endl;

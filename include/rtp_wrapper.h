@@ -20,13 +20,13 @@ using namespace jrtplib;
 class AvRtpException: public AvException
 {
 public:
-	AvRtpException(const char* whats)
-		:AvException(whats)
+	AvRtpException(const char* whats, const char* file=__FILE__, int line=__LINE__)
+		:AvException(whats, file, line)
 	{
 	}
 
-	AvRtpException(int errorCode)
-		:AvException(errorCode)
+	AvRtpException(int errorCode, const char* file=__FILE__, int line=__LINE__)
+		:AvException(errorCode, file, line)
 	{	
 	}
 };
@@ -43,9 +43,9 @@ public:
 
 public:
 	bool addPeer(const char* ip, uint16_t port);	
-	void open(int localPort, int HZ, uint8_t playloadType, uint8_t framerate) throw(AvRtpException);
+	void open(int localPort, double timestamp_unit, int payload_type) throw(AvRtpException);
 	void close() { _rtpSession.Destroy(); }
-	int sendPacket(void* buf, size_t len);
+	int sendPacket(const void* buf, size_t len, bool mark, uint32_t timestamp);
 	std::tuple<int, bool, uint8_t*> readPacket();
 	int readFrame(uint8_t** frame);
 
@@ -56,9 +56,7 @@ private:
 
 private:
 	RTPSession _rtpSession;
-    int _payload_type=0;
-    int _hz;
-    int _framerate;
+	int _payload_type;
 };
 
 #endif /*RTP_WRAPPER_H*/

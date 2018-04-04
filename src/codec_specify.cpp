@@ -27,6 +27,8 @@ AVCodecID _2ffmpeg_id(CodecID cid)
 		case AAC: return AV_CODEC_ID_AAC;
 		case G729: return AV_CODEC_ID_G729;
 		case WMAV2: return AV_CODEC_ID_WMAV2;
+		case PCMA: return AV_CODEC_ID_PCM_ALAW;
+		case PCMU: return AV_CODEC_ID_PCM_MULAW;
 
         default: return AV_CODEC_ID_NONE;
     }
@@ -44,7 +46,8 @@ CodecID _ffmpeg2codec(AVCodecID cid)
 	case AV_CODEC_ID_AAC: return AAC;
 	case AV_CODEC_ID_G729: return G729;
 	case AV_CODEC_ID_WMAV2: return WMAV2;
-
+	case AV_CODEC_ID_PCM_ALAW: return PCMA;
+	case AV_CODEC_ID_PCM_MULAW: return PCMU; 
 	default: return CODEC_ID_NONE;
 	}
 }

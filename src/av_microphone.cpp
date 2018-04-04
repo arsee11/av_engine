@@ -14,23 +14,32 @@ AvMicrophone::AvMicrophone(Transformation<Param>* ts)
 bool AvMicrophone::open(const char* dev, int sample_rate, int sample_size)
 {
 #ifdef WIN32
-    AVInputFormat *ifmt=av_find_input_format("dshow");
-    AVDictionary* options = NULL;    
-    av_dict_set_int(&options, "sample_rate", sample_rate, 0);
+    	AVInputFormat *ifmt=av_find_input_format("dshow");
+    	AVDictionary* options = NULL;    
+    	av_dict_set_int(&options, "sample_rate", sample_rate, 0);
 	av_dict_set_int(&options, "sample_size", sample_size, 0);
 	av_dict_set_int(&options, "audio_buffer_size", 100, 0);
 
-#else
+#endif 
+
+#ifdef MACOS
 	AVInputFormat *ifmt = av_find_input_format("avfoundation");
 	AVDictionary* options = NULL;
 	av_dict_set(&options, "audio_device_index", dev, 0);
+#endif
+
+#ifdef LINUX
+    	AVInputFormat *ifmt=av_find_input_format("alsa");
+    	AVDictionary* options = NULL;    
+    	av_dict_set_int(&options, "sample_rate", sample_rate, 0);
+	av_dict_set_int(&options, "channels", 2, 0);
 #endif
 
     _format_ctx = avformat_alloc_context();
     int ec;
     if((ec=avformat_open_input(&_format_ctx, dev, ifmt, &options))!=0)
     {
-        //fprintf(stderr, "Couldn't open AvMicrophone. error:%s\n", av_err2str(ec));
+        av_log_error()<<"Couldn't open AvMicrophone."<<end_log();
         return false;
     }    
     
@@ -107,6 +116,7 @@ AVParam* AvMicrophone::get()
 						return nullptr;
 					}
 				}
+				//av_log_info()<<"microphone read frame"<<end_log();
 	
 				if (av_sample_fmt_is_planar((AVSampleFormat)avframe->format))
 				{
