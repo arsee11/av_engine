@@ -50,10 +50,11 @@ int main(int argc, char* argv[])
 		c.open("0", 30, 320, 240);
 #endif
 */
+		int sr=48000;
 		AvRtpSink<PcmaRtpPacker>* rtp = AvRtpSink<PcmaRtpPacker>::create(9000, PcmaRtpPacker(20, 2));
-		rtp->addPeer("192.168.0.6", 8000);
+		rtp->addPeer("192.168.0.2", 8000);
 		AvAudioEncodeFilter* ef = AvAudioEncodeFilter::create(CodecID::PCMA, rtp);
-		ef->open(8000, 2, SampleFormat::S16);
+		ef->open(sr, 2, SampleFormat::S16);
 		AvMicrophone m(ef);
 #ifdef WIN32
 		c.open("video=USB2.0 Camera", 30, 320, 240);
@@ -64,7 +65,7 @@ int main(int argc, char* argv[])
 #endif
 
 #ifdef LINUX
-		m.open("hw:0", 8000, 16);
+		m.open("hw:0", sr, 16);
 #endif
         	while(true)
        		{
