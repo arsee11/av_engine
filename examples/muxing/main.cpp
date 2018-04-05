@@ -34,11 +34,12 @@ int main(int argc, char* argv[])
 		CodecID ac = CodecID::PCMA;
 		SampleFormat af=SampleFormat::S16;
 		std::vector<AvStreamInfo> ss;
+		int sr=48000;
         	//ss.push_back(AvStreamInfo{ CodecID::MPEG4, MediaType::MEDIA_VIDEO,320,240});
 		AvStreamInfo as;
 		as.codecid=ac;
 		as.media_type=MediaType::MEDIA_AUDIO;
-		as.ai.sample_rate=8000;
+		as.ai.sample_rate=sr;
 		as.ai.channel=2;
 		as.ai.sample_format=af;
         	ss.push_back(as);
@@ -56,15 +57,15 @@ int main(int argc, char* argv[])
 #endif
 		
 		AvAudioEncodeFilter* aef = AvAudioEncodeFilter::create(ac, avfile);
-		aef->open(8000, 2, af);
-		AvResampleFilter* rf = AvResampleFilter::create(2, 8000, af, aef);
+		aef->open(sr, 2, af);
+		AvResampleFilter* rf = AvResampleFilter::create(2, sr, af, aef);
 	
 		AvMicrophone m(rf);
 
 #ifdef WIN32
 		m.open("audio=FrontMic (Realtek High Definiti", 44100, 16);
 #else
-		m.open("hw:0", 8000, 16);
+		m.open("hw:0", 48000, 16);
 #endif
 
         for(int i=0; i<1000; i++)
