@@ -30,7 +30,6 @@ private:
 	void open(int in_channels, int in_sample_rate, int in_format
 		, int out_channels, int out_sample_rate, SampleFormat out_format)throw(AvException);
    
-    PixelFormat _format = PixelFormat::FORMAT_NONE;
 	struct SwrContext* _swr_ctx =nullptr;
 
 	int _out_channels;

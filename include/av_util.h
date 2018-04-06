@@ -11,12 +11,6 @@ extern "C" {
 
 #include "codec_specify.h"
 
-enum AV_PIXEL_FORMAT {
-	PIXEL_FORMAT_RGB24,
-	PIXEL_FORMAT_YUV422,
-	PIXEL_FORMAT_YUV420
-};
-
 typedef struct Param {
 
     static Param* create(){ return new Param();}
@@ -26,7 +20,7 @@ typedef struct Param {
 	int len;
 	int w;
 	int h;
-	int format;
+	int format; //SampleFormat or PixelFormat
 	int framerate;
 	int64_t pts;
 	int64_t dts;

@@ -136,7 +136,7 @@ AVParam* AvMicrophone::get()
 				else
 					_param->setData(avframe->data[0], avframe->linesize[0]);
 				
-				_param->format = avframe->format;
+				_param->format = ffmpeg2format((AVSampleFormat)avframe->format);
 				_param->sample_rate = avframe->sample_rate;
 				_param->nb_samples = avframe->nb_samples;
 				_param->channels = avframe->channels;

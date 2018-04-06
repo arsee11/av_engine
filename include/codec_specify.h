@@ -58,5 +58,6 @@ CodecID _ffmpeg2codec(AVCodecID cid);
 AVPixelFormat _2ffmpeg_format(PixelFormat f);
 PixelFormat ffmpeg2format(AVPixelFormat f);
 AVSampleFormat _2ffmpeg_format(SampleFormat f);
+SampleFormat ffmpeg2format(AVSampleFormat f);
 
 #endif /*CODE_SPECIFY_H*/

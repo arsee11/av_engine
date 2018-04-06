@@ -80,3 +80,18 @@ AVSampleFormat _2ffmpeg_format(SampleFormat f)
 	default: return AV_SAMPLE_FMT_NONE;
 	}
 }
+
+SampleFormat ffmpeg2format(AVSampleFormat f)
+{
+	switch (f)
+	{
+	case AV_SAMPLE_FMT_U8: return SampleFormat::U8;
+	case AV_SAMPLE_FMT_S16: return SampleFormat::S16;
+	case AV_SAMPLE_FMT_FLT: return SampleFormat::FLT;
+	case AV_SAMPLE_FMT_U8P: return SampleFormat::U8P;
+	case AV_SAMPLE_FMT_S16P: return SampleFormat::S16P;
+	case AV_SAMPLE_FMT_FLTP: return SampleFormat::FLTP;
+
+	default: return SampleFormat::NONE;
+	}
+}

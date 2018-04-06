@@ -27,6 +27,7 @@ public:
 	}
 };
 
+
 ///@brief send rtp packets to network.
 template<class RtpPacker>
 class AvRtpSink:public Sink<AVParam>

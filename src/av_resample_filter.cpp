@@ -3,33 +3,44 @@
 
 #include "av_resample_filter.h"
 #include <tuple>
+#include "av_log.h"
 
 extern "C" {
 	#include <libswresample/swresample.h>
 }
 
+//static FILE* f=fopen("swr.pcm", "wb");
+
 bool AvResampleFilter::transform(AVParam*& p)
 {
-    if(p->format != _format)
+    if(p->format != _out_format 
+      ||p->channels != _out_channels
+      ||p->sample_rate != _out_sample_rate
+    )
     {
 		if (_swr_ctx == nullptr)
 			open(p->channels, p->sample_rate, p->format, _out_channels, _out_sample_rate, _out_format);
 
-		int64_t dst_nb_samples = av_rescale_rnd(swr_get_delay(_swr_ctx, _out_sample_rate) + p->nb_samples,
-			_out_sample_rate, _out_sample_rate, AV_ROUND_UP);
+		int64_t delay = swr_get_delay(_swr_ctx, _out_sample_rate);
+		//av_log_info()<<"resample::itransform(): delay="<<delay<<end_log();
+		/// p->nb_samples * _out_sample_rate/p->sample_rate
+		int64_t dst_nb_samples = av_rescale_rnd(delay+p->nb_samples,_out_sample_rate
+			, p->sample_rate, AV_ROUND_UP);
 
 		AVFrame *inframe = av_frame_alloc();
-		av_samples_fill_arrays(inframe->data, inframe->linesize, p->getData(), p->channels, p->nb_samples, (AVSampleFormat)p->format, 1);
+		av_samples_fill_arrays(inframe->data, inframe->linesize, p->getData(), p->channels
+			,p->nb_samples, _2ffmpeg_format((SampleFormat)p->format), 1);
 
 		AVFrame *outframe = av_frame_alloc();
-		av_samples_alloc(outframe->data, outframe->linesize, _out_channels, dst_nb_samples, _2ffmpeg_format(_out_format), 1);
+		av_samples_alloc(outframe->data, outframe->linesize, _out_channels
+			,dst_nb_samples, _2ffmpeg_format(_out_format), 1);
 
 		int ret = swr_convert(_swr_ctx, outframe->data, dst_nb_samples,
 			(const uint8_t **)inframe->data, p->nb_samples);
 		
 		if (ret < 0)
 		{
-			fprintf(stderr, "Error while converting\n");
+			av_log_error()<<"Error while converting"<<end_log();
 			return false;
 		}
 	
@@ -50,8 +61,12 @@ bool AvResampleFilter::transform(AVParam*& p)
 		else
 			p->setData(outframe->data[0], outframe->linesize[0]);
 
+		//fwrite(p->getData(), p->len, 1, f);
+		//fflush(f);
 		p->nb_samples = dst_nb_samples;
 		p->format = _out_format;
+		p->channels = _out_channels;
+		p->sample_rate = _out_sample_rate;
 		av_frame_free(&outframe);
 		av_frame_free(&inframe);
     }
