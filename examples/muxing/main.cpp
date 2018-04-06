@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 		as.codecid=ac;
 		as.media_type=MediaType::MEDIA_AUDIO;
 		as.ai.sample_rate=sr;
-		as.ai.channel=2;
+		as.ai.channel=1;
 		as.ai.sample_format=af;
         	ss.push_back(as);
 		AvFileSink* avfile = AvFileSink::create(ss, fname); 
@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
 #endif
 		
 		AvAudioEncodeFilter* aef = AvAudioEncodeFilter::create(ac, avfile);
-		aef->open(sr, 2, af);
-		AvResampleFilter* rf = AvResampleFilter::create(2, sr, af, aef);
+		aef->open(sr, 1, af);
+		AvResampleFilter* rf = AvResampleFilter::create(1, sr, af, aef);
 	
 		AvMicrophone m(rf);
 

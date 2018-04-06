@@ -25,6 +25,7 @@ using namespace std;
 #include <av_microphone.h>
 #include <av_log.h>
 #include <pcma_rtp_packer.h>
+#include <av_resample_filter.h>
 
 
 int main(int argc, char* argv[])
@@ -50,12 +51,15 @@ int main(int argc, char* argv[])
 		c.open("0", 30, 320, 240);
 #endif
 */
-		int sr=48000;
-		AvRtpSink<PcmaRtpPacker>* rtp = AvRtpSink<PcmaRtpPacker>::create(9000, PcmaRtpPacker(20, 2));
-		rtp->addPeer("192.168.0.2", 8000);
-		AvAudioEncodeFilter* ef = AvAudioEncodeFilter::create(CodecID::PCMA, rtp);
-		ef->open(sr, 2, SampleFormat::S16);
-		AvMicrophone m(ef);
+		int sr=8000;
+		int channels=2;
+		SampleFormat af=SampleFormat::S16;
+		AvRtpSink<PcmaRtpPacker>* rtp = AvRtpSink<PcmaRtpPacker>::create(9000, PcmaRtpPacker(10, channels));
+		rtp->addPeer("192.168.0.6", 8000);
+		AvAudioEncodeFilter* aef = AvAudioEncodeFilter::create(CodecID::PCMA, rtp);
+		aef->open(sr, channels, af);
+		AvResampleFilter* rf = AvResampleFilter::create(channels, sr, af, aef);
+		AvMicrophone m(rf);
 #ifdef WIN32
 		c.open("video=USB2.0 Camera", 30, 320, 240);
 #endif
@@ -65,7 +69,7 @@ int main(int argc, char* argv[])
 #endif
 
 #ifdef LINUX
-		m.open("hw:0", sr, 16);
+		m.open("hw:0", 48000, 16);
 #endif
         	while(true)
        		{
