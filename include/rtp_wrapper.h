@@ -45,9 +45,14 @@ public:
 	bool addPeer(const char* ip, uint16_t port);	
 	void open(int localPort, double timestamp_unit, int payload_type) throw(AvRtpException);
 	void close() { _rtpSession.Destroy(); }
+
+	///@return sent len
 	int sendPacket(const void* buf, size_t len, bool mark, uint32_t timestamp);
-	std::tuple<int, bool, uint8_t*> readPacket();
-	int readFrame(uint8_t** frame);
+
+	///@param buf return packet data, user alloc memory.
+	///@len size of buf's memory 
+	///@return timestamp,mark,size of packet
+	std::tuple<uint32_t, bool, int> readPacket(void* buf, int len);
 
 private:
 	std::string getErrorStr(int errcode){

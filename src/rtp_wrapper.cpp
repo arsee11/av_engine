@@ -11,58 +11,6 @@
 #include "h264_rtp_packer.h"
 #include "av_log.h"
 
-using namespace std;
-
-class Buffer
-{
-	struct buffer_item{
-		uint32_t len;
-		uint8_t * data;
-	};
-
-public:
-	Buffer()
-		:_size(0)
-	{
-
-	}
-	~Buffer()
-	{
-		for(auto i: _buf)
-			delete[] i.data;
-	}
-
-	///@brief Own the data, release them in Destructor
-	void Push(uint8_t* data, uint32_t len)
-	{
-		buffer_item item={len, data};
-		_buf.push_back( item );
-		_size += len;
-	}
-
-	std::tuple<int32_t, uint8_t*>  Retrieve()
-	{
-		uint32_t ret=0;
-		uint8_t* data = new uint8_t[ get_size() ];
-		for(auto i : _buf)
-		{
-			memcpy(data+ret, i.data, i.len);
-			ret += i.len;
-		}
-
-		return std::make_tuple(ret, data);
-	}
-
-	uint32_t get_size()
-	{
-		return _size;
-	}
-
-private:
-	
-	std::list<buffer_item> _buf;
-	uint32_t _size;
-};
 	
 void RtpWrapper::open(int local_port, double timestamp_unit, int payload_type) throw(AvRtpException)
 {
@@ -71,8 +19,9 @@ void RtpWrapper::open(int local_port, double timestamp_unit, int payload_type) t
 
 	sessparams.SetOwnTimestampUnit(timestamp_unit);
 	sessparams.SetAcceptOwnPackets(true);
-	transparams.SetPortbase(local_port);
 	sessparams.SetMaximumPacketSize(MAX_PACKET_SIZE);
+	transparams.SetPortbase(local_port);
+	transparams.SetRTPReceiveBuffer(65536);
 	int ret = _rtpSession.Create(sessparams,&transparams);		
 	if(ret < 0 )
 		throw AvRtpException( getErrorStr(ret).c_str(), __FILE__, __LINE__ );
@@ -106,11 +55,11 @@ int RtpWrapper::sendPacket(const void* buf, size_t len, bool mark, uint32_t time
 	return ret;
 }
 
-std::tuple<int, bool, uint8_t*> RtpWrapper::readPacket()
+std::tuple<uint32_t, bool, int> RtpWrapper::readPacket(void* buf, int len)
 {
-	int ret = 0;
+	int size = 0;
 	bool marker = false;
-	uint8_t* buf = nullptr;
+	uint32_t timestamp=0;
 	if (_rtpSession.GotoFirstSourceWithData())
 	{
 		RTPPacket *rtpck;
@@ -119,11 +68,11 @@ std::tuple<int, bool, uint8_t*> RtpWrapper::readPacket()
 			//cout<<"SequenceNumber:"<<rtpck->GetExtendedSequenceNumber()<<endl;
 			//cout<<"SSRC:"<<rtpck->GetSSRC()<<endl;	
 			//cout<<"Timestamp:"<<rtpck->GetTimestamp()<<endl;
-			ret = rtpck->GetPayloadLength();
+			timestamp = rtpck->GetTimestamp();
+			size = rtpck->GetPayloadLength();
 			marker = rtpck->HasMarker();
 			//cout << "marker=" << marker << endl;
-			buf = new uint8_t[ret];
-			memcpy(buf, rtpck->GetPayloadData(), rtpck->GetPayloadLength());				
+			memcpy(buf, rtpck->GetPayloadData(), size); 
 			_rtpSession.DeletePacket(rtpck);
 		}			
 	}
@@ -134,29 +83,5 @@ std::tuple<int, bool, uint8_t*> RtpWrapper::readPacket()
 		throw AvRtpException( status );
 #endif 
 
-	return std::make_tuple(ret, marker, buf) ;
-}
-
-int RtpWrapper::readFrame(uint8_t** frame)
-{
-	Buffer buf;
-	uint8_t *data = nullptr;
-	int ret =0;
-	bool marker=false;
-	int count = 0;
-	_rtpSession.BeginDataAccess();
-	while( !marker )
-	{
-		std::tie(ret, marker, data) = readPacket();
-		if (ret > 0 && data != nullptr)
-		{
-			buf.Push(data, ret);
-			count++;
-		}
-
-	}
-	_rtpSession.EndDataAccess();
-	uint32_t len=0;
-	std::tie(len, *frame) = buf.Retrieve();
-	return len;
+	return std::make_tuple(timestamp, marker, size) ;
 }

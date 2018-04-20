@@ -36,21 +36,22 @@ bool AvCamera::open(const char* device, int framerate, int width, int height)
 #ifdef WIN32
     AVInputFormat *ifmt=av_find_input_format("dshow");
     AVDictionary* options = NULL;
+#endif
+
+#ifdef LINUX 
+    AVInputFormat *ifmt=av_find_input_format("v4l2");
+    AVDictionary* options = NULL;
+#endif
+
+#ifdef MACOS
+    AVInputFormat *ifmt=av_find_input_format("avfoundation");
+    AVDictionary* options = NULL;
+#endif
 
     char optstr[32]={0};
     snprintf(optstr, 31, "%dx%d", width, height);
     av_dict_set(&options, "video_size", optstr, 0);
     av_dict_set_int(&options,"framerate", framerate, 0);
-#else
-    AVInputFormat *ifmt=av_find_input_format("avfoundation");
-    AVDictionary* options = NULL;
-    
-    char optstr[32]={0};
-    snprintf(optstr, 32, "%dx%d", width, height);
-    av_dict_set(&options, "video_size", optstr, 0);
-    snprintf(optstr, 32, "%d", framerate);
-    av_dict_set(&options,"framerate",optstr,0);
-#endif
 
     int ec;
     if((ec=avformat_open_input(&_format_ctx, device, ifmt, &options))!=0)

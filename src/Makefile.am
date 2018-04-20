@@ -3,13 +3,12 @@ noinst_LIBRARIES=libavengine.a
 AM_CPPFLAGS = -I$(top_srcdir)/include/
 AM_CPPFLAGS += --std=c++11
 AM_CPPFLAGS += -DLINUX
-CXXFLAGS=-g
 
 libavengine_a_SOURCES = \
 	av_audio_encode_filter.cpp \
 	av_camera.cpp \
 	av_decode_filter.cpp \
-	av_encode_filter.cpp \
+	av_video_encode_filter.cpp \
 	av_file_sink.cpp \
 	av_file_source.cpp \
 	av_frame_scale_filter.cpp \
@@ -21,3 +20,4 @@ libavengine_a_SOURCES = \
 	pcma_rtp_packer.cpp \
 	rtp_wrapper.cpp \
 	videofilter.cpp
+

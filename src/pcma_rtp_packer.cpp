@@ -15,7 +15,7 @@ std::vector<RtpPack> PcmaRtpPacker::pack(uint8_t* data, int len)
 	//av_log_info()<<"timestamp:"<<timestamp<<end_log();
         bool mark=true;
 
-	if(len <= plen)
+	if(len < plen)
     	{
 	///ToDo buffer the datas unit len > plen
 		return std::move(pkgs);
@@ -27,18 +27,18 @@ std::vector<RtpPack> PcmaRtpPacker::pack(uint8_t* data, int len)
 	for( int i=0; i<n; i++)
 	{
 		int offset = i*plen;
-		pkgs.push_back( RtpPack(data+offset, plen, mark, timestamp) );
+		pkgs.push_back( RtpPack(data+offset, plen, mark, timestamp, true) );
 	
 	}
 	if(m > 0)
 	{
-	///ToDo buffer the datas unit len > plen
+	///ToDo buffer the datas  
 	}
 	
 	return std::move(pkgs);
 }
 
-double PcmaRtpPacker::TimestampUnit()const
+double PcmaRtpPacker::timestamp_unit()const
 {
 	return 1.0/sample_rate;
 }

@@ -10,8 +10,8 @@
 #include "sink.h"
 #include <memory>
 #include "av_log.h"
+#include "rtp_pack.h"
 
-using namespace jrtplib;
 
 class AvRtpOutputFormatException: public AvException
 {
@@ -48,9 +48,9 @@ public:
 	void put(AVParam* p)override
 	{
 		auto pkgs = std::move(_rtp_packer.pack( p->getData(), p->len ));
+		av_log_info()<<"send ["<<pkgs.size()<<"] rtp packets"<<end_log();
 		for(auto&& i : pkgs)
 		{	
-			av_log_info()<<"send rtp pack: payload len="<<i.len()<<end_log();
 			_rtp->sendPacket(i.data(), i.len(), i.mark(), i.timestamp());
 		}
 	}
@@ -65,7 +65,7 @@ private:
 		:_rtp_packer(pk)
 	{
 		_rtp.reset(new RtpWrapper); 
-		_rtp->open(localPort, pk.TimestampUnit(), pk.payload_type());
+		_rtp->open(localPort, pk.timestamp_unit(), pk.payload_type());
 	}
 
 	AvRtpSink(rtp_wrapper_ptr_t& rtp)

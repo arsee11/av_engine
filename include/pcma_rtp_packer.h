@@ -6,7 +6,7 @@
 
 #include <cstdint>
 #include <vector>
-#include "rtp_packer.h"
+#include "rtp_pack.h"
 
 class PcmaRtpPacker 
 {
@@ -19,7 +19,7 @@ public:
 
     	std::vector<RtpPack> pack(uint8_t* data, int len);
 	int payload_type()const{ return 8; }
-	double TimestampUnit()const;
+	double timestamp_unit()const;
 
 private:
 	int _frame_ms;
