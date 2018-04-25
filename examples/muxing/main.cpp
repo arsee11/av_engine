@@ -14,7 +14,7 @@ using namespace std;
 #include <iostream>
 
 #include <codec_specify.h>
-#include <av_encode_filter.h>
+#include <av_video_encode_filter.h>
 #include <av_audio_encode_filter.h>
 #include <av_file_sink.h>
 #include <av_frame_scale_filter.h>
@@ -31,11 +31,15 @@ int main(int argc, char* argv[])
 	try {
 
 		std::string fname = {"test.asf"};
+		std::vector<AvStreamInfo> ss;
+
+		int w=640, h=480;
+		CodecID vc=CodecID::H264;
+        	ss.push_back(AvStreamInfo{ vc, MediaType::MEDIA_VIDEO,w,h});
+
 		CodecID ac = CodecID::PCMA;
 		SampleFormat af=SampleFormat::S16;
-		std::vector<AvStreamInfo> ss;
 		int sr=48000;
-        	//ss.push_back(AvStreamInfo{ CodecID::MPEG4, MediaType::MEDIA_VIDEO,320,240});
 		AvStreamInfo as;
 		as.codecid=ac;
 		as.media_type=MediaType::MEDIA_AUDIO;
@@ -44,17 +48,22 @@ int main(int argc, char* argv[])
 		as.ai.sample_format=af;
         	ss.push_back(as);
 		AvFileSink* avfile = AvFileSink::create(ss, fname); 
-		AvEncodeFilter* ef = AvEncodeFilter::create(CodecID::MPEG4, 10, avfile); 
-		AvFrameScaleFilter * pf = AvFrameScaleFilter::create(PixelFormat::FORMAT_YUV420, 320, 240, ef);
+		AvVideoEncodeFilter* ef = AvVideoEncodeFilter::create(vc, 10, w*h*3, 10*2, avfile); 
+		AvFrameScaleFilter * pf = AvFrameScaleFilter::create(PixelFormat::FORMAT_YUV420, w, h, ef);
 		
-		//AvCamera c(pf);
+		AvCamera c(pf);
 #ifdef WIN32
-		c.open("video=USB2.0 AvCamera", 30, 640, 480);
-		//c.open("video=HD Pro Webcam C920", 30, 320, 240);
-
-#else
-		//c.open("0", 30, 320, 240);
+		c.open("video=USB2.0 AvCamera", 30, w, h);
 #endif
+
+#ifdef LINUX 
+		c.open("/dev/video0", 30, w, h);
+#endif
+
+#ifdef MACOS
+		c.open("0", 30, w, h);
+#endif
+
 		
 		AvAudioEncodeFilter* aef = AvAudioEncodeFilter::create(ac, avfile);
 		aef->open(sr, 1, af);
@@ -64,15 +73,17 @@ int main(int argc, char* argv[])
 
 #ifdef WIN32
 		m.open("audio=FrontMic (Realtek High Definiti", 44100, 16);
-#else
+#endif
+
+#ifdef LINUX
 		m.open("hw:0", 48000, 16);
 #endif
 
-        for(int i=0; i<1000; i++)
-        {
-            m.read();
-            //c.read();
-        }
+        	for(int i=0; i<300; i++)
+        	{
+        	    //m.read();
+        	    c.read();
+        	}
         
 		m.close();
 		//c.close();

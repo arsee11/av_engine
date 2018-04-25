@@ -1,10 +1,11 @@
-#include "av_decode_filter.h"
+﻿#include "av_decode_filter.h"
 
 extern "C" {
 #include <libavutil/imgutils.h>
 }
 
 #include <iostream>
+#include "av_log.h"
 
 bool AvDecodeFilter::transform(AVParam*& p)
 {
@@ -25,7 +26,7 @@ bool AvDecodeFilter::transform(AVParam*& p)
 	{
 		char estr[256];
 		av_make_error_string(estr, 256, rc);
-		std::cout << "error: AvDecodeFilter::operator() "<<estr<<std::endl;
+                av_log_error()<< "in AvDecodeFilter::transform() "<<estr<<end_log();
 		av_packet_unref(packet);
 		p->len = 0;
 		return false;
@@ -73,7 +74,7 @@ bool AvDecodeFilter::open(CodecID cid, int w, int h)
 	AVCodec* codec = avcodec_find_decoder(_2ffmpeg_id(cid));
 	if (codec == NULL)
 	{
-		std::cout << "error: AvDecodeFilter::open() failed" << std::endl;
+                av_log_error() << "AvDecodeFilter::open() failed" << end_log();
 		return false;
 	}
 

@@ -1,4 +1,4 @@
-//av_rtp_source.h
+﻿//av_rtp_source.h
 
 #ifndef AV_RTP_SOURCE_H
 #define AV_RTP_SOURCE_H
@@ -27,7 +27,7 @@ public:
 	}
 };
 
-static FILE* f = fopen("recv.h264", "wb");
+//static FILE* f = fopen("recv.h264", "wb");
 
 ///@brief receive rtp packets form network.
 template<class RtpDepacker>
@@ -52,22 +52,19 @@ public:
 		std::tie(timestamp, mark, size) = _rtp->readPacket(buf, 65536);
 		if (size > 0)
 		{
-			av_log_info()<<"rtp recv a packet: timestamp="<<timestamp<<",mark="<<mark<<",size="<<size<<end_log();
+			//av_log_info()<<"rtp recv a packet: timestamp="<<timestamp<<",mark="<<mark<<",size="<<size<<end_log();
 			uint8_t* frame;
 			int fsize;
 			std::tie(frame, fsize)=_depacker.depack(RtpPack(buf, size, mark, timestamp, false));
 			if(fsize > 0)
 			{
-				av_log_info()<<"start code="<<*(uint32_t*)frame<<", frame size="<<fsize<<end_log();
+				//av_log_info()<<"start code="<<*(uint32_t*)frame<<", frame size="<<fsize<<end_log();
 				_param->setData(frame, fsize);
-				fwrite(frame, fsize, 1, f);
-				fflush(f);
+				//fwrite(frame, fsize, 1, f);
+				//fflush(f);
+                                return _param;
 			}
-			else
-				_param->setData(nullptr, 0);
-
-			return _param;
-		}
+                }
 
 		return nullptr;
 	}

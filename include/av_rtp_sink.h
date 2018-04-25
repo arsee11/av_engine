@@ -48,7 +48,7 @@ public:
 	void put(AVParam* p)override
 	{
 		auto pkgs = std::move(_rtp_packer.pack( p->getData(), p->len ));
-		av_log_info()<<"send ["<<pkgs.size()<<"] rtp packets"<<end_log();
+		//av_log_info()<<"send ["<<pkgs.size()<<"] rtp packets"<<end_log();
 		for(auto&& i : pkgs)
 		{	
 			_rtp->sendPacket(i.data(), i.len(), i.mark(), i.timestamp());

@@ -1,4 +1,4 @@
-///codec_specify.h
+﻿///codec_specify.h
 
 #ifndef CODE_SPECIFY_H
 #define CODE_SPECIFY_H
@@ -31,6 +31,7 @@ enum PixelFormat
     FORMAT_NONE=-1,
     FORMAT_RGB24,
     FORMAT_YUV420,
+    FORMAT_YUV422,
     FORMAT_YUYV422,
     FORMAT_UYVY422
 };

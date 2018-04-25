@@ -55,6 +55,7 @@ int RtpWrapper::sendPacket(const void* buf, size_t len, bool mark, uint32_t time
 	return ret;
 }
 
+//static FILE* fr = fopen("rtp_recv.packet", "wb");
 std::tuple<uint32_t, bool, int> RtpWrapper::readPacket(void* buf, int len)
 {
 	int size = 0;
@@ -74,6 +75,8 @@ std::tuple<uint32_t, bool, int> RtpWrapper::readPacket(void* buf, int len)
 			//cout << "marker=" << marker << endl;
 			memcpy(buf, rtpck->GetPayloadData(), size); 
 			_rtpSession.DeletePacket(rtpck);
+			//fwrite(buf, size, 1, fr);
+			//fflush(fr);
 		}			
 	}
 

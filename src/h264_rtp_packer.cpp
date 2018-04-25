@@ -187,7 +187,6 @@ std::vector<RtpPack> H264RtpPacker::pack(const uint8_t* data, int len)
 
 }
 
-static FILE* fp = fopen("./send.h264", "wb");
 std::tuple<uint8_t*, uint16_t> H264RtpPacker::pack(const uint8_t* data, int offset, int len, bool is_fragment, bool is_end)
 {
     uint8_t head[2];
@@ -247,9 +246,9 @@ std::tuple<uint8_t*, uint16_t> H264RtpPacker::pack(const uint8_t* data, int offs
         _outbuf.push(data, len);
     }
     
-    fwrite(&start_code4, sizeof(start_code4), 1, fp);
-    fwrite(_outbuf.begin(), _outbuf.size(), 1, fp);
-    fflush(fp);
+    //fwrite(&start_code4, sizeof(start_code4), 1, fp);
+    //fwrite(_outbuf.begin(), _outbuf.size(), 1, fp);
+    //fflush(fp);
     return _outbuf.head(_outbuf.size());
 }
     
@@ -263,6 +262,7 @@ std::tuple<uint8_t*, int> H264RtpPacker::depack(RtpPack&& p)
 	//sigle nalu
 	if(fu->TYPE>=1 && fu->TYPE <=23 )
 	{
+		//av_log_info()<<"h264 depack TYPE="<<fu->TYPE<<end_log();
 		_inbuf.clear();
 		_inbuf.push((uint8_t*)&start_code4, 4);
 		_inbuf.push(data, len);
@@ -273,7 +273,7 @@ std::tuple<uint8_t*, int> H264RtpPacker::depack(RtpPack&& p)
 	{
 		//first fragment
 		FU_HEADER* fuh = (FU_HEADER*)(data+1);
-		av_log_info()<<"S="<<fuh->S<<", E="<<fuh->E<<end_log();
+		//av_log_info()<<"h264 depack TYPE="<<fuh->TYPE<<",S="<<fuh->S<<", E="<<fuh->E<<end_log();
 		if(fuh->S == 1)
 		{
 			NALU_HEADER nh;
@@ -299,6 +299,21 @@ std::tuple<uint8_t*, int> H264RtpPacker::depack(RtpPack&& p)
 		}
 		else
 			av_log_error()<<"drop a invalid packet"<<end_log();
+	}
+	//combine nalu
+	else if(fu->TYPE== 24 )
+	{
+		int idx = 1;
+		while(idx < len-2)
+		{
+			uint8_t pnalu_size[2]={data[idx+1], data[idx]};//to host byte order
+			uint16_t nalu_size = *(uint16_t*)pnalu_size;
+			_inbuf.push((uint8_t*)&start_code4, 4);
+			_inbuf.push(data+idx+2, nalu_size);
+			idx += 2+nalu_size; 
+		}
+
+		return _inbuf.head(_inbuf.size() );
 	}
 	else
 	{
