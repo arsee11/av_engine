@@ -6,6 +6,8 @@ AC_INIT(libavengine, 1.0, arsee@sina.com)
 AC_CONFIG_SRCDIR([src/av_file_sink.cpp])
 AM_INIT_AUTOMAKE
 
+CXXFLAGS=-g 
+
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC

@@ -22,13 +22,23 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+INCLUDEPATH += ../../include
+
+LIBS += -L/home/arsee/gits/av_engine/src -lavengine
+
+LIBS += -lavcodec -lavdevice -lswresample -lavformat -lswscale -lavutil
+LIBS += -ljrtp
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    videowidget.cpp \
+    videodisplaysink.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+    videowidget.h \
+    videodisplaysink.h
 
 FORMS += \
         mainwindow.ui
