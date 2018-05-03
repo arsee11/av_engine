@@ -38,6 +38,22 @@ std::vector<RtpPack> PcmaRtpPacker::pack(uint8_t* data, int len)
 	return std::move(pkgs);
 }
 
+std::tuple<uint8_t*, int> PcmaRtpPacker::depack(RtpPack&& p)
+{
+	int plen = (bit_rate*((float)_frame_ms/1000) )/8 * _channels; //Bytes 
+	_inbuf.push(p.data(), p.len());
+	int n = _inbuf.size()/plen;
+	if(n>0)
+	{
+		_retbuf.clear();
+		_retbuf.push( _inbuf.begin(), n*plen);;
+		_inbuf.consume(n*plen);
+		return std::make_tuple(_retbuf.begin(), n*plen);
+	}
+	else
+		return std::make_tuple(nullptr, 0); 
+}
+
 double PcmaRtpPacker::timestamp_unit()const
 {
 	return 1.0/sample_rate;

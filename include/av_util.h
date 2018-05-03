@@ -70,8 +70,7 @@ typedef struct Param {
 
 	void resize(int size) {
 		if (data != NULL)
-			free(data);
-
+			free(data); 
 		if (size > 0)
 		{
 			data = (unsigned char*)malloc(size);

@@ -21,6 +21,8 @@ public:
 		,_outbuf(max_pack_size+2)
 	{}
 
+	///@param data one H264 ES 
+	///@param len bytes of data
 	std::vector<RtpPack> pack(const uint8_t* data, int len);
 
 	///@param p RtpPack instance
@@ -34,13 +36,13 @@ private:
     	std::tuple<uint8_t*, uint16_t> pack(const uint8_t* data, int offset, int len, bool is_fragment, bool is_end);
     
 private:
-    FlexibleBuffer<uint8_t> _outbuf;
-    FlexibleBuffer<uint8_t> _inbuf;
-    int _max_pack_size;
-    int _payload_type;
-    uint8_t _framerate;
-    int _hz=90000;
-    bool _is_S_recv=false;
+    	FlexibleBuffer<uint8_t> _outbuf;
+    	FlexibleBuffer<uint8_t> _inbuf;
+    	int _max_pack_size;
+    	int _payload_type;
+    	uint8_t _framerate;
+    	int _hz=90000;
+    	bool _is_S_recv=false;
 };
 
 #endif /* H264_RTP_PACKER_H */

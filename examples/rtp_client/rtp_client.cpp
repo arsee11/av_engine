@@ -20,11 +20,34 @@ using namespace std;
 #define SDL_MAIN_HANDLED
 
 #include "av_rtp_source.h"
-#include "av_decode_filter.h"
+#include "av_video_decode_filter.h"
+#include "av_audio_decode_filter.h"
 #include "av_exception.h"
-//#include "../av_displayer.h"
 #include "h264_rtp_packer.h"
+#include "pcma_rtp_packer.h"
 #include <av_log.h>
+#include <av_util.h>
+#include <sink.h>
+
+class BinFileSink:public Sink<AVParam>
+{
+public:	
+	BinFileSink(const std::string& filename){
+		_fp = fopen(filename.c_str(), "wb");
+	}
+
+	~BinFileSink(){
+		fclose(_fp);
+	}
+
+	void put(AVParam* p)override{
+		fwrite(p->getData(), p->len, 1, _fp);
+		fflush(_fp);
+	}
+
+private:
+	FILE* _fp=nullptr;
+};
 
 int main(int argc, char* argv[])
 {
@@ -37,14 +60,16 @@ int main(int argc, char* argv[])
 	av_set_logger(stdout_log);
 
 	try {
-//		AVDisplayer dis;
-//	        dis.open();
-		AvDecodeFilter* df = AvDecodeFilter::create(CodecID::H264, nullptr);
+		AvVideoDecodeFilter* df = AvVideoDecodeFilter::create(CodecID::H264, nullptr);
 		AvRtpSource<H264RtpPacker>* rtp = AvRtpSource<H264RtpPacker>::create(df, 8002, H264RtpPacker(25));
+		BinFileSink pcmfs("recv.pcm");
+		AvAudioDecodeFilter* adf = AvAudioDecodeFilter::create(CodecID::PCMA, 8000, 2, SampleFormat::S16, &pcmfs);
+		AvRtpSource<PcmaRtpPacker>* pcmartp = AvRtpSource<PcmaRtpPacker>::create(adf, 8000, PcmaRtpPacker(10, 2));
 		
         while(true)
         {
-            rtp->read();
+            //rtp->read();
+            pcmartp->read();
         }        
 	}
 	catch (AvException& e) {

@@ -121,7 +121,9 @@ AVParam* AvMicrophone::get()
 				if (av_sample_fmt_is_planar((AVSampleFormat)avframe->format))
 				{
 					int nchn = av_frame_get_channels(avframe);
-					int size = av_samples_get_buffer_size(NULL, nchn, avframe->nb_samples, (AVSampleFormat)avframe->format, 1);
+					int size = av_samples_get_buffer_size(
+						NULL, nchn, avframe->nb_samples, (AVSampleFormat)avframe->format, 1);
+
 					uint8_t* buf = new uint8_t[size];
 					int n = 0;
 					for (int i = 0; i<nchn; i++)

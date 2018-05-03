@@ -14,21 +14,24 @@ struct AVCodecContext;
 class AvAudioEncodeFilter:public Filter<AVParam>
 {
 public:
-    static AvAudioEncodeFilter* create(CodecID cid, Transformation<Param>* next_filter=nullptr){return new AvAudioEncodeFilter(cid, next_filter); }
+    	static AvAudioEncodeFilter* create(CodecID cid, Transformation<AVParam>* next_filter=nullptr){
+		return new AvAudioEncodeFilter(cid, next_filter); 
+	}
+
 	bool open(int sample_rate, int nb_channels, SampleFormat format);
 
 private:
 	AvAudioEncodeFilter(CodecID cid, Transformation<Param>* next_filter = nullptr)
 		:Filter<AVParam>(next_filter)
 		,_codec_id(cid)
-    {
-    }	
+    	{
+    	}	
    
 	bool transform(AVParam*& p)override;
 
 private:
-    CodecID _codec_id;
-    AVCodecContext* _codec_ctx=nullptr;
+    	CodecID _codec_id;
+    	AVCodecContext* _codec_ctx=nullptr;
 	int _sample_rate = 0;
 	int _channel_layout = 0;
 	SampleFormat _format = SampleFormat::NONE;
