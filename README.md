@@ -9,6 +9,6 @@ Depends on these thirdparty libs below:<br>
 
 examples/rtp_client and example/width_sdl_player project depends on [SDL](http://www.libsdl.org/) libs.
 
-Deeds c++11 support.
+Requires c++11 support.
 
-Had compiled & run on g++ 4.8 VS2015 XCode 8.
+Had compiled & run with g++ 4.8 VS2015 XCode 8.
