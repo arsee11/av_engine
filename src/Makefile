@@ -105,7 +105,8 @@ am__v_AR_1 =
 libavengine_a_AR = $(AR) $(ARFLAGS)
 libavengine_a_LIBADD =
 am_libavengine_a_OBJECTS = av_audio_encode_filter.$(OBJEXT) \
-	av_camera.$(OBJEXT) av_decode_filter.$(OBJEXT) \
+	av_audio_decode_filter.$(OBJEXT) av_camera.$(OBJEXT) \
+	av_video_decode_filter.$(OBJEXT) \
 	av_video_encode_filter.$(OBJEXT) av_file_sink.$(OBJEXT) \
 	av_file_source.$(OBJEXT) av_frame_scale_filter.$(OBJEXT) \
 	av_log.$(OBJEXT) av_microphone.$(OBJEXT) \
@@ -216,7 +217,7 @@ PACKAGE_VERSION = 1.0
 PATH_SEPARATOR = :
 RANLIB = ranlib
 SET_MAKE = 
-SHELL = /bin/bash
+SHELL = /bin/sh
 STRIP = 
 VERSION = 1.0
 abs_builddir = /home/arsee/gits/av_engine/src
@@ -267,8 +268,9 @@ noinst_LIBRARIES = libavengine.a
 AM_CPPFLAGS = -I$(top_srcdir)/include/ --std=c++11 -DLINUX
 libavengine_a_SOURCES = \
 	av_audio_encode_filter.cpp \
+	av_audio_decode_filter.cpp \
 	av_camera.cpp \
-	av_decode_filter.cpp \
+	av_video_decode_filter.cpp \
 	av_video_encode_filter.cpp \
 	av_file_sink.cpp \
 	av_file_source.cpp \
@@ -330,15 +332,16 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+include ./$(DEPDIR)/av_audio_decode_filter.Po
 include ./$(DEPDIR)/av_audio_encode_filter.Po
 include ./$(DEPDIR)/av_camera.Po
-include ./$(DEPDIR)/av_decode_filter.Po
 include ./$(DEPDIR)/av_file_sink.Po
 include ./$(DEPDIR)/av_file_source.Po
 include ./$(DEPDIR)/av_frame_scale_filter.Po
 include ./$(DEPDIR)/av_log.Po
 include ./$(DEPDIR)/av_microphone.Po
 include ./$(DEPDIR)/av_resample_filter.Po
+include ./$(DEPDIR)/av_video_decode_filter.Po
 include ./$(DEPDIR)/av_video_encode_filter.Po
 include ./$(DEPDIR)/codec_specify.Po
 include ./$(DEPDIR)/h264_rtp_packer.Po

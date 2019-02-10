@@ -33,11 +33,11 @@ int main(int argc, char* argv[])
 		std::string fname = {"test.asf"};
 		std::vector<AvStreamInfo> ss;
 
-		int w=640, h=480;
+		int w=320, h=240;
 		CodecID vc=CodecID::H264;
         	ss.push_back(AvStreamInfo{ vc, MediaType::MEDIA_VIDEO,w,h});
 
-		CodecID ac = CodecID::PCMA;
+		/*CodecID ac = CodecID::PCMA;
 		SampleFormat af=SampleFormat::S16;
 		int sr=48000;
 		AvStreamInfo as;
@@ -47,6 +47,7 @@ int main(int argc, char* argv[])
 		as.ai.channel=1;
 		as.ai.sample_format=af;
         	ss.push_back(as);
+		*/
 		AvFileSink* avfile = AvFileSink::create(ss, fname); 
 		AvVideoEncodeFilter* ef = AvVideoEncodeFilter::create(vc, 10, w*h*3, 10*2, avfile); 
 		AvFrameScaleFilter * pf = AvFrameScaleFilter::create(PixelFormat::FORMAT_YUV420, w, h, ef);
@@ -65,7 +66,7 @@ int main(int argc, char* argv[])
 #endif
 
 		
-		AvAudioEncodeFilter* aef = AvAudioEncodeFilter::create(ac, avfile);
+		/*AvAudioEncodeFilter* aef = AvAudioEncodeFilter::create(ac, avfile);
 		aef->open(sr, 1, af);
 		AvResampleFilter* rf = AvResampleFilter::create(1, sr, af, aef);
 	
@@ -78,15 +79,15 @@ int main(int argc, char* argv[])
 #ifdef LINUX
 		m.open("hw:0", 48000, 16);
 #endif
-
+		*/
         	for(int i=0; i<300; i++)
         	{
         	    //m.read();
         	    c.read();
         	}
         
-		m.close();
-		//c.close();
+		//m.close();
+		c.close();
 		avfile->destroy();
 	}
 	catch (AvException& e) {

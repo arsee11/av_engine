@@ -54,6 +54,11 @@ enum MediaType
 	MEDIA_VIDEO
 };
 
+struct CodecInfo
+{
+	AVCodecParameters *codecpar;
+};
+
 AVCodecID _2ffmpeg_id(CodecID cid);
 CodecID _ffmpeg2codec(AVCodecID cid);
 AVPixelFormat _2ffmpeg_format(PixelFormat f);

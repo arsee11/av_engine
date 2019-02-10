@@ -50,15 +50,13 @@ private:
 		close();
 	}
 
-	void addStream(const AvStreamInfo& s)throw(AvRtmpSinkException);
-	void open()throw(AvRtmpSinkException);
+	void addStream(const AvStreamInfo& s)throw(AvFileSinkException);
+	bool openVideoEncoder(PixelFormat f, int width, int height, int framerate);
 
 	enum{ BUF_SIZE=1024*1240*4};
 
-
-
-private:
-	std::string  _push_url;
+	AVCodecContext* _codec_ctx_v = nullptr;
+	AVCodecContext* _codec_ctx_a = nullptr;
 };
 
 #endif /*AV_RTMP_SINK_H*/

@@ -36,6 +36,7 @@ public:
 	int framerate() { return _framerate; }
 	int width() { return _width; }
 	int height() { return _height; }
+	const CodecInfo& codec_info()const { return _codec_info; }
 
 private:
 	AvFileSource(Transformation<Param>* ts, bool read = false)
@@ -44,6 +45,7 @@ private:
 		,_width(0)
 		,_height(0)
 	{
+		_codec_info.codecpar = NULL;
 	}
 
     void initParams() throw(AvException);
@@ -61,6 +63,8 @@ private:
 	int _framerate = 0;
 	int _videostream = 0;
     int _audiostream = 0;
+
+	CodecInfo _codec_info;
 };
 
 #endif /*AV_FILE_SOURCE_H*/

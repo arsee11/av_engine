@@ -6,8 +6,9 @@ AM_CPPFLAGS += -DLINUX
 
 libavengine_a_SOURCES = \
 	av_audio_encode_filter.cpp \
+	av_audio_decode_filter.cpp \
 	av_camera.cpp \
-	av_decode_filter.cpp \
+	av_video_decode_filter.cpp \
 	av_video_encode_filter.cpp \
 	av_file_sink.cpp \
 	av_file_source.cpp \

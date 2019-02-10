@@ -9,8 +9,10 @@
 class AVDisplayer: public Filter<AVParam>
 {
 public:
-    void open()
+    void open(int w, int h)
     {
+		_width = w;
+		_height = h;
         SDL_Window* sdlWindow = SDL_CreateWindow("My Game Window",
                                                  SDL_WINDOWPOS_UNDEFINED,
                                                  SDL_WINDOWPOS_UNDEFINED,

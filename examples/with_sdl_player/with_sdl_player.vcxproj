@@ -18,6 +18,9 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="with_sdl_player.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CB117EAB-ADDF-43E6-8D88-F03AB826A849}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -88,12 +91,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../include;d:\tools\ffmpeg-dev\include;C:\Program Files (x86)\jrtplib\include;D:\tools\SDL2-2.0.4\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../include;D:\tool\SDL2-2.0.9\include;D:\tool\ffmpeg-20180605-b748772-win64-dev\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\lib;D:\tools\SDL2-2.0.4\VisualC\Win32\Debug;D:\tools\ffmpeg-dev\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib;D:\tool\SDL2-2.0.9\lib\x86;D:\tool\ffmpeg-20180605-b748772-win64-dev\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -102,13 +105,13 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../include;d:\tools\ffmpeg-dev\include;C:\Program Files (x86)\jrtplib\include;D:\tools\SDL2-2.0.4\</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);WIN32;__STDC_CONSTANT_MACROS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../include;D:\tool\SDL2-2.0.9\include;D:\tool\ffmpeg-20180605-b748772-win64-dev\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\lib;D:\tools\SDL2-2.0.4\VisualC\Win32\Debug;D:\tools\ffmpeg-dev\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib;D:\tool\SDL2-2.0.9\lib\x64;D:\tool\ffmpeg-20180605-b748772-win64-dev\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -145,9 +148,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="with_sdl_player.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

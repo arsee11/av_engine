@@ -18,6 +18,7 @@ bool AvVideoDecodeFilter::transform(AVParam*& p)
 			return false;
 	}
 
+
 	AVPacket *packet =av_packet_alloc();
 	packet->data = p->getData();
 	packet->size = p->len;
@@ -56,6 +57,7 @@ bool AvVideoDecodeFilter::transform(AVParam*& p)
 
 		p->len = frame_size;
 		p->format = ffmpeg2format(f);
+
 	}
 	else
 	{
@@ -96,6 +98,37 @@ bool AvVideoDecodeFilter::open(CodecID cid, int w, int h)
 	_codec_ctx->thread_count = 4;
 	_codec_ctx->width = w;
 	_codec_ctx->height = h;
+
+	AVDictionary* opts = NULL;
+	av_dict_set(&opts, "allow_sw", "1", 0); //allows software encoding
+	if (avcodec_open2(_codec_ctx, codec, &opts) < 0)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool AvVideoDecodeFilter::open(const CodecInfo& ci)
+{
+	AVCodec* codec = avcodec_find_decoder(ci.codecpar->codec_id);
+	if (codec == NULL)
+	{
+		av_log_error() << "AvVideoDecodeFilter::open() failed" << end_log();
+		return false;
+	}
+
+	if (codec->type != AVMEDIA_TYPE_VIDEO)
+	{
+		av_log_error() << "AvVideoDecodeFilter::open() Not Video codec type" << end_log();
+		return false;
+	}
+
+	_codec_ctx = avcodec_alloc_context3(codec);
+	if (_codec_ctx == NULL)
+		return false;
+
+	avcodec_parameters_to_context(_codec_ctx, ci.codecpar);
 	AVDictionary* opts = NULL;
 	av_dict_set(&opts, "allow_sw", "1", 0); //allows software encoding
 	if (avcodec_open2(_codec_ctx, codec, &opts) < 0)

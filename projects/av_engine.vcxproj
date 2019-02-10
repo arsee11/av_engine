@@ -95,7 +95,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../include;d:\tools\ffmpeg-dev\include;C:\Program Files (x86)\jrtplib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include;D:\tool\ffmpeg-20180605-b748772-win64-dev\include;C:\Program Files (x86)\jrtplib\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -135,22 +135,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\av_audio_encode_filter.cpp" />
-    <ClCompile Include="..\src\av_decode_filter.cpp" />
-    <ClCompile Include="..\src\av_encode_filter.cpp" />
+    <ClCompile Include="..\src\av_camera.cpp" />
     <ClCompile Include="..\src\av_file_sink.cpp" />
     <ClCompile Include="..\src\av_file_source.cpp" />
     <ClCompile Include="..\src\av_frame_scale_filter.cpp" />
     <ClCompile Include="..\src\av_log.cpp" />
+    <ClCompile Include="..\src\av_microphone.cpp" />
     <ClCompile Include="..\src\av_resample_filter.cpp" />
-    <ClCompile Include="..\src\camera.cpp" />
+    <ClCompile Include="..\src\av_video_decode_filter.cpp" />
+    <ClCompile Include="..\src\av_video_encode_filter.cpp" />
     <ClCompile Include="..\src\codec_specify.cpp" />
-    <ClCompile Include="..\src\microphone.cpp" />
     <ClCompile Include="..\src\rtp_wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\av_audio_encode_filter.h" />
-    <ClInclude Include="..\include\av_decode_filter.h" />
-    <ClInclude Include="..\include\av_encode_filter.h" />
     <ClInclude Include="..\include\av_exception.h" />
     <ClInclude Include="..\include\av_file_sink.h" />
     <ClInclude Include="..\include\av_file_source.h" />
@@ -160,6 +158,8 @@
     <ClInclude Include="..\include\av_rtp_sink.h" />
     <ClInclude Include="..\include\av_rtp_source.h" />
     <ClInclude Include="..\include\av_util.h" />
+    <ClInclude Include="..\include\av_video_decode_filter.h" />
+    <ClInclude Include="..\include\av_video_encode_filter.h" />
     <ClInclude Include="..\include\camera.h" />
     <ClInclude Include="..\include\codec_specify.h" />
     <ClInclude Include="..\include\filter.h" />

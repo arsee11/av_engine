@@ -3,8 +3,6 @@
 #include "av_file_source.h"
 #include "codec_specify.h"
 
-
-
 AVParam* AvFileSource::get()
 {
 	AVPacket *pack = av_packet_alloc();
@@ -74,6 +72,7 @@ void AvFileSource::initParams() throw(AvException)
                 _width = _format_ctx->streams[_videostream]->codecpar->width;
                 _height = _format_ctx->streams[_videostream]->codecpar->height;
                 _framerate = _format_ctx->streams[_videostream]->r_frame_rate.num;
+		_codec_info.codecpar = _format_ctx->streams[_videostream]->codecpar;
             }
             else if(_format_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
             {
