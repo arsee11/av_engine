@@ -13,7 +13,7 @@ extern "C"
 #include "codec_specify.h"
 #include "av_log.h"
 
-static FILE* fp = fopen("./encode.h264", "wb");
+//static FILE* fp = fopen("./encode.h264", "wb");
 bool AvVideoEncodeFilter::transform(AVParam*& p)
 {
 	if (_codec_ctx == nullptr)
@@ -41,8 +41,8 @@ bool AvVideoEncodeFilter::transform(AVParam*& p)
 		{
 			//av_log_info()<<"encoder frame size="<<pack->size<<end_log();
 			//av_log_info()<<"encoder frame pts="<<pack->pts<<",dts="<<pack->dts<<end_log();
-            		fwrite(pack->data, pack->size, 1, fp);
-            		fflush(fp);
+            		//fwrite(pack->data, pack->size, 1, fp);
+            		//fflush(fp);
 			p->setData(pack->data, pack->size);
 			p->pts = pack->pts;
 			p->dts = pack->pts;
