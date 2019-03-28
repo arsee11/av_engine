@@ -6,7 +6,7 @@
 #include "av_util.h"
 #include "filter.h"
 #include "codec_specify.h"
-#include "flexible_buffer.h"
+#include <flexible_buffer.h>
 
 class AvAudioDecodeFilter:public Filter<AVParam>
 {
@@ -46,6 +46,6 @@ private:
 	SampleFormat _sample_fmt;
 	AVCodecContext* _codec_ctx = nullptr;
 	AVCodecParserContext* _parser = nullptr;
-	FlexibleBuffer<uint8_t> _inbuf;
+	arsee::FlexibleBuffer<uint8_t> _inbuf;
 };
 #endif/*AV_AUDIO_DECODE_FILTER_H*/

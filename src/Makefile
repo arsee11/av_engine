@@ -112,7 +112,8 @@ am_libavengine_a_OBJECTS = av_audio_encode_filter.$(OBJEXT) \
 	av_log.$(OBJEXT) av_microphone.$(OBJEXT) \
 	av_resample_filter.$(OBJEXT) codec_specify.$(OBJEXT) \
 	h264_rtp_packer.$(OBJEXT) pcma_rtp_packer.$(OBJEXT) \
-	rtp_wrapper.$(OBJEXT) videofilter.$(OBJEXT)
+	rtp_wrapper.$(OBJEXT) h264helper.$(OBJEXT) \
+	videofilter.$(OBJEXT)
 libavengine_a_OBJECTS = $(am_libavengine_a_OBJECTS)
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
@@ -217,7 +218,7 @@ PACKAGE_VERSION = 1.0
 PATH_SEPARATOR = :
 RANLIB = ranlib
 SET_MAKE = 
-SHELL = /bin/sh
+SHELL = /bin/bash
 STRIP = 
 VERSION = 1.0
 abs_builddir = /home/arsee/gits/av_engine/src
@@ -265,7 +266,8 @@ top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
 noinst_LIBRARIES = libavengine.a
-AM_CPPFLAGS = -I$(top_srcdir)/include/ --std=c++11 -DLINUX
+AM_CPPFLAGS = -I$(top_srcdir)/include/ -I/home/arsee/gits/arseeulib -g \
+	--std=c++11 -DLINUX
 libavengine_a_SOURCES = \
 	av_audio_encode_filter.cpp \
 	av_audio_decode_filter.cpp \
@@ -282,6 +284,7 @@ libavengine_a_SOURCES = \
 	h264_rtp_packer.cpp \
 	pcma_rtp_packer.cpp \
 	rtp_wrapper.cpp \
+	h264helper.cpp \
 	videofilter.cpp
 
 all: all-am
@@ -345,6 +348,7 @@ include ./$(DEPDIR)/av_video_decode_filter.Po
 include ./$(DEPDIR)/av_video_encode_filter.Po
 include ./$(DEPDIR)/codec_specify.Po
 include ./$(DEPDIR)/h264_rtp_packer.Po
+include ./$(DEPDIR)/h264helper.Po
 include ./$(DEPDIR)/pcma_rtp_packer.Po
 include ./$(DEPDIR)/rtp_wrapper.Po
 include ./$(DEPDIR)/videofilter.Po

@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <vector>
-#include <arseeulib/flexible_buffer.h>
+#include <flexible_buffer.h>
 
 struct NaluS
 {

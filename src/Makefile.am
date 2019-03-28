@@ -1,7 +1,7 @@
 noinst_LIBRARIES=libavengine.a
 
-AM_CPPFLAGS = -I$(top_srcdir)/include/
-AM_CPPFLAGS += --std=c++11
+AM_CPPFLAGS = -I$(top_srcdir)/include/ -I/home/arsee/gits/arseeulib
+AM_CPPFLAGS += -g --std=c++11
 AM_CPPFLAGS += -DLINUX
 
 libavengine_a_SOURCES = \
@@ -20,5 +20,6 @@ libavengine_a_SOURCES = \
 	h264_rtp_packer.cpp \
 	pcma_rtp_packer.cpp \
 	rtp_wrapper.cpp \
+	h264helper.cpp \
 	videofilter.cpp
 

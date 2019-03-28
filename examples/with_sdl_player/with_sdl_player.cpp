@@ -30,6 +30,7 @@ int main(int argc, char* argv[])
 {
 
 	av_init();
+	avformat_network_init();
 	av_set_logger(stdout_log);
 
 	av_init_packet(&pkt);
@@ -44,6 +45,7 @@ int main(int argc, char* argv[])
 		AvFileSource* avfile = AvFileSource::create(df);
 		//avfile->open("./av.mp4");//replace this filename
 		//avfile->open("rtmp://192.168.56.101/live/1");
+		avfile->open("rtsp://admin:HIBP123456@192.168.1.64");
 
 		dis.open(avfile->width(), avfile->height());
 		df->open(avfile->codec_info());

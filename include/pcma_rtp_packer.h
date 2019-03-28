@@ -35,8 +35,8 @@ public:
 private:
 	int _frame_ms;
 	int _channels;
-    	FlexibleBuffer<uint8_t> _outbuf;
-    	FlexibleBuffer<uint8_t> _inbuf, _retbuf;//double recv buf
+    	arsee::FlexibleBuffer<uint8_t> _outbuf;
+    	arsee::FlexibleBuffer<uint8_t> _inbuf, _retbuf;//double recv buf
 };
 
 #endif /* PCMA_RTP_PACKER_H*/

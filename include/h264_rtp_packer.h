@@ -36,8 +36,8 @@ private:
     	std::tuple<uint8_t*, uint16_t> pack(const uint8_t* data, int offset, int len, bool is_fragment, bool is_end);
     
 private:
-    	FlexibleBuffer<uint8_t> _outbuf;
-    	FlexibleBuffer<uint8_t> _inbuf;
+    	arsee::FlexibleBuffer<uint8_t> _outbuf;
+    	arsee::FlexibleBuffer<uint8_t> _inbuf;
     	int _max_pack_size;
     	int _payload_type;
     	uint8_t _framerate;

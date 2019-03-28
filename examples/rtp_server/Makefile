@@ -5,7 +5,7 @@ OBJS=rtp_server.o
 
 ffmpeg_link= -lavcodec -lavdevice -lswresample -lavformat -lswscale -lavutil 
 rtp_link=-ljrtp
-avengine_h_dir=-I../../include
+avengine_h_dir=-I../../include -I/home/arsee/gits/arseeulib/
 avengine_lib_dir=-L../../src
 
 $(TARGET):$(OBJS) 
