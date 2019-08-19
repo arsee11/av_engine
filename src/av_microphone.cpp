@@ -11,7 +11,7 @@ AvMicrophone::AvMicrophone(Transformation<Param>* ts)
 
 }
 
-bool AvMicrophone::open(const char* dev, int sample_rate, int sample_size)
+bool AvMicrophone::open(const char* dev, int sample_rate, int sample_size, int channels)
 {
 #ifdef WIN32
     	AVInputFormat *ifmt=av_find_input_format("dshow");
@@ -32,7 +32,7 @@ bool AvMicrophone::open(const char* dev, int sample_rate, int sample_size)
     	AVInputFormat *ifmt=av_find_input_format("alsa");
     	AVDictionary* options = NULL;    
     	av_dict_set_int(&options, "sample_rate", sample_rate, 0);
-	av_dict_set_int(&options, "channels", 2, 0);
+	av_dict_set_int(&options, "channels", channels, 0);
 #endif
 
     _format_ctx = avformat_alloc_context();
@@ -143,6 +143,7 @@ AVParam* AvMicrophone::get()
 				_param->nb_samples = avframe->nb_samples;
 				_param->channels = avframe->channels;
 				_param->type = MEDIA_AUDIO;
+				_param->codecid = _ffmpeg2codec(_codec_ctx->codec_id);
 				break;
 			}
 		}

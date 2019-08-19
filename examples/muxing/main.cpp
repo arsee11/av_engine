@@ -34,12 +34,12 @@ int main(int argc, char* argv[])
 		std::vector<AvStreamInfo> ss;
 
 		int w=320, h=240;
-		CodecID vc=CodecID::H264;
-        	ss.push_back(AvStreamInfo{ vc, MediaType::MEDIA_VIDEO,w,h});
+		//CodecID vc=CodecID::H264;
+        	//ss.push_back(AvStreamInfo{ vc, MediaType::MEDIA_VIDEO,w,h});
 
-		/*CodecID ac = CodecID::PCMA;
+		CodecID ac = CodecID::PCMA;
 		SampleFormat af=SampleFormat::S16;
-		int sr=48000;
+		int sr=8000;
 		AvStreamInfo as;
 		as.codecid=ac;
 		as.media_type=MediaType::MEDIA_AUDIO;
@@ -47,9 +47,9 @@ int main(int argc, char* argv[])
 		as.ai.channel=1;
 		as.ai.sample_format=af;
         	ss.push_back(as);
-		*/
+		
 		AvFileSink* avfile = AvFileSink::create(ss, fname); 
-		AvVideoEncodeFilter* ef = AvVideoEncodeFilter::create(vc, 10, w*h*3, 10*2, avfile); 
+		/*AvVideoEncodeFilter* ef = AvVideoEncodeFilter::create(vc, 10, w*h*3, 10*2, avfile); 
 		AvFrameScaleFilter * pf = AvFrameScaleFilter::create(PixelFormat::FORMAT_YUV420, w, h, ef);
 		
 		AvCamera c(pf);
@@ -64,30 +64,30 @@ int main(int argc, char* argv[])
 #ifdef MACOS
 		c.open("0", 30, w, h);
 #endif
-
+		*/
 		
-		/*AvAudioEncodeFilter* aef = AvAudioEncodeFilter::create(ac, avfile);
+		AvAudioEncodeFilter* aef = AvAudioEncodeFilter::create(ac, avfile);
 		aef->open(sr, 1, af);
 		AvResampleFilter* rf = AvResampleFilter::create(1, sr, af, aef);
 	
 		AvMicrophone m(rf);
 
 #ifdef WIN32
-		m.open("audio=FrontMic (Realtek High Definiti", 44100, 16);
+		m.open("audio=FrontMic (Realtek High Definiti", 48000, 16, 1);
 #endif
 
 #ifdef LINUX
-		m.open("hw:0", 48000, 16);
+		m.open("hw:1", 48000, 16, 1);
 #endif
-		*/
-        	for(int i=0; i<300; i++)
+		
+        	for(int i=0; i<3000; i++)
         	{
-        	    //m.read();
-        	    c.read();
+        	    m.read();
+        	    //c.read();
         	}
         
-		//m.close();
-		c.close();
+		m.close();
+		//c.close();
 		avfile->destroy();
 	}
 	catch (AvException& e) {

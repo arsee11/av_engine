@@ -27,7 +27,7 @@ public:
 		_param->release();
 	}
 
-    bool open(const char* dev, int sample_rate, int sample_size);
+    bool open(const char* dev, int sample_rate, int sample_size, int channels=2);
     void close();
     
 	AVParam* get()override;

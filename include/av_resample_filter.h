@@ -13,17 +13,17 @@ struct SwrContext;
 class AvResampleFilter:public Filter<AVParam>
 {
 public:
-    static AvResampleFilter* create(int out_channels, int out_sample_rate, SampleFormat out_format, Filter<AVParam>* next_filter=nullptr){
+    	static AvResampleFilter* create(int out_channels, int out_sample_rate, SampleFormat out_format, Filter<AVParam>* next_filter=nullptr){
 		return new AvResampleFilter(out_channels, out_sample_rate, out_format, next_filter); }
     
 private:
 	AvResampleFilter(int out_channels, int out_sample_rate, SampleFormat out_format, Filter<AVParam>* next_filter=nullptr)
-    :Filter<AVParam>(next_filter)
-    ,_out_channels(out_channels)
-	,_out_sample_rate(out_sample_rate)
+    		:Filter<AVParam>(next_filter)
+    		,_out_channels(out_channels)
+		,_out_sample_rate(out_sample_rate)
 	,_out_format(out_format)
-    {
-    }
+    	{
+    	}
     
 	bool transform(AVParam*& p)override;
 

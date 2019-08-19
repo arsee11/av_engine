@@ -95,6 +95,7 @@ bool AvAudioEncodeFilter::transform(AVParam*& p)
 		p->setData(tp->getData(), tp->len);
 		p->pts = tp->pts;
 		p->dts = tp->dts;
+		p->codecid = _codec_id;
 		tp->release();		
 		//fwrite(p->getData(), p->len, 1, f);
 		//fflush(f);

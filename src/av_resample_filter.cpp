@@ -9,7 +9,7 @@ extern "C" {
 	#include <libswresample/swresample.h>
 }
 
-//static FILE* f=fopen("swr.pcm", "wb");
+static FILE* f=fopen("swr.pcm", "wb");
 
 bool AvResampleFilter::transform(AVParam*& p)
 {
@@ -21,11 +21,15 @@ bool AvResampleFilter::transform(AVParam*& p)
 		if (_swr_ctx == nullptr)
 			open(p->channels, p->sample_rate, p->format, _out_channels, _out_sample_rate, _out_format);
 
-		int64_t delay = swr_get_delay(_swr_ctx, _out_sample_rate);
+		int64_t delay = 0;//swr_get_delay(_swr_ctx, p->sample_rate);
+		av_log_info()<<"delay:"<<delay<<end_log();
+		av_log_info()<<"in sample_rates:"<<p->sample_rate<<end_log();
 		//av_log_info()<<"resample::itransform(): delay="<<delay<<end_log();
 		/// p->nb_samples * _out_sample_rate/p->sample_rate
-		int64_t dst_nb_samples = av_rescale_rnd(delay+p->nb_samples,_out_sample_rate
+		int64_t dst_nb_samples = av_rescale_rnd(delay+p->nb_samples, _out_sample_rate
 			, p->sample_rate, AV_ROUND_UP);
+
+		av_log_info()<<"dst_nb_samples :"<<dst_nb_samples <<end_log();
 
 		AVFrame *inframe = av_frame_alloc();
 		av_samples_fill_arrays(inframe->data, inframe->linesize, p->getData(), p->channels
@@ -40,6 +44,8 @@ bool AvResampleFilter::transform(AVParam*& p)
 		
 		if (ret < 0)
 		{
+			av_frame_free(&outframe);
+			av_frame_free(&inframe);
 			av_log_error()<<"Error while converting"<<end_log();
 			return false;
 		}
@@ -61,8 +67,9 @@ bool AvResampleFilter::transform(AVParam*& p)
 		else
 			p->setData(outframe->data[0], outframe->linesize[0]);
 
-		//fwrite(p->getData(), p->len, 1, f);
-		//fflush(f);
+		fwrite(p->getData(), p->len, 1, f);
+		fflush(f);
+
 		p->nb_samples = dst_nb_samples;
 		p->format = _out_format;
 		p->channels = _out_channels;

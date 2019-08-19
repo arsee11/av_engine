@@ -115,6 +115,7 @@ inline int av_init()
 	av_register_all();
 	avcodec_register_all();	
 	avdevice_register_all();
+	avformat_network_init();
 	return 0;
 }
 
