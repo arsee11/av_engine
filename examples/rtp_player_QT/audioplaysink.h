@@ -16,7 +16,7 @@ class AudioPlaySink : public QObject, public Sink<AVParam>
     Q_OBJECT
 
 public:
-    AudioPlaySink(short sample_rate, short channels, short smaple_size);
+    AudioPlaySink(short sr, short channels, short smaple_size);
 
     // Transformation interface
 public:

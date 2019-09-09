@@ -30,7 +30,7 @@ public:
 	enum AvReadRet{ AV_EOF, AV_READ_OK };	
 
 	void open(const std::string& filename)throw(AvException);
-    AVParam* get()override;
+	AVParam* get()override;
 	void close();
 
 	int framerate() { return _framerate; }
@@ -48,11 +48,8 @@ private:
 		_codec_info.codecpar = NULL;
 	}
 
-    void initParams() throw(AvException);
+    	void initParams() throw(AvException);
 	AvReadRet readp(AVPacket* packet);
-
-	
-	AVParam* _param = AVParam::create();
 
 private:
 	AVFormatContext* _format_ctx;
@@ -62,7 +59,7 @@ private:
 	int _height;
 	int _framerate = 0;
 	int _videostream = 0;
-    int _audiostream = 0;
+    	int _audiostream = 0;
 
 	CodecInfo _codec_info;
 };

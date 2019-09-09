@@ -18,7 +18,8 @@ public:
 		return new AvAudioEncodeFilter(cid, next_filter); 
 	}
 
-	bool open(int sample_rate, int nb_channels, SampleFormat format);
+	bool open(int sr, int nb_channels, SampleFormat format);
+	bool transform(AVParam* p)override;
 
 private:
 	AvAudioEncodeFilter(CodecID cid, Transformation<Param>* next_filter = nullptr)
@@ -27,7 +28,6 @@ private:
     	{
     	}	
    
-	bool transform(AVParam*& p)override;
 
 private:
     	CodecID _codec_id;

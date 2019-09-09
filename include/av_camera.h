@@ -24,17 +24,12 @@ public:
 	AvCamera(Transformation<Param>* ts);
     ~AvCamera(){
         close();
-        _param->release();
     }
 
     bool open(const char* device, int framerate, int width, int height);
     void close();
 
 	AVParam* get()override;
-
-private:	
-	AVParam* _param = AVParam::create();
-
 
 private:
     std::string _device;

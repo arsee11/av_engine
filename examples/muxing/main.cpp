@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 
 		CodecID ac = CodecID::PCMA;
 		SampleFormat af=SampleFormat::S16;
-		int sr=8000;
+		int sr=48000;
 		AvStreamInfo as;
 		as.codecid=ac;
 		as.media_type=MediaType::MEDIA_AUDIO;

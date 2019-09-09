@@ -9,38 +9,37 @@ extern "C" {
 	#include <libswresample/swresample.h>
 }
 
-static FILE* f=fopen("swr.pcm", "wb");
-
-bool AvResampleFilter::transform(AVParam*& p)
+bool AvResampleFilter::transform(AVParam* p)
 {
-    if(p->format != _out_format 
-      ||p->channels != _out_channels
-      ||p->sample_rate != _out_sample_rate
-    )
-    {
+    	_param.nsamples = p->nsamples;
+    	if(p->format != _out_format 
+    	  ||p->nchn != _out_channels
+    	  ||p->sr != _out_sr
+    	)
+    	{
 		if (_swr_ctx == nullptr)
-			open(p->channels, p->sample_rate, p->format, _out_channels, _out_sample_rate, _out_format);
+			open(p->nchn, p->sr, p->format, _out_channels, _out_sr, _out_format);
 
-		int64_t delay = 0;//swr_get_delay(_swr_ctx, p->sample_rate);
+		int64_t delay = 0;//swr_get_delay(_swr_ctx, p->sr);
 		av_log_info()<<"delay:"<<delay<<end_log();
-		av_log_info()<<"in sample_rates:"<<p->sample_rate<<end_log();
+		av_log_info()<<"in srs:"<<p->sr<<end_log();
 		//av_log_info()<<"resample::itransform(): delay="<<delay<<end_log();
-		/// p->nb_samples * _out_sample_rate/p->sample_rate
-		int64_t dst_nb_samples = av_rescale_rnd(delay+p->nb_samples, _out_sample_rate
-			, p->sample_rate, AV_ROUND_UP);
+		/// p->nsamples * _out_sr/p->sr
+		int64_t dst_nsamples = av_rescale_rnd(delay+p->nsamples, _out_sr
+			, p->sr, AV_ROUND_UP);
 
-		av_log_info()<<"dst_nb_samples :"<<dst_nb_samples <<end_log();
+		av_log_info()<<"dst_nsamples :"<<dst_nsamples <<end_log();
 
 		AVFrame *inframe = av_frame_alloc();
-		av_samples_fill_arrays(inframe->data, inframe->linesize, p->getData(), p->channels
-			,p->nb_samples, _2ffmpeg_format((SampleFormat)p->format), 1);
+		av_samples_fill_arrays(inframe->data, inframe->linesize, p->data_ptr(), p->nchn
+			,p->nsamples, _2ffmpeg_format((SampleFormat)p->format), 1);
 
 		AVFrame *outframe = av_frame_alloc();
 		av_samples_alloc(outframe->data, outframe->linesize, _out_channels
-			,dst_nb_samples, _2ffmpeg_format(_out_format), 1);
+			,dst_nsamples, _2ffmpeg_format(_out_format), 1);
 
-		int ret = swr_convert(_swr_ctx, outframe->data, dst_nb_samples,
-			(const uint8_t **)inframe->data, p->nb_samples);
+		int ret = swr_convert(_swr_ctx, outframe->data, dst_nsamples,
+			(const uint8_t **)inframe->data, p->nsamples);
 		
 		if (ret < 0)
 		{
@@ -52,7 +51,7 @@ bool AvResampleFilter::transform(AVParam*& p)
 	
 		if (av_sample_fmt_is_planar(_2ffmpeg_format(_out_format)))
 		{
-			int size = av_samples_get_buffer_size(NULL, _out_channels, dst_nb_samples, _2ffmpeg_format(_out_format), 1);
+			int size = av_samples_get_buffer_size(NULL, _out_channels, dst_nsamples, _2ffmpeg_format(_out_format), 1);
 			uint8_t* buf = new uint8_t[size];
 			int n = 0;
 			for (int i = 0; i<_out_channels; i++)
@@ -61,29 +60,27 @@ bool AvResampleFilter::transform(AVParam*& p)
 				n += outframe->linesize[0];
 			}
 
-			p->setData(buf, n);
+			_param.data(buf, n);
 			delete[] buf;
 		}
 		else
-			p->setData(outframe->data[0], outframe->linesize[0]);
+			_param.data(outframe->data[0], outframe->linesize[0]);
 
-		fwrite(p->getData(), p->len, 1, f);
-		fflush(f);
-
-		p->nb_samples = dst_nb_samples;
-		p->format = _out_format;
-		p->channels = _out_channels;
-		p->sample_rate = _out_sample_rate;
+		_param.nsamples = dst_nsamples;
 		av_frame_free(&outframe);
 		av_frame_free(&inframe);
-    }
-    
-    return true;
+    	}
+    	else
+    	{
+    	    	_param.data(p->data_ptr(), p->size());
+    	}
+    	
+    	return true;
 }
 
 
-void AvResampleFilter::open(int in_channels, int in_sample_rate, int in_format
-	,int out_channels, int out_sample_rate, SampleFormat out_format)throw(AvException)
+void AvResampleFilter::open(int in_channels, int in_sr, int in_format
+	,int out_channels, int out_sr, SampleFormat out_format)throw(AvException)
 {
 	_swr_ctx = swr_alloc();
 	if (_swr_ctx == NULL) {
@@ -92,10 +89,10 @@ void AvResampleFilter::open(int in_channels, int in_sample_rate, int in_format
 
 	/* set options */
 	av_opt_set_int(_swr_ctx, "in_channel_count", in_channels, 0);
-	av_opt_set_int(_swr_ctx, "in_sample_rate", in_sample_rate, 0);
+	av_opt_set_int(_swr_ctx, "in_sr", in_sr, 0);
 	av_opt_set_sample_fmt(_swr_ctx, "in_sample_fmt", (AVSampleFormat)in_format, 0);
 	av_opt_set_int(_swr_ctx, "out_channel_count", out_channels, 0);
-	av_opt_set_int(_swr_ctx, "out_sample_rate", out_sample_rate, 0);
+	av_opt_set_int(_swr_ctx, "out_sr", out_sr, 0);
 	av_opt_set_sample_fmt(_swr_ctx, "out_sample_fmt", _2ffmpeg_format(out_format), 0);
 
 	int ret;

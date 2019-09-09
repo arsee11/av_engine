@@ -1,6 +1,6 @@
 noinst_LIBRARIES=libavengine.a
 
-AM_CPPFLAGS = -I$(top_srcdir)/include/ -I/home/arsee/gits/arseeulib
+AM_CPPFLAGS = -I$(top_srcdir)/include/ -I$(top_srcdir)/third_party/include/ 
 AM_CPPFLAGS += -g --std=c++11
 AM_CPPFLAGS += -DLINUX
 

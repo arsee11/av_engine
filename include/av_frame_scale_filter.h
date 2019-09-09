@@ -29,7 +29,7 @@ private:
     	{
     	}
     
-	bool transform(AVParam*& p)override;
+	bool transform(AVParam* p)override;
    
     	PixelFormat _format, _src_format = PixelFormat::FORMAT_NONE;
 	int _width, _height;

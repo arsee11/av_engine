@@ -22,7 +22,7 @@ private:
 	{
 	}
 
-	bool transform(AVParam*& p)override;
+	bool transform(AVParam* p)override;
 
 	bool open(CodecID cid, int w, int h);
 

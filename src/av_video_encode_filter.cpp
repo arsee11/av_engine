@@ -14,7 +14,7 @@ extern "C"
 #include "av_log.h"
 
 //static FILE* fp = fopen("./encode.h264", "wb");
-bool AvVideoEncodeFilter::transform(AVParam*& p)
+bool AvVideoEncodeFilter::transform(AVParam* p)
 {
 	if (_codec_ctx == nullptr)
 	{
@@ -22,12 +22,10 @@ bool AvVideoEncodeFilter::transform(AVParam*& p)
 			return false;
 	}
 		   
-	p->framerate = _framerate;
-
 	bool isok = false;
 	AVPixelFormat f = _2ffmpeg_format((PixelFormat)p->format);
 	AVFrame *frame = av_frame_alloc();	
-	av_image_fill_arrays(frame->data, frame->linesize, p->getData(), f, p->w, p->h, 1);
+	av_image_fill_arrays(frame->data, frame->linesize, p->data_ptr(), f, p->w, p->h, 1);
 	frame->width = p->w;
 	frame->height= p->h;
 	frame->format = f;
@@ -43,11 +41,8 @@ bool AvVideoEncodeFilter::transform(AVParam*& p)
 			//av_log_info()<<"encoder frame pts="<<pack->pts<<",dts="<<pack->dts<<end_log();
             		//fwrite(pack->data, pack->size, 1, fp);
             		//fflush(fp);
-			p->setData(pack->data, pack->size);
-			p->pts = pack->pts;
-			p->dts = pack->pts;
-			p->framerate = _framerate;
-			p->codecid = _codec_id;
+			_param.data(pack->data, pack->size);
+			_param.pts = pack->pts;
 			isok = true;
 		}
 		av_packet_free(&pack);
@@ -90,12 +85,17 @@ bool AvVideoEncodeFilter::open(PixelFormat f, int width, int height, int framera
         char buf[256];
         av_make_error_string(buf, 256, ret);
         av_log_error()<<"encoder avcodec_open2 failed:"<<buf<<end_log();
-		avcodec_close(_codec_ctx);
-		_codec_ctx = nullptr;
+	avcodec_close(_codec_ctx);
+	_codec_ctx = nullptr;
         return false;
     }
     
 	_framerate = framerate;
+	_param.fps = _framerate;
+	_param.w= width;
+	_param.h= height;
+	_param.codecid = _codec_id;
+	_param.type = MEDIA_VIDEO;
 	return true;
 }
 

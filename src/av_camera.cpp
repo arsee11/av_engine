@@ -85,7 +85,11 @@ bool AvCamera::open(const char* device, int framerate, int width, int height)
     _width = width;
     _height = height;
     _framerate = framerate;
-    //AVRational time_base = {1, framerate};  
+
+    _param.w = _width;
+    _param.h = _height;
+    _param.format = ffmpeg2format( (AVPixelFormat)_format_ctx->streams[_video_stream_idx]->codecpar->format);
+    _param.type = MEDIA_VIDEO;
 
     return true;
 }
@@ -93,26 +97,23 @@ bool AvCamera::open(const char* device, int framerate, int width, int height)
 AVParam* AvCamera::get()
 {
 	assert(_format_ctx);
-    AVPacket* packet = av_packet_alloc();
+    	AVPacket* packet = av_packet_alloc();
+	_param.clear();
 	while (true)
 	{
 		if (av_read_frame(_format_ctx, packet) >= 0)
 		{
 			if (packet->stream_index == _video_stream_idx)
 			{
-                _param->setData(packet->data, packet->size);
-                _param->w = _width;
-                _param->h = _height;
-                _param->format = ffmpeg2format( (AVPixelFormat)_format_ctx->streams[_video_stream_idx]->codecpar->format);
-				_param->type = MEDIA_VIDEO;
-                break;
-            }
+            	    		_param.data(packet->data, packet->size);
+                		break;
+            		}
 		}
 
 		av_packet_unref(packet);
 	}
 	av_packet_free(&packet);
-	return _param;
+	return &_param;
 }
 
 void AvCamera::close()

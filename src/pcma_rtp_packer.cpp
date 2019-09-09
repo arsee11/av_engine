@@ -4,14 +4,14 @@
 #include "pcma_rtp_packer.h"
 #include "av_log.h"
 
-const float sample_rate = 8000;
+const float sr = 8000;
 const float bit_rate = 8000*8; //bps
 
 std::vector<RtpPack> PcmaRtpPacker::pack(uint8_t* data, int len)
 {
 	int plen = (bit_rate*((float)_frame_ms/1000) )/8 * _channels; //Bytes 
 	std::vector<RtpPack> pkgs;
-        uint32_t timestamp= sample_rate/(1000/_frame_ms);
+        uint32_t timestamp= sr/(1000/_frame_ms);
 	//av_log_info()<<"timestamp:"<<timestamp<<end_log();
         bool mark=true;
 
@@ -56,5 +56,5 @@ std::tuple<uint8_t*, int> PcmaRtpPacker::depack(RtpPack&& p)
 
 double PcmaRtpPacker::timestamp_unit()const
 {
-	return 1.0/sample_rate;
+	return 1.0/sr;
 }

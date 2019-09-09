@@ -7,23 +7,35 @@ AVParam* AvFileSource::get()
 {
 	AVPacket *pack = av_packet_alloc();
 	av_init_packet(pack);
-	bool isok = false;
+	bool isok=false;
 	if (readp(pack) == AV_READ_OK)
 	{
-		_param->setData(pack->data, pack->size);
-		_param->pts = pack->pts;
-		_param->dts = pack->dts;
-		_param->codecid = _ffmpeg2codec(_vcodecid);
-		_param->w = width();
-		_param->h = height();
-		_param->framerate = framerate();
-        _param->format = _format_ctx->streams[_videostream]->codecpar->format;
-		isok =true;
+
+	 	if(pack->stream_index == _videostream)
+		{
+			_param.data(pack->data, pack->size);
+			_param.type = MEDIA_VIDEO;
+			_param.pts = pack->pts;
+			_param.codecid = _ffmpeg2codec(_vcodecid);
+			_param.w = width();
+			_param.h = height();
+			_param.fps = framerate();
+        		_param.format = _format_ctx->streams[_videostream]->codecpar->format;
+			isok=true;
+		}
+		else if(pack->stream_index == _audiostream)
+		{
+			_param.data(pack->data, pack->size);
+			_param.type = MEDIA_AUDIO;
+			_param.pts = pack->pts;
+			_param.codecid = _ffmpeg2codec(_acodecid);
+			isok=true;
+		}
 	}
 
 	av_packet_free(&pack);
-	if (isok)
-		return _param;
+	if(isok)
+		return &_param;
 
 	return nullptr;
 }

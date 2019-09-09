@@ -15,27 +15,24 @@ public:
 		
 	}
 
-    ///@return >=0 successed, <0 failed
+    	///@return >=0 successed, <0 failed
 	int read()
 	{
-		Param* p = nullptr;
-		if ( (p=this->get()) != nullptr)
+		_param.clear();
+		if(this->get() != nullptr)
 		{
 			if(_next_trans != nullptr)
-				_next_trans->put(p);
-			else
-			{
-				//_storage->put(p);
-			}
-            
-            return 0;
+				_next_trans->put(&_param);
+
+            		return _param.size();
 		}
         
-        
-        return -1;
+        	return -1;
 	}
 
-	
+protected:
+	Param _param;
+
 private:
 	void put(Param* p)override { throw AvException("not implemented!");}
 	

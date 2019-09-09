@@ -2,11 +2,11 @@
 #include <QAudioInput>
 #include <QDebug>
 
-AudioPlaySink::AudioPlaySink(short sample_rate, short channels, short smaple_size)
+AudioPlaySink::AudioPlaySink(short sr, short channels, short smaple_size)
     :_buf(640)
 {
     QAudioFormat af;
-    af.setSampleRate(sample_rate);
+    af.setSampleRate(sr);
     af.setChannelCount(channels);
     af.setSampleSize(smaple_size);
     af.setCodec("audio/pcm");

@@ -10,19 +10,19 @@ extern "C" {
 #include "av_log.h"
 #include "codec_specify.h"
 
-bool AvAudioDecodeFilter::transform(AVParam*& p)
+bool AvAudioDecodeFilter::transform(AVParam* p)
 {
 	if (_codec_ctx == nullptr)
 	{
 		if (_codec_id == CODEC_ID_NONE)
 			_codec_id = p->codecid;
 
-		if (!open(_codec_id, _sample_rate, _channels, _sample_fmt))
+		if (!open(_codec_id, _sr, _channels, _sample_fmt))
 			return false;
 	}
 
-	uint8_t* data=p->getData();
-	int data_size=p->len;
+	uint8_t* data=p->data_ptr();
+	int data_size=p->size();
 	AVPacket *packet =av_packet_alloc();
 	AVFrame* avframe = av_frame_alloc();	
 	_inbuf.clear();
@@ -56,13 +56,8 @@ bool AvAudioDecodeFilter::transform(AVParam*& p)
 		return false;
 	}
 
-	p->format = ffmpeg2format((AVSampleFormat)avframe->format);
-	p->sample_rate = avframe->sample_rate;
-	p->nb_samples = avframe->nb_samples;
-	p->channels = avframe->channels;
-	p->type = MEDIA_AUDIO;
-	p->setData(_inbuf.begin(), _inbuf.size() );
-	p->len = _inbuf.size();
+	_param.nsamples = avframe->nb_samples;
+	_param.data(_inbuf.begin(), _inbuf.size() );
 
 	av_frame_unref(avframe);
 
@@ -116,7 +111,7 @@ void AvAudioDecodeFilter::dumpData(AVFrame* avframe)
 }
 
 
-bool AvAudioDecodeFilter::open(CodecID cid, int sample_rate, int channels, SampleFormat sample_fmt)
+bool AvAudioDecodeFilter::open(CodecID cid, int sr, int channels, SampleFormat sample_fmt)
 {
 	AVCodec* codec = avcodec_find_decoder(_2ffmpeg_id(cid));
 	if (codec == NULL)
@@ -135,7 +130,7 @@ bool AvAudioDecodeFilter::open(CodecID cid, int sample_rate, int channels, Sampl
 	_codec_ctx->channels=channels;
 	_codec_ctx->channel_layout=av_get_default_channel_layout(channels);
 	_codec_ctx->sample_fmt=_2ffmpeg_format(sample_fmt);
-	_codec_ctx->sample_rate=sample_rate;
+	_codec_ctx->sample_rate=sr;
 	if (_codec_ctx == NULL)
         {
 		av_log_error() << "AvAudioDecodeFilter::open() avcodec_alloc_context3 failed" << end_log();
@@ -148,5 +143,9 @@ bool AvAudioDecodeFilter::open(CodecID cid, int sample_rate, int channels, Sampl
 		return false;
 	}
 
+	_param.format = sample_fmt;
+	_param.sr = sr;
+	_param.nchn= channels;
+	_param.type = MEDIA_AUDIO;
 	return true;
 }

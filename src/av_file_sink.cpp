@@ -84,18 +84,18 @@ void AvFileSink::put(AVParam* p)
 {
 	AVPacket *pack = av_packet_alloc();
 	av_init_packet(pack);
-	pack->data = p->getData();
-	pack->size = p->len;
+	pack->data = p->data_ptr();
+	pack->size = p->size();
 	pack->pts = p->pts;
-	pack->dts = p->dts;
+	pack->dts = p->pts;
 	if (p->type == MEDIA_AUDIO)
 	{
-		av_packet_rescale_ts(pack, AVRational{ 1, p->framerate }, _audio_stream->time_base);
+		av_packet_rescale_ts(pack, AVRational{ 1, p->fps}, _audio_stream->time_base);
 		pack->stream_index = _audio_stream->id;
 	}
 	else if(p->type == MEDIA_VIDEO)
 	{
-		av_packet_rescale_ts(pack, AVRational{ 1, p->framerate }, _video_stream->time_base);
+		av_packet_rescale_ts(pack, AVRational{ 1, p->fps}, _video_stream->time_base);
 		pack->stream_index = _video_stream->id;
 	}
 	else

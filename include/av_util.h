@@ -10,103 +10,42 @@ extern "C" {
 }
 
 #include "codec_specify.h"
+#include <../third_party/include/flexible_buffer.h>
+
 
 typedef struct Param {
 
-    static Param* create(){ return new Param();}
-    
-    void release(){ delete this;}
-	
-	int len;
-	int w;
-	int h;
-	int format; //SampleFormat or PixelFormat
-	int framerate;
-	int64_t pts;
-	int64_t dts;
-	CodecID codecid;
-	int flag;
-	int64_t nb_samples;
-	int channels;
-	int sample_rate;
-	MediaType type;
+	CodecID codecid=CODEC_ID_NONE;
+	MediaType type=MEDIA_NONE;
+	size_t pts=0;
+	int format=-1; //pixel format or sample format.
+	union{
+	    struct{
+	        int w;
+	        int h;
+	        int fps;
+	    };
+	    struct{
+	        int sr; //smaple_rate
+	        int nchn;//number of channels.
+	        int nsamples;//mumber of smaples.
+	    };
+	};
 
-	void setData(unsigned char* d, int l) {
-		if (data == NULL)
-		{
-			data = (unsigned char*)malloc(l);
-			data_size = l;
-		}
-
-		if (l > data_size)
-		{
-			free(data);
-			data = (unsigned char*)malloc(l);
-			data_size = l;
-		}
-
-		len = l;
-		memcpy(data, d, l);
+	void data(const unsigned char* d, int l) {
+		_buf.push(d, l);
 	}	
 
-	void addData(unsigned char* d, int l) {
-		if (data == NULL)
-		{
-			data = (unsigned char*)malloc(l);
-			data_size = l;
-		}
+	size_t size(){ return _buf.size(); }	
 
-		if (len+l > data_size)
-		{
-			data_size = len + l;
-			data = (unsigned char*)realloc(data, len + l);
-		}
+	unsigned char* data_ptr(){ return _buf.begin(); }
+	void clear(){ _buf.clear(); }
 
-		memcpy(data+len, d, l);
-		len += l;
-	}
+	Param():_buf(256){};
 
-	unsigned char* getData(){ return data; }
-
-	void resize(int size) {
-		if (data != NULL)
-			free(data); 
-		if (size > 0)
-		{
-			data = (unsigned char*)malloc(size);
-			data_size = size;
-		}
-
-		len = 0;
-		
-	}
 private:
-    Param()
-		:data(NULL)
-		,len(0)
-		,w(0)
-		,h(0)
-		,data_size(0)
-		,framerate(0)
-		,pts(0)
-		,dts(0)
-		,flag(0)
-		,nb_samples(0)
-		,channels(0)
-		,sample_rate(0)
-		,type(MediaType::MEDIA_NONE)
-	{}
+	arsee::FlexibleBuffer<unsigned char> _buf;
 
-    ~Param(){ 
-		if(data != NULL )
-			delete [] data;
-	}
-	Param(const Param&);
-	Param& operator=(const Param&);
-
-	int data_size;
-	unsigned char* data;
-	
 }AVParam;
 
 ///@return 0 OK, or failed

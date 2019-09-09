@@ -39,7 +39,7 @@ private:
     }	
    
 	bool open(PixelFormat f, int with, int height, int framerate);
-	bool transform(AVParam*& p)override;
+	bool transform(AVParam* p)override;
 
 private:
     	CodecID _codec_id;

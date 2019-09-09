@@ -7,7 +7,7 @@ extern "C" {
 #include <iostream>
 #include "av_log.h"
 
-bool AvVideoDecodeFilter::transform(AVParam*& p)
+bool AvVideoDecodeFilter::transform(AVParam* p)
 {
 	if (_codec_ctx == nullptr)
 	{
@@ -20,8 +20,8 @@ bool AvVideoDecodeFilter::transform(AVParam*& p)
 
 
 	AVPacket *packet =av_packet_alloc();
-	packet->data = p->getData();
-	packet->size = p->len;
+	packet->data = p->data_ptr();
+	packet->size = p->size();
 	int rc = avcodec_send_packet(_codec_ctx, packet);
 	if (rc < 0)
 	{
@@ -29,7 +29,6 @@ bool AvVideoDecodeFilter::transform(AVParam*& p)
 		av_make_error_string(estr, 256, rc);
                 av_log_error()<< "in AvVideoDecodeFilter::transform() "<<estr<<end_log();
 		av_packet_unref(packet);
-		p->len = 0;
 		return false;
 	}
 
@@ -38,15 +37,12 @@ bool AvVideoDecodeFilter::transform(AVParam*& p)
 	if (rc == 0)
 	{
 		AVPixelFormat f = (AVPixelFormat)frame->format;
-		p->w = frame->width;
-		p->h = frame->height;
-		p->len = 0;
 		int frame_size = av_image_get_buffer_size(f
 			,p->w, p->h, 32
 		);
 
-		p->resize(frame_size);
-		av_image_copy_to_buffer(p->getData()
+		//_param.data(frame_size);
+		av_image_copy_to_buffer(p->data_ptr()
 			, frame_size
 			, frame->data
 			, frame->linesize
@@ -55,13 +51,11 @@ bool AvVideoDecodeFilter::transform(AVParam*& p)
 			, frame->height
 			, 32);
 
-		p->len = frame_size;
-		p->format = ffmpeg2format(f);
+		_param.format = ffmpeg2format(f);
 
 	}
 	else
 	{
-		p->len = 0;
 		return false;
 	}
 
@@ -106,6 +100,12 @@ bool AvVideoDecodeFilter::open(CodecID cid, int w, int h)
 		return false;
 	}
 
+	_param.fps = rate.den;
+	_param.w= w;
+	_param.h= h;
+	_param.codecid = cid;
+	_param.type = MEDIA_VIDEO;
+	_param.format = ffmpeg2format(_codec_ctx->pix_fmt);
 	return true;
 }
 
@@ -136,5 +136,11 @@ bool AvVideoDecodeFilter::open(const CodecInfo& ci)
 		return false;
 	}
 
+	_param.fps = 0;
+	_param.w= ci.codecpar->width;
+	_param.h= ci.codecpar->height;
+	_param.codecid = _ffmpeg2codec(ci.codecpar->codec_id);
+	_param.format = ffmpeg2format((AVPixelFormat)ci.codecpar->format);
+	_param.type = MEDIA_VIDEO;
 	return true;
 }
