@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <vector>
 #include "rtp_pack.h"
-#include "flexible_buffer.h" 
+#include <../third_party/include/flexible_buffer.h>
 
 class PcmaRtpPacker 
 {

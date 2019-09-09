@@ -41,7 +41,7 @@ public:
 	}
 
 	void put(AVParam* p)override{
-		fwrite(p->getData(), p->len, 1, _fp);
+		fwrite(p->data_ptr(), p->size(), 1, _fp);
 		fflush(_fp);
 	}
 

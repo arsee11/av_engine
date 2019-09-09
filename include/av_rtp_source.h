@@ -59,10 +59,11 @@ public:
 			if(fsize > 0)
 			{
 				//av_log_info()<<"start code="<<*(uint32_t*)frame<<", frame size="<<fsize<<end_log();
-				_param->setData(frame, fsize);
+				_param.pts = timestamp;
+				_param.data(frame, fsize);
 				//fwrite(frame, fsize, 1, f);
 				//fflush(f);
-                                return _param;
+                                return &_param;
 			}
                 }
 
@@ -91,7 +92,6 @@ private:
 	rtp_wrapper_ptr_t _rtp;
 	uint16_t _localPort;
 	RtpDepacker _depacker;
-	param_t* _param = param_t::create();
 };
 
 #endif /*AV_RTP_SOURCE_H*/

@@ -6,7 +6,7 @@
 #include "av_util.h"
 #include "filter.h"
 #include "codec_specify.h"
-#include <flexible_buffer.h>
+#include <../third_party/include/flexible_buffer.h>
 
 class AvAudioDecodeFilter:public Filter<AVParam>
 {
