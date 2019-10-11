@@ -23,7 +23,7 @@ AVCodecID _2ffmpeg_id(CodecID cid)
         case H264: return AV_CODEC_ID_H264;
 		case MSMPEG4V3: return AV_CODEC_ID_MSMPEG4V3;
 		case MPEG4: return AV_CODEC_ID_MPEG4;
-		case AUDIO_RAW: return AV_CODEC_ID_FIRST_AUDIO;
+		case S16LE: return AV_CODEC_ID_PCM_S16LE;
 		case MP3: return AV_CODEC_ID_MP3;
 		case AAC: return AV_CODEC_ID_AAC;
 		case G729: return AV_CODEC_ID_G729;
@@ -42,8 +42,8 @@ CodecID _ffmpeg2codec(AVCodecID cid)
 	case AV_CODEC_ID_H264 : return H264;
 	case AV_CODEC_ID_MSMPEG4V3: return MSMPEG4V3;
 	case AV_CODEC_ID_MPEG4: return MPEG4;
-	case AV_CODEC_ID_FIRST_AUDIO: return MP3;
-	case AV_CODEC_ID_MP3: return AUDIO_RAW;
+	case AV_CODEC_ID_PCM_S16LE: return S16LE;
+	case AV_CODEC_ID_MP3: return MP3;
 	case AV_CODEC_ID_AAC: return AAC;
 	case AV_CODEC_ID_G729: return G729;
 	case AV_CODEC_ID_WMAV2: return WMAV2;

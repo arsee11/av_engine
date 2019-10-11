@@ -17,7 +17,8 @@ enum CodecID
 	MSMPEG4V3,
 
 	/*audio*/
-	AUDIO_RAW=1000,
+	S16LE=1000,
+	S16BE,
 	MP3,
 	AAC,
 	G729,
