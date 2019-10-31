@@ -16,7 +16,7 @@ bool AvMicrophone::open(const char* dev, int sr, int sample_size, int channels)
 #ifdef WIN32
     	AVInputFormat *ifmt=av_find_input_format("dshow");
     	AVDictionary* options = NULL;    
-    	av_dict_set_int(&options, "sr", sr, 0);
+    	av_dict_set_int(&options, "sample_rate", sr, 0);
 	av_dict_set_int(&options, "sample_size", sample_size, 0);
 	av_dict_set_int(&options, "audio_buffer_size", 100, 0);
 
@@ -31,7 +31,7 @@ bool AvMicrophone::open(const char* dev, int sr, int sample_size, int channels)
 #ifdef LINUX
     	AVInputFormat *ifmt=av_find_input_format("alsa");
     	AVDictionary* options = NULL;    
-    	av_dict_set_int(&options, "sr", sr, 0);
+    	av_dict_set_int(&options, "sample_rate", sr, 0);
 	av_dict_set_int(&options, "channels", channels, 0);
 #endif
 

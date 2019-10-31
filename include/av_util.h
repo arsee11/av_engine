@@ -41,7 +41,20 @@ typedef struct Param {
 	unsigned char* data_ptr(){ return _buf.begin(); }
 	void clear(){ _buf.clear(); }
 
+	void copyParams(const Param& o){
+		codecid = o.codecid;
+		type    = o.type;
+		format	= o.format;
+		pts     = o.pts;
+		w       = o.w;
+		fps     = o.h;
+		sr      = o.sr;
+		nchn	= o.nchn;
+		nsamples= o.nsamples;
+	}
+
 	Param():_buf(256){};
+	Param& operator=(const Param&)=delete;
 
 private:
 	arsee::FlexibleBuffer<unsigned char> _buf;

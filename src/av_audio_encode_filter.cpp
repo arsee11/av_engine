@@ -137,8 +137,9 @@ bool AvAudioEncodeFilter::open(int sample_rate, int nb_channels, SampleFormat fo
 	}	
 
 	_param.format = format;
+	_param.codecid = _codec_id;
 	_param.sr = sample_rate;
-	_param.nchn= nb_channels;
+	_param.nchn = nb_channels;
 	_param.type = MEDIA_AUDIO;
 	return true;
 }
