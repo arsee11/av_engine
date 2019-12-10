@@ -9,8 +9,8 @@ extern "C"{
 VideoFilter::VideoFilter(int width, int height, int pix_fmt, AVRational time_base)
 {
     _filter_graph = avfilter_graph_alloc();
-    AVFilter* buffer_src = avfilter_get_by_name("buffer");
-    AVFilter* buffer_sink = avfilter_get_by_name("buffersink");
+    const AVFilter* buffer_src = avfilter_get_by_name("buffer");
+    const AVFilter* buffer_sink = avfilter_get_by_name("buffersink");
     char args[512]={0};
     snprintf(args, sizeof(args),
                 "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d",
