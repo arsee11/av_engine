@@ -40,7 +40,7 @@ AVParam* AvFileSource::get()
 	return nullptr;
 }
 
-void AvFileSource::open(const std::string& filename)throw(AvException)
+void AvFileSource::open(const std::string& filename)
 {
 	AVFormatContext *formatCtx = NULL;
 	int ret = -1;
@@ -69,7 +69,7 @@ AvFileSource::AvReadRet AvFileSource::readp(AVPacket* packet)
 	return AV_READ_OK;
 }
 
-void AvFileSource::initParams() throw(AvException)
+void AvFileSource::initParams()
 {
     int ret = -1;
     if ((ret = avformat_find_stream_info(_format_ctx, NULL))< 0)

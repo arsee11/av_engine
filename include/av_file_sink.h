@@ -68,19 +68,19 @@ public:
 
 private:
 	AvFileSink(const std::vector<AvStreamInfo>& ss
-		,const std::string& filename)throw(AvFileSinkException);
+		,const std::string& filename);
 
 	~AvFileSink() {
 		close();
 	}
 
-	void addStream(const AvStreamInfo& s)throw(AvFileSinkException);
-	void open()throw(AvFileSinkException);
+	void addStream(const AvStreamInfo& s);
+	void open();
 	void close();
 
 	enum{ BUF_SIZE=1024*1240*4};
 
-	void write(AVPacket* packet) throw(AvFileSinkException);
+	void write(AVPacket* packet);
 
 
 private:

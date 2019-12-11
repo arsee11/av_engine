@@ -3,7 +3,7 @@
 #include "av_file_sink.h"
 #include "av_log.h"
 
-AvFileSink::AvFileSink(const std::vector<AvStreamInfo>& ss, const std::string& filename) throw(AvFileSinkException)
+AvFileSink::AvFileSink(const std::vector<AvStreamInfo>& ss, const std::string& filename)
 	:_filename(filename)
 	,_format_ctx(NULL)
 {
@@ -25,7 +25,7 @@ AvFileSink::AvFileSink(const std::vector<AvStreamInfo>& ss, const std::string& f
 	}
 }
 
-void AvFileSink::addStream(const AvStreamInfo& s)throw(AvFileSinkException)
+void AvFileSink::addStream(const AvStreamInfo& s)
 {
 	if (s.media_type == MEDIA_VIDEO )
 	{
@@ -69,7 +69,7 @@ void AvFileSink::addStream(const AvStreamInfo& s)throw(AvFileSinkException)
 		av_log_error()<<"not support media type["<<s.media_type<<"]"<<end_log();
 }
 
-void AvFileSink::write(AVPacket* packet) throw(AvFileSinkException)
+void AvFileSink::write(AVPacket* packet)
 {
 	if (_format_ctx == NULL)
 		throw AvFileSinkException("didn't open", __FILE__, __LINE__);
@@ -114,7 +114,7 @@ void AvFileSink::put(AVParam* p)
 	
 }
 
-void AvFileSink::open()throw(AvFileSinkException)
+void AvFileSink::open()
 {
 	int ret=-1;
 		

@@ -32,7 +32,7 @@ private:
 	bool transform(AVParam* p)override;
 
 	void open(int in_channels, int in_sr, int in_format
-		, int out_channels, int out_sr, SampleFormat out_format)throw(AvException);
+		, int out_channels, int out_sr, SampleFormat out_format);
    
 	struct SwrContext* _swr_ctx =nullptr;
 

@@ -80,7 +80,7 @@ bool AvResampleFilter::transform(AVParam* p)
 
 
 void AvResampleFilter::open(int in_channels, int in_sr, int in_format
-	,int out_channels, int out_sr, SampleFormat out_format)throw(AvException)
+	,int out_channels, int out_sr, SampleFormat out_format)
 {
 	_swr_ctx = swr_alloc();
 	if (_swr_ctx == NULL) {

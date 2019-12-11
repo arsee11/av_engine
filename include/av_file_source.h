@@ -29,7 +29,7 @@ public:
 
 	enum AvReadRet{ AV_EOF, AV_READ_OK };	
 
-	void open(const std::string& filename)throw(AvException);
+	void open(const std::string& filename);
 	AVParam* get()override;
 	void close();
 
@@ -48,7 +48,7 @@ private:
 		_codec_info.codecpar = NULL;
 	}
 
-    	void initParams() throw(AvException);
+    	void initParams();
 	AvReadRet readp(AVPacket* packet);
 
 private:

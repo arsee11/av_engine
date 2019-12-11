@@ -12,7 +12,7 @@
 #include "av_log.h"
 
 	
-void RtpWrapper::open(int local_port, double timestamp_unit, int payload_type) throw(AvRtpException)
+void RtpWrapper::open(int local_port, double timestamp_unit, int payload_type)
 {
 	RTPUDPv4TransmissionParams transparams;
 	RTPSessionParams sessparams;

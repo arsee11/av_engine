@@ -43,7 +43,7 @@ public:
 
 public:
 	bool addPeer(const char* ip, uint16_t port);	
-	void open(int localPort, double timestamp_unit, int payload_type) throw(AvRtpException);
+	void open(int localPort, double timestamp_unit, int payload_type); 
 	void close() { _rtpSession.Destroy(); }
 
 	///@return sent len
