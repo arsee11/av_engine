@@ -1,4 +1,4 @@
-// rtp_client.cpp 
+// main.cpp 
 
 #ifdef WIN32
 
