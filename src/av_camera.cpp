@@ -24,8 +24,26 @@ extern "C"
 
 AvCamera::AvCamera(Transformation<Param>* ts)
 	:Source(ts)
+{}
+
+AvCamera::AvCamera(int framerate, int width, int height, Transformation<Param>* ts)
+	:Source(ts)
+	,_width(width)
+	,_height(height)
+	,_framerate(framerate)
 {
 	
+}
+
+AvCamera::AvCamera(int framerate, int width, int height)
+	:AvCamera(framerate, width, height, nullptr)
+{
+	
+}
+
+bool AvCamera::open(const char* device)
+{
+	return open(device, _framerate, _width, _height);
 }
 
 bool AvCamera::open(const char* device, int framerate, int width, int height)

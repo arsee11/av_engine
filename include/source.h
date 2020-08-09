@@ -9,13 +9,13 @@ template<class Param>
 class Source :Transformation<Param>
 {
 public:
-	Source(Transformation<Param>* next)
+	Source(Transformation<Param>* next=nullptr)
 	:_next_trans(next)
 	{
 		
 	}
 
-    	///@return >=0 successed, <0 failed
+   	///@return >=0 successed, <0 failed
 	int read()
 	{
 		_param.clear();
@@ -29,6 +29,8 @@ public:
         
         	return -1;
 	}
+
+	void setNext(Transformation<Param>* next){ _next_trans=next; }
 
 protected:
 	Param _param;
