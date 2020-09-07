@@ -20,7 +20,7 @@ AVParam* AvFileSource::get()
 			_param.w = width();
 			_param.h = height();
 			_param.fps = framerate();
-        		_param.format = _format_ctx->streams[_videostream]->codecpar->format;
+    		_param.format = ffmpeg2format((AVPixelFormat)_format_ctx->streams[_videostream]->codecpar->format);
 			isok=true;
 		}
 		else if(pack->stream_index == _audiostream)

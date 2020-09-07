@@ -41,8 +41,9 @@ bool AvVideoDecodeFilter::transform(AVParam* p)
 			,p->w, p->h, 32
 		);
 
-		//_param.data(frame_size);
-		av_image_copy_to_buffer(p->data_ptr()
+		//_param.resize(frame_size);
+		uint8_t* buf = new uint8_t[frame_size];
+		av_image_copy_to_buffer(buf
 			, frame_size
 			, frame->data
 			, frame->linesize
@@ -51,6 +52,8 @@ bool AvVideoDecodeFilter::transform(AVParam* p)
 			, frame->height
 			, 32);
 
+        _param.data(buf, frame_size);
+		delete[] buf;
 		_param.format = ffmpeg2format(f);
 
 	}
@@ -103,7 +106,7 @@ bool AvVideoDecodeFilter::open(CodecID cid, int w, int h)
 	_param.fps = rate.den;
 	_param.w= w;
 	_param.h= h;
-	_param.codecid = cid;
+        _param.codecid = CodecID::CODEC_ID_NONE;
 	_param.type = MEDIA_VIDEO;
 	_param.format = ffmpeg2format(_codec_ctx->pix_fmt);
 	return true;

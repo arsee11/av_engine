@@ -37,6 +37,7 @@ typedef struct Param {
 	}	
 
 	size_t size(){ return _buf.size(); }	
+	void resize(size_t size ){ _buf.capacity(size); }	
 
 	unsigned char* data_ptr(){ return _buf.begin(); }
 	void clear(){ _buf.clear(); }

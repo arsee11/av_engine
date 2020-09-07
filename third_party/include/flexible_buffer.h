@@ -104,6 +104,17 @@ public:
 		return _buf.capacity(); 
 	}
 	
+	size_t capacity(size_t len){
+		size_t n = len - capacity();
+		if( n > 0 ){
+			increase(n);
+		}
+		else if(n < 0 ){
+			decrease(-n);
+		}
+		else{
+		}
+	}
 private:
 
 	
