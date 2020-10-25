@@ -23,15 +23,21 @@ class AvMicrophone :public Source<AVParam>
 {
 public:
 	AvMicrophone(Transformation<Param>* ts);
+    ~AvMicrophone()
+    {
+        close();
+    }
 
-    	bool open(const char* dev, int sr, int sample_size, int channels=2);
-    	void close();
+    bool open(const char* dev, int sr, int sample_size, int channels=2);
+    void close();
     
 	AVParam* get()override;
+
 private:
-    	AVFormatContext* _format_ctx = NULL;
-    	AVCodecContext* _codec_ctx = NULL;
-    	int _stream_idx;
+    AVFormatContext* _format_ctx = nullptr;
+    int _stream_idx;
+    AVPacket* _pack = nullptr;
+
 
 };
 

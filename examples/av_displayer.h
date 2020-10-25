@@ -2,7 +2,7 @@
 #define AV_DISPLAYER_H
 
 #include <av_util.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include <filter.h>
 
@@ -27,8 +27,7 @@ public:
         _sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, 0);
         _sdlTexture = SDL_CreateTexture(
                                         _sdlRenderer,
-                                        SDL_PIXELFORMAT_IYUV,
-                                        //SDL_PIXELFORMAT_RGB24,
+                                        SDL_PIXELFORMAT_RGB24,
                                         SDL_TEXTUREACCESS_STREAMING,
                                         _width,
                                         _height);
@@ -37,7 +36,7 @@ public:
     }
     
 private:
-    bool transform(AVParam*& p) override
+    bool transform(AVParam* p) override
 	{
 		//cout << "dis: w=" << p->w << "h=" << p->h << "l=" << p->len << endl;
 		if (!_isopen)
@@ -51,7 +50,7 @@ private:
 		sdlRect.w = p->w;
 		sdlRect.h = p->h;
 
-		SDL_UpdateTexture(_sdlTexture, &sdlRect, p->getData(), p->w);
+		SDL_UpdateTexture(_sdlTexture, &sdlRect, p->data_ptr(), p->w);
 		SDL_RenderClear(_sdlRenderer);
 		SDL_RenderCopy(_sdlRenderer, _sdlTexture, &sdlRect, &sdlRect);
 		SDL_RenderPresent(_sdlRenderer);

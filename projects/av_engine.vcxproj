@@ -22,32 +22,32 @@
     <ProjectGuid>{0B5B0BDC-77FB-456B-BCB5-6AF41355B2AC}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>av_engine</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -95,7 +95,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../include;D:\tool\ffmpeg-20180605-b748772-win64-dev\include;C:\Program Files (x86)\jrtplib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include;D:\libs\ffmpeg-20200623-ce297b4-win64-dev\include;C:\Program Files (x86)\jrtplib\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\av_audio_decode_filter.cpp" />
     <ClCompile Include="..\src\av_audio_encode_filter.cpp" />
     <ClCompile Include="..\src\av_camera.cpp" />
     <ClCompile Include="..\src\av_file_sink.cpp" />
@@ -145,29 +146,26 @@
     <ClCompile Include="..\src\av_video_decode_filter.cpp" />
     <ClCompile Include="..\src\av_video_encode_filter.cpp" />
     <ClCompile Include="..\src\codec_specify.cpp" />
-    <ClCompile Include="..\src\rtp_wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\av_audio_decode_filter.h" />
     <ClInclude Include="..\include\av_audio_encode_filter.h" />
+    <ClInclude Include="..\include\av_camera.h" />
     <ClInclude Include="..\include\av_exception.h" />
     <ClInclude Include="..\include\av_file_sink.h" />
     <ClInclude Include="..\include\av_file_source.h" />
     <ClInclude Include="..\include\av_frame_scale_filter.h" />
     <ClInclude Include="..\include\av_log.h" />
+    <ClInclude Include="..\include\av_microphone.h" />
     <ClInclude Include="..\include\av_resample_filter.h" />
-    <ClInclude Include="..\include\av_rtp_sink.h" />
-    <ClInclude Include="..\include\av_rtp_source.h" />
     <ClInclude Include="..\include\av_util.h" />
     <ClInclude Include="..\include\av_video_decode_filter.h" />
     <ClInclude Include="..\include\av_video_encode_filter.h" />
-    <ClInclude Include="..\include\camera.h" />
     <ClInclude Include="..\include\codec_specify.h" />
     <ClInclude Include="..\include\filter.h" />
     <ClInclude Include="..\include\frame_scaler.h" />
     <ClInclude Include="..\include\h264_codec.h" />
     <ClInclude Include="..\include\microphone.h" />
-    <ClInclude Include="..\include\raw_codec.h" />
-    <ClInclude Include="..\include\rtp_wrapper.h" />
     <ClInclude Include="..\include\sink.h" />
     <ClInclude Include="..\include\source.h" />
     <ClInclude Include="..\include\transformation.h" />

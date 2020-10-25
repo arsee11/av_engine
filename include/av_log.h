@@ -37,6 +37,7 @@ public:
     Logger& operator<<(unsigned int val);
     Logger& operator<<(long val);
     Logger& operator<<(unsigned long val);
+    Logger& operator<<(int64_t val);
     Logger& operator<<(float val);
     Logger& operator<<(double val);
     Logger& operator<<(const end_log&);

@@ -13,7 +13,6 @@ extern "C"
 #include "codec_specify.h"
 #include "av_log.h"
 
-//static FILE* fp = fopen("./encode.h264", "wb");
 bool AvVideoEncodeFilter::transform(AVParam* p)
 {
 	if (_codec_ctx == nullptr)
@@ -33,22 +32,19 @@ bool AvVideoEncodeFilter::transform(AVParam* p)
 	int rc = avcodec_send_frame(_codec_ctx, frame);
 	if (rc == 0)
 	{
-		AVPacket* pack = av_packet_alloc();
-		rc = avcodec_receive_packet(_codec_ctx, pack);
+		rc = avcodec_receive_packet(_codec_ctx, _pack);
 		if (rc == 0)
 		{
 			//av_log_info()<<"encoder frame size="<<pack->size<<end_log();
 			//av_log_info()<<"encoder frame pts="<<pack->pts<<",dts="<<pack->dts<<end_log();
-            		//fwrite(pack->data, pack->size, 1, fp);
-            		//fflush(fp);
-			_param.data(pack->data, pack->size);
-			_param.pts = pack->pts;
+			_param.data(_pack->data, _pack->size);
+			_param.pts = _pack->pts;
 			isok = true;
+			av_packet_unref(_pack);
 		}
-		av_packet_free(&pack);
 	}
           
-    	av_frame_unref(frame);
+    av_frame_unref(frame);
 	return isok;
     
 }
@@ -85,8 +81,8 @@ bool AvVideoEncodeFilter::open(PixelFormat f, int width, int height, int framera
         char buf[256];
         av_make_error_string(buf, 256, ret);
         av_log_error()<<"encoder avcodec_open2 failed:"<<buf<<end_log();
-	avcodec_close(_codec_ctx);
-	_codec_ctx = nullptr;
+		avcodec_close(_codec_ctx);
+		_codec_ctx = nullptr;
         return false;
     }
     
@@ -96,6 +92,18 @@ bool AvVideoEncodeFilter::open(PixelFormat f, int width, int height, int framera
 	_param.h= height;
 	_param.codecid = _codec_id;
 	_param.type = MEDIA_VIDEO;
+	_pack = av_packet_alloc();
+
 	return true;
 }
 
+void AvVideoEncodeFilter::close()
+{
+	if (_codec_ctx != nullptr)
+	{
+		avcodec_free_context(&_codec_ctx);
+	}
+	if (_pack != nullptr) {
+		av_packet_free(&_pack);
+	}
+}

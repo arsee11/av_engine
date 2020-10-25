@@ -11,39 +11,35 @@ extern "C" {
 
 bool AvResampleFilter::transform(AVParam* p)
 {
-    	_param.nsamples = p->nsamples;
-    	if(p->format != _out_format 
-    	  ||p->nchn != _out_channels
-    	  ||p->sr != _out_sr
-    	)
-    	{
+    _param.nsamples = p->nsamples;
+    if( p->format != _out_format 
+      ||p->nchn != _out_channels
+      ||p->sr != _out_sr
+    )
+    {
 		if (_swr_ctx == nullptr)
-			open(p->nchn, p->sr, p->format, _out_channels, _out_sr, _out_format);
-
-		int64_t delay = 0;//swr_get_delay(_swr_ctx, p->sr);
-		av_log_info()<<"delay:"<<delay<<end_log();
-		av_log_info()<<"in srs:"<<p->sr<<end_log();
-		//av_log_info()<<"resample::itransform(): delay="<<delay<<end_log();
-		/// p->nsamples * _out_sr/p->sr
-		int64_t dst_nsamples = av_rescale_rnd(delay+p->nsamples, _out_sr
-			, p->sr, AV_ROUND_UP);
-
-		av_log_info()<<"dst_nsamples :"<<dst_nsamples <<end_log();
+			open(p->nchn, p->sr, (SampleFormat)p->format, _out_channels, _out_sr, _out_format);
 
 		AVFrame *inframe = av_frame_alloc();
 		av_samples_fill_arrays(inframe->data, inframe->linesize, p->data_ptr(), p->nchn
 			,p->nsamples, _2ffmpeg_format((SampleFormat)p->format), 1);
 
-		AVFrame *outframe = av_frame_alloc();
-		av_samples_alloc(outframe->data, outframe->linesize, _out_channels
-			,dst_nsamples, _2ffmpeg_format(_out_format), 1);
+		/// p->nsamples * _out_sr/p->sr
+		int64_t dst_nsamples = av_rescale_rnd(p->nsamples, _out_sr, p->sr, AV_ROUND_UP);
+		if (dst_nsamples != _out_nsamples)
+		{
+			if(_out_nsamples > 0)
+				av_freep(_outframe->data);
 
-		int ret = swr_convert(_swr_ctx, outframe->data, dst_nsamples,
-			(const uint8_t **)inframe->data, p->nsamples);
+			av_samples_alloc(_outframe->data, _outframe->linesize, _out_channels
+							,dst_nsamples, _2ffmpeg_format(_out_format), 1);
+			_out_nsamples = dst_nsamples;
+		}
+		int ret = swr_convert(_swr_ctx, _outframe->data, dst_nsamples
+							 ,(const uint8_t **)inframe->data, p->nsamples);
 		
 		if (ret < 0)
 		{
-			av_frame_free(&outframe);
 			av_frame_free(&inframe);
 			av_log_error()<<"Error while converting"<<end_log();
 			return false;
@@ -56,47 +52,64 @@ bool AvResampleFilter::transform(AVParam* p)
 			int n = 0;
 			for (int i = 0; i<_out_channels; i++)
 			{
-				memcpy(buf + n, outframe->data[i], outframe->linesize[0]);
-				n += outframe->linesize[0];
+				memcpy(buf + n, _outframe->data[i], _outframe->linesize[0]);
+				n += _outframe->linesize[0];
 			}
 
 			_param.data(buf, n);
 			delete[] buf;
 		}
 		else
-			_param.data(outframe->data[0], outframe->linesize[0]);
+			_param.data(_outframe->data[0], _outframe->linesize[0]);
 
 		_param.nsamples = dst_nsamples;
-		av_frame_free(&outframe);
 		av_frame_free(&inframe);
-    	}
-    	else
-    	{
-    	    	_param.data(p->data_ptr(), p->size());
-    	}
+    }
+   	else
+   	{
+    	_param.data(p->data_ptr(), p->size());
+   	} 
     	
-    	return true;
+    return true;
 }
 
 
-void AvResampleFilter::open(int in_channels, int in_sr, int in_format
+void AvResampleFilter::open(int in_channels, int in_sr, SampleFormat in_format
 	,int out_channels, int out_sr, SampleFormat out_format)
 {
-	_swr_ctx = swr_alloc();
-	if (_swr_ctx == NULL) {
+	_swr_ctx = swr_alloc_set_opts(NULL
+			,out_channels
+			,_2ffmpeg_format(out_format)
+			,out_sr
+			,in_channels
+			, _2ffmpeg_format(in_format)
+			,in_sr
+			,0, NULL);
+	if (_swr_ctx == nullptr)
+	{
 		throw AvException("Could not allocate resampler context\n", __FILE__, __LINE__);
 	}
-
-	/* set options */
-	av_opt_set_int(_swr_ctx, "in_channel_count", in_channels, 0);
-	av_opt_set_int(_swr_ctx, "in_sr", in_sr, 0);
-	av_opt_set_sample_fmt(_swr_ctx, "in_sample_fmt", (AVSampleFormat)in_format, 0);
-	av_opt_set_int(_swr_ctx, "out_channel_count", out_channels, 0);
-	av_opt_set_int(_swr_ctx, "out_sr", out_sr, 0);
-	av_opt_set_sample_fmt(_swr_ctx, "out_sample_fmt", _2ffmpeg_format(out_format), 0);
 
 	int ret;
-	if ((ret = swr_init(_swr_ctx)) < 0) {
+	if ((ret = swr_init(_swr_ctx)) < 0)
+	{
 		throw AvException("Could not allocate resampler context\n", __FILE__, __LINE__);
 	}
+
+	_outframe = av_frame_alloc();
+}
+
+void AvResampleFilter::close()
+{
+	if (_swr_ctx == nullptr)
+	{
+		swr_free(&_swr_ctx);
+		_swr_ctx = nullptr;
+	}
+	if (_outframe != nullptr) 
+	{
+		av_frame_free(&_outframe);
+		_outframe = nullptr;
+	}
+
 }

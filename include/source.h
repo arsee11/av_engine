@@ -24,10 +24,10 @@ public:
 			if(_next_trans != nullptr)
 				_next_trans->put(&_param);
 
-            		return _param.size();
+            return _param.size();
 		}
         
-        	return -1;
+        return -1;
 	}
 
 	void setNext(Transformation<Param>* next){ _next_trans=next; }

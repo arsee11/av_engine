@@ -106,7 +106,7 @@ bool AvVideoDecodeFilter::open(CodecID cid, int w, int h)
 	_param.fps = rate.den;
 	_param.w= w;
 	_param.h= h;
-        _param.codecid = CodecID::CODEC_ID_NONE;
+    _param.codecid = CodecID::CODEC_ID_NONE;
 	_param.type = MEDIA_VIDEO;
 	_param.format = ffmpeg2format(_codec_ctx->pix_fmt);
 	return true;
@@ -114,7 +114,8 @@ bool AvVideoDecodeFilter::open(CodecID cid, int w, int h)
 
 bool AvVideoDecodeFilter::open(const CodecInfo& ci)
 {
-	AVCodec* codec = avcodec_find_decoder(ci.codecpar->codec_id);
+	_codec_id = ci.codec;
+	AVCodec* codec = avcodec_find_decoder(_2ffmpeg_id(_codec_id));
 	if (codec == NULL)
 	{
 		av_log_error() << "AvVideoDecodeFilter::open() failed" << end_log();
@@ -131,7 +132,7 @@ bool AvVideoDecodeFilter::open(const CodecInfo& ci)
 	if (_codec_ctx == NULL)
 		return false;
 
-	avcodec_parameters_to_context(_codec_ctx, ci.codecpar);
+	avcodec_parameters_to_context(_codec_ctx, static_cast<AVCodecParameters*>(ci.codecpar));
 	AVDictionary* opts = NULL;
 	av_dict_set(&opts, "allow_sw", "1", 0); //allows software encoding
 	if (avcodec_open2(_codec_ctx, codec, &opts) < 0)
@@ -139,11 +140,11 @@ bool AvVideoDecodeFilter::open(const CodecInfo& ci)
 		return false;
 	}
 
-	_param.fps = 0;
-	_param.w= ci.codecpar->width;
-	_param.h= ci.codecpar->height;
-	_param.codecid = _ffmpeg2codec(ci.codecpar->codec_id);
-	_param.format = ffmpeg2format((AVPixelFormat)ci.codecpar->format);
-	_param.type = MEDIA_VIDEO;
+	_param.fps = ci.fps;
+	_param.w = ci.w;
+	_param.h= ci.h;
+	_param.codecid = _codec_id;
+	_param.format = ci.pix_format;
+	_param.type = MediaType::MEDIA_VIDEO;
 	return true;
 }

@@ -1,4 +1,4 @@
-// ffmpeg_rtp_server.cpp 
+// video_player.cpp 
 
 #ifdef _MSC_VER
 #pragma comment(lib, "av_engine.lib")
@@ -24,31 +24,24 @@ using namespace std;
 #include <av_log.h>
 #include "../av_displayer.h"
 
-AVPacket pkt;
-
 int main(int argc, char* argv[])
 {
-
 	av_init();
-	avformat_network_init();
 	av_set_logger(stdout_log);
-
-	av_init_packet(&pkt);
-	pkt.data = NULL;
-	pkt.size = 0;
 
 	try {
 		AVDisplayer dis;
-        
-		AvVideoDecodeFilter* df = AvVideoDecodeFilter::create(CodecID::CODEC_ID_NONE, &dis);
+		AvFrameScaleFilter* fs = AvFrameScaleFilter::create(PixelFormat::FORMAT_RGB24, 1280, 720, &dis);
+		AvVideoDecodeFilter* df = AvVideoDecodeFilter::create(CodecID::CODEC_ID_NONE, fs);
 
 		AvFileSource* avfile = AvFileSource::create(df);
-		//avfile->open("./av.mp4");//replace this filename
+		avfile->open("./av.mp4");//replace this filename
 		//avfile->open("rtmp://192.168.56.101/live/1");
-		avfile->open("rtsp://admin:HIBP123456@192.168.1.64");
+		//avfile->open("rtsp://admin:HIBP123456@192.168.1.64");
 
-		dis.open(avfile->width(), avfile->height());
-		df->open(avfile->codec_info());
+		CodecInfo ci = avfile->codec_info(MediaType::MEDIA_VIDEO);
+		dis.open(ci.w, ci.h);
+		df->open(ci);
 
         while(true)
         {
@@ -56,7 +49,7 @@ int main(int argc, char* argv[])
             if(ret < 0)
                 break;
             
-            av_sleep(1000/avfile->framerate());
+            av_sleep(1000/ci.fps);
         }
 	}
 	catch (AvException& e) {

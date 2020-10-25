@@ -17,6 +17,7 @@ extern "C"{
 #endif
 
 #include "source.h"
+#include <map>
 
 
 class AvFileSource : public Source<AVParam>
@@ -33,35 +34,27 @@ public:
 	AVParam* get()override;
 	void close();
 
-	int framerate() { return _framerate; }
-	int width() { return _width; }
-	int height() { return _height; }
-	const CodecInfo& codec_info()const { return _codec_info; }
+
+	CodecInfo codec_info(MediaType mt) { return _codec_infos[mt]; }
 
 private:
 	AvFileSource(Transformation<Param>* ts, bool read = false)
 		:Source(ts)
 		,_format_ctx(NULL)
-		,_width(0)
-		,_height(0)
 	{
-		_codec_info.codecpar = NULL;
 	}
 
-    	void initParams();
+    void initParams();
 	AvReadRet readp(AVPacket* packet);
 
 private:
 	AVFormatContext* _format_ctx;
 	std::string _name;
-	AVCodecID _vcodecid, _acodecid;
-	int _width;
-	int _height;
-	int _framerate = 0;
-	int _videostream = 0;
-    	int _audiostream = 0;
+	int _videostream = -1;
+    int _audiostream = -1;
 
-	CodecInfo _codec_info;
+	std::map<MediaType, CodecInfo> _codec_infos;
+	AVPacket* _pack = nullptr;
 };
 
 #endif /*AV_FILE_SOURCE_H*/

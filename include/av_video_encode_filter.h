@@ -19,7 +19,7 @@ public:
 	///@param framerate  framerate of video.
 	///@param bitrate video bitrate.
 	///@param gop goup of picture.
-    	static AvVideoEncodeFilter* create(CodecID cid, int framerate, int bitrate, int gop
+	static AvVideoEncodeFilter* create(CodecID cid, int framerate, int bitrate, int gop
 		,Transformation<Param>* next_filter=nullptr)
 	{
 		return new AvVideoEncodeFilter(cid, framerate, bitrate, gop, next_filter); 
@@ -36,18 +36,24 @@ private:
 		,_bitrate(bitrate)
 		,_gop(gop)
     {
-    }	
+    }
+	~AvVideoEncodeFilter()
+	{
+		close();
+	}
    
 	bool open(PixelFormat f, int with, int height, int framerate);
+	void close();
 	bool transform(AVParam* p)override;
 
 private:
-    	CodecID _codec_id;
-    	AVCodecContext* _codec_ctx=nullptr;
+   	CodecID _codec_id;
+    AVCodecContext* _codec_ctx=nullptr;
 	unsigned long _frame_count = 0;
 	int _framerate=0;	
 	int _bitrate=256000;	
 	int _gop=50;	
+	AVPacket* _pack=nullptr;
   };
 
 #endif /* AV_ENCODE_FILTER_H */

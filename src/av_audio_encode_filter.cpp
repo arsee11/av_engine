@@ -11,8 +11,6 @@ extern "C"
 
 #include "codec_specify.h"
 
-//static FILE* f=fopen("test.enc", "wb");
-
 bool AvAudioEncodeFilter::transform(AVParam* p)
 {
 	if(_codec_ctx == nullptr)
@@ -43,15 +41,13 @@ bool AvAudioEncodeFilter::transform(AVParam* p)
 	if (_codec_ctx->codec->capabilities & AV_CODEC_CAP_VARIABLE_FRAME_SIZE)
 		nsamples = p->nsamples;
 
-    	AVFrame *frame = av_frame_alloc();
+    AVFrame *frame = av_frame_alloc();
 	av_samples_alloc(frame->data, frame->linesize, _codec_ctx->channels, nsamples, format, 1);
 			
 	frame->nb_samples= nsamples;
 	frame->format = format;
 	frame->channel_layout = av_get_default_channel_layout(_codec_ctx->channels); 
 	frame->sample_rate= _sample_rate;
-	
-	AVPacket* pack = av_packet_alloc();
 	
 	bool isok = true;
 	int i;
@@ -61,23 +57,26 @@ bool AvAudioEncodeFilter::transform(AVParam* p)
 	for (i = 0; i + nsamples <= p->nsamples; i += nsamples)
 	{
 		av_samples_copy(frame->data, tmp_frame->data, 0, i, nsamples, _codec_ctx->channels, format);
-		//pts = _samples_count * (1/_sr)/ time_base
 		frame->pts = av_rescale_q(_samples_count, AVRational{ 1, _sample_rate }, _codec_ctx->time_base);
-		av_log_info()<<"pts="<<frame->pts<<end_log();
+		//av_log_info()<<"pts="<<frame->pts<<end_log();
 		_samples_count += nsamples;
 
 		int rc = avcodec_send_frame(_codec_ctx, frame);
 		if (rc < 0 && AVERROR(EAGAIN) != rc)
 		{
+			char str[1024];
+			int str_size = 1024;
+			av_strerror(rc, str, str_size);
+			av_log_error() << str << end_log();
 			isok = false;
 			break;
 		}
 
-		rc = avcodec_receive_packet(_codec_ctx, pack);
+		rc = avcodec_receive_packet(_codec_ctx, _pack);
 		if (rc == 0)
 		{
-			_param.data(pack->data, pack->size);
-			_param.pts = pack->pts;
+			_param.data(_pack->data, _pack->size);
+			_param.pts = _pack->pts;
 			_param.nsamples = nsamples;
 		}
 		else if (AVERROR(EAGAIN) != rc)
@@ -88,14 +87,12 @@ bool AvAudioEncodeFilter::transform(AVParam* p)
 
 	}
     
-	av_packet_free(&pack);
+	av_packet_unref(_pack);
 	av_frame_unref(frame);
 	av_frame_unref(tmp_frame);
 
 	if (isok)
 	{
-		//fwrite(p->getData(), p->len, 1, f);
-		//fflush(f);
 		return true;
 	}
 	else
@@ -141,5 +138,18 @@ bool AvAudioEncodeFilter::open(int sample_rate, int nb_channels, SampleFormat fo
 	_param.sr = sample_rate;
 	_param.nchn = nb_channels;
 	_param.type = MEDIA_AUDIO;
+	_pack = av_packet_alloc();
+
 	return true;
+}
+
+void AvAudioEncodeFilter::close()
+{
+	if (_codec_ctx != nullptr)
+	{
+		avcodec_free_context(&_codec_ctx);
+	}
+	if (_pack != nullptr) {
+		av_packet_free(&_pack);
+	}
 }

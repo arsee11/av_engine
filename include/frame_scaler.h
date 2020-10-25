@@ -38,7 +38,10 @@ public:
     void scale(const uint8_t* data, int len)
 	{
         
-        av_image_fill_arrays(_srcFrame->data, _srcFrame->linesize, data, _2ffmpeg_format(_src_pix_fmt), _srcWith, _srcHeight, 1);
+        av_image_fill_arrays(_srcFrame->data, _srcFrame->linesize, data,
+            convertDeprecatedFormat(_2ffmpeg_format(_src_pix_fmt)),
+            _srcWith, _srcHeight, 1
+        );
         int dst_height = sws_scale(
                             _sws_ctx,
                             _srcFrame->data,
@@ -47,7 +50,7 @@ public:
                             _srcHeight,
                             _destFrame->data,
                             _destFrame->linesize
-                  );
+        );
 
 		_destFrame->width = _dstWith;
         _destFrame->height = dst_height;
@@ -69,11 +72,20 @@ private:
 	{
         _srcFrame = av_frame_alloc();
         _destFrame = av_frame_alloc();
-        _sws_ctx = sws_getContext(srcWith, srcHeight, _2ffmpeg_format(src_pix_fmt),
+        _sws_ctx = sws_getContext(srcWith, srcHeight, convertDeprecatedFormat(_2ffmpeg_format(src_pix_fmt)),
 				dstWith, dstHeight, _2ffmpeg_format(dst_pix_fmt),
 				SWS_BILINEAR, NULL, 	NULL, NULL
 		);
         
+        /*int dummy[4];
+        int srcRange, dstRange;
+        int brightness, contrast, saturation;
+        sws_getColorspaceDetails(_sws_ctx, (int**)&dummy, &srcRange, (int**)&dummy, &dstRange, &brightness, &contrast, &saturation);
+        const int* coefs = sws_getCoefficients(SWS_CS_DEFAULT);
+        srcRange = 1; // this marks that values are according to yuvj
+        sws_setColorspaceDetails(_sws_ctx, coefs, srcRange, coefs, dstRange,
+            brightness, contrast, saturation);
+        */
 		_dst_frame_size = av_image_get_buffer_size(_2ffmpeg_format(dst_pix_fmt)
             ,dstWith ,dstHeight ,1
 		);
@@ -89,7 +101,28 @@ private:
 		);
         
     }
-	
+    AVPixelFormat convertDeprecatedFormat(AVPixelFormat format)
+    {
+        switch (format)
+        {
+        case AV_PIX_FMT_YUVJ420P:
+            return AV_PIX_FMT_YUV420P;
+            break;
+        case AV_PIX_FMT_YUVJ422P:
+            return AV_PIX_FMT_YUV422P;
+            break;
+        case AV_PIX_FMT_YUVJ444P:
+            return AV_PIX_FMT_YUV444P;
+            break;
+        case AV_PIX_FMT_YUVJ440P:
+            return AV_PIX_FMT_YUV440P;
+            break;
+        default:
+            return format;
+            break;
+        }
+    }
+
 private:
 	AVFrame* _destFrame, *_srcFrame;
 	struct SwsContext* _sws_ctx;

@@ -75,6 +75,13 @@ Logger& Logger::operator<<(unsigned long val)
     return *this;
 }
 
+Logger& Logger::operator<<(int64_t val)
+{
+
+		_str_buf += std::to_string(val);
+		return *this;
+}
+
 Logger& Logger::operator<<(float val)
 {
     _str_buf += t2str(val);

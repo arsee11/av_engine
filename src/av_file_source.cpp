@@ -5,35 +5,37 @@
 
 AVParam* AvFileSource::get()
 {
-	AVPacket *pack = av_packet_alloc();
-	av_init_packet(pack);
 	bool isok=false;
-	if (readp(pack) == AV_READ_OK)
+	if (readp(_pack) == AV_READ_OK)
 	{
 
-	 	if(pack->stream_index == _videostream)
+	 	if(_pack->stream_index == _videostream)
 		{
-			_param.data(pack->data, pack->size);
-			_param.type = MEDIA_VIDEO;
-			_param.pts = pack->pts;
-			_param.codecid = _ffmpeg2codec(_vcodecid);
-			_param.w = width();
-			_param.h = height();
-			_param.fps = framerate();
-    		_param.format = ffmpeg2format((AVPixelFormat)_format_ctx->streams[_videostream]->codecpar->format);
+			_param.data(_pack->data, _pack->size);
+			_param.type = MediaType::MEDIA_VIDEO;
+			_param.pts = _pack->pts;
+			_param.codecid = _codec_infos[MediaType::MEDIA_VIDEO].codec;
+			_param.w = _codec_infos[MediaType::MEDIA_VIDEO].w;
+			_param.h = _codec_infos[MediaType::MEDIA_VIDEO].h;
+			_param.fps = _codec_infos[MediaType::MEDIA_VIDEO].fps;
+    		_param.format = _codec_infos[MediaType::MEDIA_VIDEO].pix_format;
 			isok=true;
 		}
-		else if(pack->stream_index == _audiostream)
+		else if(_pack->stream_index == _audiostream)
 		{
-			_param.data(pack->data, pack->size);
-			_param.type = MEDIA_AUDIO;
-			_param.pts = pack->pts;
-			_param.codecid = _ffmpeg2codec(_acodecid);
+			_param.data(_pack->data, _pack->size);
+			_param.type = MediaType::MEDIA_AUDIO;
+			_param.codecid = _codec_infos[MediaType::MEDIA_AUDIO].codec;
+			_param.format = _codec_infos[MediaType::MEDIA_AUDIO].sp_format;
+			_param.sr = _codec_infos[MediaType::MEDIA_AUDIO].sr;
+			_param.nchn = _codec_infos[MediaType::MEDIA_AUDIO].nchn;
+			_param.nsamples = _codec_infos[MediaType::MEDIA_AUDIO].nsamples;
+
 			isok=true;
 		}
 	}
 
-	av_packet_free(&pack);
+	av_packet_unref(_pack);
 	if(isok)
 		return &_param;
 
@@ -48,23 +50,26 @@ void AvFileSource::open(const std::string& filename)
 		throw AvException(ret, __FILE__, __LINE__);
 
 	initParams();
+	_pack = av_packet_alloc();
 }
 
 void AvFileSource::close()
 {
 	avformat_free_context(_format_ctx);
 	_format_ctx = NULL;
+	if (_pack != nullptr) {
+		av_packet_free(&_pack);
+		_pack = nullptr;
+	}
 }
 
 AvFileSource::AvReadRet AvFileSource::readp(AVPacket* packet)
 {
 	int ret = -1;
-	do {
-		ret = av_read_frame(_format_ctx, packet);
-		if (ret != 0)
-			return AV_EOF;
 
-	} while (packet->stream_index != _videostream);
+	ret = av_read_frame(_format_ctx, packet);
+	if (ret != 0)
+		return AV_EOF;
 
 	return AV_READ_OK;
 }
@@ -77,19 +82,31 @@ void AvFileSource::initParams()
         
         for(uint32_t i=0; i<_format_ctx->nb_streams; i++)
         {
+			AVCodecParameters* par = _format_ctx->streams[i]->codecpar;
             if( _format_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
             {
                 _videostream = i;
-                _vcodecid = _format_ctx->streams[_videostream]->codecpar->codec_id;
-                _width = _format_ctx->streams[_videostream]->codecpar->width;
-                _height = _format_ctx->streams[_videostream]->codecpar->height;
-                _framerate = _format_ctx->streams[_videostream]->r_frame_rate.num;
-		_codec_info.codecpar = _format_ctx->streams[_videostream]->codecpar;
+				CodecInfo ci;
+				ci.codec_type = MediaType::MEDIA_VIDEO;
+				ci.codec = _ffmpeg2codec(par->codec_id);
+				ci.pix_format = ffmpeg2format((AVPixelFormat)par->format);
+				ci.w = par->width;
+				ci.h = par->height;
+				ci.fps = _format_ctx->streams[i]->r_frame_rate.num/_format_ctx->streams[i]->r_frame_rate.den;
+				ci.codecpar = par;
+				_codec_infos.insert({ ci.codec_type, ci });
             }
             else if(_format_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
             {
                 _audiostream = i;
-                _acodecid = _format_ctx->streams[_audiostream]->codecpar->codec_id;
+				CodecInfo ci;
+				ci.codec_type = MediaType::MEDIA_AUDIO;
+				ci.codec = _ffmpeg2codec(par->codec_id);
+				ci.sp_format = ffmpeg2format((AVSampleFormat)par->format);
+				ci.sr = par->sample_rate;
+				ci.nchn = par->channels;
+				ci.nsamples = par->frame_size;
+				_codec_infos.insert({ ci.codec_type, ci });
             }
         }
 }

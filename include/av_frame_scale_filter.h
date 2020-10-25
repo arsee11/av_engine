@@ -12,15 +12,15 @@ class FrameScaler;
 class AvFrameScaleFilter:public Filter<AVParam>
 {
 public:
-    	static AvFrameScaleFilter* create(PixelFormat f, int width, int height, 
-		Transformation<AVParam>* next_filter=nullptr)
+    static AvFrameScaleFilter* create(PixelFormat f, int width, int height, 
+	Transformation<AVParam>* next_filter=nullptr)
 	{
 		return new AvFrameScaleFilter(f, width, height, next_filter); 
 	}
     
 private:
-    	AvFrameScaleFilter(PixelFormat f, int width, int height, 
-		Transformation<AVParam>* next_filter=nullptr
+    AvFrameScaleFilter(PixelFormat f, int width, int height, 
+	Transformation<AVParam>* next_filter=nullptr
 	)
     	:Filter<AVParam>(next_filter)
     	,_format(f)
@@ -31,10 +31,9 @@ private:
     
 	bool transform(AVParam* p)override;
    
-    	PixelFormat _format, _src_format = PixelFormat::FORMAT_NONE;
+    PixelFormat _format, _src_format = PixelFormat::FORMAT_NONE;
 	int _width, _height;
 	FrameScaler* _scaler = nullptr;
 	int _src_width = 0, _src_height = 0;
 };
-
 #endif /* AV_FRAME_SCALE_FILTER_H */

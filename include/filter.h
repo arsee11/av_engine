@@ -30,7 +30,7 @@ public:
 	}
 
 protected:
-    	virtual bool transform(Param* p)=0;
+    virtual bool transform(Param* p)=0;
 	Param _param;
     
 private:

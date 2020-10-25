@@ -6,17 +6,24 @@
 #include "av_util.h"
 #include "filter.h"
 #include "codec_specify.h"
-#include <../third_party/include/flexible_buffer.h>
 
 class AvAudioDecodeFilter:public Filter<AVParam>
 {
 public:
 	static AvAudioDecodeFilter* create(CodecID cid
-		,int sr, int channels, SampleFormat sample_fmt
-		,Transformation<Param>* next_filter = nullptr) 
+			,int sr, int channels, SampleFormat sample_fmt
+			,Transformation<Param>* next_filter = nullptr) 
 	{
 		return new AvAudioDecodeFilter(cid, sr, channels, sample_fmt, next_filter); 
 	}
+
+	static AvAudioDecodeFilter* create(Transformation<Param>* next_filter = nullptr)
+	{
+		return new AvAudioDecodeFilter(next_filter);
+	}
+
+	int frame_size();
+	bool open(const CodecInfo& ci);
 
 private:
 	AvAudioDecodeFilter(CodecID cid
@@ -28,15 +35,16 @@ private:
 		,_sr(sr)
 		,_channels(channels)
 		,_sample_fmt(sample_fmt)
-		,_inbuf(1280)
+	{
+	}
+
+	AvAudioDecodeFilter(Transformation<Param>* next_filter = nullptr)
+		:Filter<AVParam>(next_filter)
 	{
 	}
 
 	bool transform(AVParam* p)override;
-	bool open(CodecID cid
-		,int sr, int channels, SampleFormat sample_fmt);
-
-	void dumpData(AVFrame* avframe);
+	bool open(CodecID cid, int sr, int channels, SampleFormat sample_fmt);
 	void decode(AVFrame* frame, AVPacket* packet);
 
 private:
@@ -45,7 +53,6 @@ private:
 	int _sr, _channels;
 	SampleFormat _sample_fmt;
 	AVCodecContext* _codec_ctx = nullptr;
-	AVCodecParserContext* _parser = nullptr;
-	arsee::FlexibleBuffer<uint8_t> _inbuf;
+	AVCodecParserContext* _parser = nullptr;	
 };
 #endif/*AV_AUDIO_DECODE_FILTER_H*/

@@ -93,7 +93,7 @@ public:
 	}
 	
 	iterator end(){
-		return &_buf[_end];
+		return begin()+_end;
 	}
 	
 	size_t size(){

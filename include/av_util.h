@@ -10,7 +10,6 @@ extern "C" {
 }
 
 #include "codec_specify.h"
-#include <../third_party/include/flexible_buffer.h>
 
 
 typedef struct Param {
@@ -28,19 +27,18 @@ typedef struct Param {
 	    struct{
 	        int sr; //smaple_rate
 	        int nchn;//number of channels.
-	        int nsamples;//mumber of smaples.
+	        int nsamples;//mumber of smaples per channel.
 	    };
 	};
 
-	void data(const unsigned char* d, int l) {
-		_buf.push(d, l);
+	void data(unsigned char* d, int l) {
+		_buf = d;
+		_size = l;
 	}	
 
-	size_t size(){ return _buf.size(); }	
-	void resize(size_t size ){ _buf.capacity(size); }	
-
-	unsigned char* data_ptr(){ return _buf.begin(); }
-	void clear(){ _buf.clear(); }
+	size_t size(){ return _size; }	
+	unsigned char* data_ptr(){ return _buf; }
+	void clear(){ _buf = nullptr; _size = 0; }
 
 	void copyParams(const Param& o){
 		codecid = o.codecid;
@@ -48,18 +46,18 @@ typedef struct Param {
 		format	= o.format;
 		pts     = o.pts;
 		w       = o.w;
-		fps     = o.h;
+		h       = o.h;
+		fps     = o.fps;
 		sr      = o.sr;
 		nchn	= o.nchn;
 		nsamples= o.nsamples;
 	}
 
-	Param():_buf(256){};
 	Param& operator=(const Param&)=delete;
 
 private:
-	arsee::FlexibleBuffer<unsigned char> _buf;
-
+	unsigned char* _buf=nullptr;
+	size_t _size=0;
 }AVParam;
 
 ///@return 0 OK, or failed
@@ -72,23 +70,12 @@ inline int av_init()
 	return 0;
 }
 
-#ifdef _MSC_VER
-#define _WINSOCKAPI_
-#include <Windows.h>
-#undef _WINSOCKAPI_
-#else
-#include <unistd.h> //unix or linux
-#endif
+#include <chrono>
+#include <thread>
 
 inline void av_sleep(int ms)
 {
-#ifdef _MSC_VER
-	Sleep(ms);
-#else
-    usleep(ms*1000);
-#endif
-
-
+	std::this_thread::sleep_for( std::chrono::milliseconds(ms) );
 }
 
 #endif /*AV_UTIL_H*/

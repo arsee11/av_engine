@@ -33,7 +33,7 @@ public:
     void close();
 
 	AVParam* get()override;
-
+    CodecID codec() { return _param.codecid;  }
     int width()const{ return _width; }
     int height()const{ return _height; }
 
@@ -45,6 +45,8 @@ private:
     int _height=0;
     int _framerate=30;
     bool _is_opened=false;
+    AVPacket* _pack = nullptr;
+
 };
 
 #endif /* AV_CAMERA_H */
