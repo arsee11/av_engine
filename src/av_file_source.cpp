@@ -6,6 +6,7 @@
 AVParam* AvFileSource::get()
 {
 	bool isok=false;
+	av_packet_unref(_pack);
 	if (readp(_pack) == AV_READ_OK)
 	{
 
@@ -35,7 +36,6 @@ AVParam* AvFileSource::get()
 		}
 	}
 
-	av_packet_unref(_pack);
 	if(isok)
 		return &_param;
 
@@ -44,9 +44,9 @@ AVParam* AvFileSource::get()
 
 void AvFileSource::open(const std::string& filename)
 {
-	AVFormatContext *formatCtx = NULL;
+	AVFormatContext *formatCtx = nullptr;
 	int ret = -1;
-	if ((ret = avformat_open_input(&_format_ctx, filename.c_str(), NULL, NULL)) < 0)
+	if ((ret = avformat_open_input(&_format_ctx, filename.c_str(), nullptr, nullptr)) < 0)
 		throw AvException(ret, __FILE__, __LINE__);
 
 	initParams();
@@ -55,8 +55,12 @@ void AvFileSource::open(const std::string& filename)
 
 void AvFileSource::close()
 {
-	avformat_free_context(_format_ctx);
-	_format_ctx = NULL;
+	if(_format_ctx != nullptr)
+    {   
+        avformat_close_input(&_format_ctx);
+	    avformat_free_context(_format_ctx);
+	    _format_ctx = nullptr;
+    }
 	if (_pack != nullptr) {
 		av_packet_free(&_pack);
 		_pack = nullptr;
@@ -77,7 +81,7 @@ AvFileSource::AvReadRet AvFileSource::readp(AVPacket* packet)
 void AvFileSource::initParams()
 {
     int ret = -1;
-    if ((ret = avformat_find_stream_info(_format_ctx, NULL))< 0)
+    if ((ret = avformat_find_stream_info(_format_ctx, nullptr))< 0)
         throw AvException(ret, __FILE__, __LINE__);
         
         for(uint32_t i=0; i<_format_ctx->nb_streams; i++)

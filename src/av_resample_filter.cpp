@@ -45,23 +45,7 @@ bool AvResampleFilter::transform(AVParam* p)
 			return false;
 		}
 	
-		if (av_sample_fmt_is_planar(_2ffmpeg_format(_out_format)))
-		{
-			int size = av_samples_get_buffer_size(NULL, _out_channels, dst_nsamples, _2ffmpeg_format(_out_format), 1);
-			uint8_t* buf = new uint8_t[size];
-			int n = 0;
-			for (int i = 0; i<_out_channels; i++)
-			{
-				memcpy(buf + n, _outframe->data[i], _outframe->linesize[0]);
-				n += _outframe->linesize[0];
-			}
-
-			_param.data(buf, n);
-			delete[] buf;
-		}
-		else
-			_param.data(_outframe->data[0], _outframe->linesize[0]);
-
+		_param.data(_outframe->data[0], _outframe->linesize[0]);
 		_param.nsamples = dst_nsamples;
 		av_frame_free(&inframe);
     }
@@ -101,7 +85,7 @@ void AvResampleFilter::open(int in_channels, int in_sr, SampleFormat in_format
 
 void AvResampleFilter::close()
 {
-	if (_swr_ctx == nullptr)
+	if (_swr_ctx != nullptr)
 	{
 		swr_free(&_swr_ctx);
 		_swr_ctx = nullptr;

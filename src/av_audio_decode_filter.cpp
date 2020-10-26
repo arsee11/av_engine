@@ -30,25 +30,22 @@ bool AvAudioDecodeFilter::transform(AVParam* p)
 			return false;
 	}
 
-	AVPacket *packet =av_packet_alloc();
-	AVFrame* avframe = av_frame_alloc();
-	packet->data = p->data_ptr();
-	packet->size = p->size();	
-	decode(avframe, packet);
-	_param.nsamples = avframe->nb_samples;
-	if (av_sample_fmt_is_planar((AVSampleFormat)avframe->format))
+	_avpacket->data = p->data_ptr();
+	_avpacket->size = p->size();	
+	av_frame_unref(_avframe);
+	decode(_avframe, _avpacket);
+	_param.nsamples = _avframe->nb_samples;
+	if (av_sample_fmt_is_planar((AVSampleFormat)_avframe->format))
 	{
-		int nchn = avframe->channels;
+		int nchn = _avframe->channels;
 		int size = av_samples_get_buffer_size(
-			NULL, nchn, avframe->nb_samples, (AVSampleFormat)avframe->format, 1);
+			NULL, nchn, _avframe->nb_samples, (AVSampleFormat)_avframe->format, 1);
 
-		_param.data(avframe->data[0], size);
+		_param.data(_avframe->data[0], size);
 	}
 	else
-		_param.data(avframe->data[0], avframe->linesize[0]);
+		_param.data(_avframe->data[0], _avframe->linesize[0]);
 
-	av_packet_free(&packet);
-	av_frame_unref(avframe);
 
 	return true;
 }
@@ -81,6 +78,20 @@ bool AvAudioDecodeFilter::open(const CodecInfo& ci)
 	_sample_fmt = ci.sp_format;
 	return open(_codec_id, _sr, _channels, _sample_fmt);
 }
+
+void AvAudioDecodeFilter::close()
+{
+    
+	if (_codec_ctx == NULL)
+	    avcodec_free_context(&_codec_ctx);
+
+    if(_avpacket != nullptr)
+        av_packet_free(&_avpacket);
+
+    if(_avframe!= nullptr)
+        av_frame_free(&_avframe);
+}
+
 
 bool AvAudioDecodeFilter::open(CodecID cid, int sr, int channels, SampleFormat sample_fmt)
 {
@@ -118,5 +129,7 @@ bool AvAudioDecodeFilter::open(CodecID cid, int sr, int channels, SampleFormat s
 	_param.sr = sr;
 	_param.nchn= channels;
 	_param.type = MEDIA_AUDIO;
+	_avpacket = av_packet_alloc();
+	_avframe = av_frame_alloc();
 	return true;
 }

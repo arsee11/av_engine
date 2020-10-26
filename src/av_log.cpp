@@ -75,12 +75,14 @@ Logger& Logger::operator<<(unsigned long val)
     return *this;
 }
 
+/*
 Logger& Logger::operator<<(int64_t val)
 {
 
 		_str_buf += std::to_string(val);
 		return *this;
 }
+*/
 
 Logger& Logger::operator<<(float val)
 {
@@ -96,20 +98,25 @@ Logger& Logger::operator<<(double val)
 
 Logger& Logger::operator<<(const end_log& )
 {
+    _str_buf = file +":"+t2str(line)+" "+_str_buf;
     av_log_output(_level, _str_buf.c_str());
     return *this;
 }
 
 static Logger info_log(LOGL_INFO);
-Logger& av_log_info()
+Logger& av_log_info(const std::string& file, int line)
 {
     info_log.clear();
+    info_log.file = file;
+    info_log.line = line;
     return info_log;
 }
 
 static Logger error_log(LOGL_ERROR);
-Logger& av_log_error()
+Logger& av_log_error(const std::string& file, int line)
 {
     error_log.clear();
+    error_log.file = file;
+    error_log.line = line;
     return error_log;
 }

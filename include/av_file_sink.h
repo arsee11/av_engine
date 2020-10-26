@@ -84,7 +84,7 @@ private:
 
 
 private:
-	AVFormatContext* _format_ctx;
+	AVFormatContext* _format_ctx=nullptr;
 	std::string  _filename;
 	CodecID _codec_id = CodecID::CODEC_ID_NONE;
 	CodecID _audio_codec_id = CodecID::CODEC_ID_NONE;

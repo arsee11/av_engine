@@ -30,18 +30,21 @@ int main(int argc, char* argv[])
 	av_set_logger(stdout_log);
 
 	try {
-		AVDisplayer dis;
-		AvFrameScaleFilter* fs = AvFrameScaleFilter::create(PixelFormat::FORMAT_RGB24, 1280, 720, &dis);
-		AvVideoDecodeFilter* df = AvVideoDecodeFilter::create(CodecID::CODEC_ID_NONE, fs);
 
-		AvFileSource* avfile = AvFileSource::create(df);
+		AvFileSource* avfile = AvFileSource::create();
 		avfile->open("./av.mp4");//replace this filename
 		//avfile->open("rtmp://192.168.56.101/live/1");
 		//avfile->open("rtsp://admin:HIBP123456@192.168.1.64");
 
 		CodecInfo ci = avfile->codec_info(MediaType::MEDIA_VIDEO);
+		AVDisplayer dis;
 		dis.open(ci.w, ci.h);
+		AvFrameScaleFilter* fs = AvFrameScaleFilter::create(PixelFormat::FORMAT_RGB24
+            ,ci.w, ci.h, &dis
+        );
+		AvVideoDecodeFilter* df = AvVideoDecodeFilter::create(CodecID::CODEC_ID_NONE, fs);
 		df->open(ci);
+        avfile->setNext(df);
 
         while(true)
         {
@@ -51,6 +54,10 @@ int main(int argc, char* argv[])
             
             av_sleep(1000/ci.fps);
         }
+
+        avfile->destroy();
+        df->destroy();
+        fs->destroy();
 	}
 	catch (AvException& e) {
 		cout << e.what() << endl;

@@ -18,6 +18,8 @@ public:
 		return new AvFrameScaleFilter(f, width, height, next_filter); 
 	}
     
+    void destroy(){delete this; }
+
 private:
     AvFrameScaleFilter(PixelFormat f, int width, int height, 
 	Transformation<AVParam>* next_filter=nullptr
@@ -26,9 +28,11 @@ private:
     	,_format(f)
     	,_width(width)
     	,_height(height)
-    	{
-    	}
-    
+    {
+    }
+
+    ~AvFrameScaleFilter();
+
 	bool transform(AVParam* p)override;
    
     PixelFormat _format, _src_format = PixelFormat::FORMAT_NONE;

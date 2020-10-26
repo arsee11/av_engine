@@ -41,7 +41,7 @@ private:
 		//cout << "dis: w=" << p->w << "h=" << p->h << "l=" << p->len << endl;
 		if (!_isopen)
 		{
-            		return false;
+            return false;
 		}
 
 		SDL_Rect sdlRect;

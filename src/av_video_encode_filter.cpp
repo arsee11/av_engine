@@ -32,6 +32,7 @@ bool AvVideoEncodeFilter::transform(AVParam* p)
 	int rc = avcodec_send_frame(_codec_ctx, frame);
 	if (rc == 0)
 	{
+		av_packet_unref(_pack);
 		rc = avcodec_receive_packet(_codec_ctx, _pack);
 		if (rc == 0)
 		{
@@ -40,7 +41,6 @@ bool AvVideoEncodeFilter::transform(AVParam* p)
 			_param.data(_pack->data, _pack->size);
 			_param.pts = _pack->pts;
 			isok = true;
-			av_packet_unref(_pack);
 		}
 	}
           

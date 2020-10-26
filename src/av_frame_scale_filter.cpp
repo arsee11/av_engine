@@ -5,6 +5,12 @@
 #include "frame_scaler.h"
 #include <tuple>
 
+AvFrameScaleFilter::~AvFrameScaleFilter()
+{
+    if(_scaler != nullptr)
+        delete _scaler;
+}
+
 bool AvFrameScaleFilter::transform(AVParam* p)
 {
 	_param.fps = p->fps;

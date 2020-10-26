@@ -21,6 +21,8 @@ public:
 		return new AvResampleFilter(out_channels, out_sr, out_format, next_filter);
 	}
     
+	void destroy() { delete this; }
+
 private:
 	AvResampleFilter(int out_channels, int out_sr
 				    ,SampleFormat out_format, Filter<AVParam>* next_filter=nullptr

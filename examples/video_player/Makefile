@@ -1,15 +1,15 @@
 CXX = g++
-CXXFLAGS=-std=c++11 -g
+CXXFLAGS=-std=c++11 -g #-fsanitize=address
 
-IncDir=-I../../include
+IncDir=-I../../include -I/usr/local/include/SDL2
 LinkDir=-L../../lib
-Libs= -lavengine -lavcodec -lavdevice -lswresample -lavformat -lswscale -lavutil -lSDL2
+Libs= -lavengine -lavcodec -lavdevice -lswresample -lavformat -lswscale -lavutil -lSDL2 
 
-player:with_sdl_player.o
-	$(CXX) -o player with_sdl_player.o $(LinkDir) $(Libs)
+player:video_player.o
+	$(CXX) -o player video_player.o $(LinkDir) $(Libs)
 
-with_sdl_player.o: with_sdl_player.cpp
-	$(CXX) -c $(CXXFLAGS) $(IncDir) with_sdl_player.cpp 
+video_player.o: video_player.cpp
+	$(CXX) -c $(CXXFLAGS) $(IncDir) video_player.cpp 
 
 .PHONY clean:
 clean:

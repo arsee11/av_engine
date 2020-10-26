@@ -22,8 +22,12 @@ public:
 		return new AvAudioDecodeFilter(next_filter);
 	}
 
+    void destroy(){ delete this; }
+
 	int frame_size();
 	bool open(const CodecInfo& ci);
+	void close();
+
 
 private:
 	AvAudioDecodeFilter(CodecID cid
@@ -43,6 +47,11 @@ private:
 	{
 	}
 
+	~AvAudioDecodeFilter()
+    {
+        close();
+    }
+
 	bool transform(AVParam* p)override;
 	bool open(CodecID cid, int sr, int channels, SampleFormat sample_fmt);
 	void decode(AVFrame* frame, AVPacket* packet);
@@ -54,5 +63,7 @@ private:
 	SampleFormat _sample_fmt;
 	AVCodecContext* _codec_ctx = nullptr;
 	AVCodecParserContext* _parser = nullptr;	
+	AVPacket* _avpacket =nullptr;
+	AVFrame* _avframe = nullptr;
 };
 #endif/*AV_AUDIO_DECODE_FILTER_H*/

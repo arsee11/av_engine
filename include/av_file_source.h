@@ -28,8 +28,7 @@ public:
 		return new AvFileSource(next);
 	}	
 
-	enum AvReadRet{ AV_EOF, AV_READ_OK };	
-
+    void destroy(){ delete this; }
 	void open(const std::string& filename);
 	AVParam* get()override;
 	void close();
@@ -44,7 +43,14 @@ private:
 	{
 	}
 
+    ~AvFileSource()
+    {
+        close();
+    }
+
+    	
     void initParams();
+	enum AvReadRet{ AV_EOF, AV_READ_OK };	
 	AvReadRet readp(AVPacket* packet);
 
 private:

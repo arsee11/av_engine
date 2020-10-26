@@ -11,19 +11,20 @@ template<class Param>
 class Filter : public Transformation<Param>
 {
 public:
-    	Filter(Transformation<Param>* nf = nullptr)
-    	    :_next_filter(nf)
-    	{
-    	}
+    Filter(Transformation<Param>* nf = nullptr)
+        :_next_filter(nf)
+    {
+    }
     	
-    	void put(Param* p)override{
+	void setNext(Transformation<Param>* nf){ _next_filter=nf; }
+    void put(Param* p)override{
 	    _param.clear();
-    	    if( this->transform(p) )
-    	    {
-    	        if(_next_filter != nullptr)
-    	            _next_filter->put(&_param);
-    	    }
-    	}
+        if( this->transform(p) )
+        {
+            if(_next_filter != nullptr)
+                _next_filter->put(&_param);
+        }
+    }
     
 	Param* get()override{
 		return &_param;

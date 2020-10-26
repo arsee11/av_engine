@@ -10,10 +10,16 @@
 class AvVideoDecodeFilter:public Filter<AVParam>
 {
 public:
-	static AvVideoDecodeFilter* create(CodecID cid=CODEC_ID_NONE, Transformation<Param>* next_filter = nullptr) {
-		return new AvVideoDecodeFilter(cid, next_filter); }
+	static AvVideoDecodeFilter* create(CodecID cid=CODEC_ID_NONE
+        ,Transformation<Param>* next_filter = nullptr
+    ){
+		return new AvVideoDecodeFilter(cid, next_filter); 
+    }
+
+    void destroy(){delete this; }
 
 	bool open(const CodecInfo& ci);
+	void close();
 
 private:
 	AvVideoDecodeFilter(CodecID cid, Transformation<Param>* next_filter = nullptr)
@@ -21,6 +27,9 @@ private:
 		,_codec_id(cid)
 	{
 	}
+    ~AvVideoDecodeFilter(){
+        close();
+    }
 
 	bool transform(AVParam* p)override;
 

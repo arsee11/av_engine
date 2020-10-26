@@ -22,30 +22,39 @@ bool AvAudioEncodeFilter::transform(AVParam* p)
     
 	if( (SampleFormat)p->format != _format)
 	{
-		av_log_error()<<"sample format is incompatible:this->fromat="<<_format<<",p->format="<<p->format<<end_log();
+		av_log_error()<<"sample format is incompatible:this->fromat="<<_format
+            <<",p->format="<<p->format<<end_log();
 		return false;
 	}
 
 	if( p->sr!= _sample_rate)
 	{
-		av_log_error()<<"sample rate is incompatible:this ="<<_sample_rate<<",p="<<p->sr<<end_log();
+		av_log_error()<<"sample rate is incompatible:this ="<<_sample_rate
+            <<",p="<<p->sr<<end_log();
 		return false;
 	}
 
 	AVSampleFormat format = _2ffmpeg_format(_format);
 
 	AVFrame* tmp_frame = av_frame_alloc();
-	av_samples_fill_arrays(tmp_frame->data, tmp_frame->linesize, p->data_ptr(), _codec_ctx->channels, p->nsamples, format, 1);
+	av_samples_fill_arrays(tmp_frame->data, tmp_frame->linesize
+        ,p->data_ptr(), _codec_ctx->channels
+        ,p->nsamples, format, 1
+    );
 
 	int nsamples = _codec_ctx->frame_size;
 	if (_codec_ctx->codec->capabilities & AV_CODEC_CAP_VARIABLE_FRAME_SIZE)
 		nsamples = p->nsamples;
 
     AVFrame *frame = av_frame_alloc();
-	av_samples_alloc(frame->data, frame->linesize, _codec_ctx->channels, nsamples, format, 1);
+	av_samples_alloc(frame->data, frame->linesize
+        ,_codec_ctx->channels
+        ,nsamples, format, 1
+    );
 			
 	frame->nb_samples= nsamples;
 	frame->format = format;
+    frame->channels = _codec_ctx->channels;
 	frame->channel_layout = av_get_default_channel_layout(_codec_ctx->channels); 
 	frame->sample_rate= _sample_rate;
 	
@@ -56,8 +65,12 @@ bool AvAudioEncodeFilter::transform(AVParam* p)
 	//To Do: deal with "if p->nsamples < nsamples"
 	for (i = 0; i + nsamples <= p->nsamples; i += nsamples)
 	{
-		av_samples_copy(frame->data, tmp_frame->data, 0, i, nsamples, _codec_ctx->channels, format);
-		frame->pts = av_rescale_q(_samples_count, AVRational{ 1, _sample_rate }, _codec_ctx->time_base);
+		av_samples_copy(frame->data, tmp_frame->data
+            ,0, i, nsamples, _codec_ctx->channels, format
+        );
+		frame->pts = av_rescale_q(_samples_count, AVRational{ 1, _sample_rate }
+            ,_codec_ctx->time_base
+        );
 		//av_log_info()<<"pts="<<frame->pts<<end_log();
 		_samples_count += nsamples;
 
@@ -72,6 +85,7 @@ bool AvAudioEncodeFilter::transform(AVParam* p)
 			break;
 		}
 
+	    av_packet_unref(_pack);
 		rc = avcodec_receive_packet(_codec_ctx, _pack);
 		if (rc == 0)
 		{
@@ -87,9 +101,8 @@ bool AvAudioEncodeFilter::transform(AVParam* p)
 
 	}
     
-	av_packet_unref(_pack);
-	av_frame_unref(frame);
-	av_frame_unref(tmp_frame);
+	av_frame_free(&frame);
+	av_frame_free(&tmp_frame);
 
 	if (isok)
 	{

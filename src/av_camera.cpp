@@ -120,6 +120,7 @@ AVParam* AvCamera::get()
 	_param.clear();
 	while (true)
 	{
+		av_packet_unref(_pack);
 		if (av_read_frame(_format_ctx, _pack) >= 0)
 		{
 			if (_pack->stream_index == _video_stream_idx)
@@ -129,7 +130,6 @@ AVParam* AvCamera::get()
             }
 		}
 
-		av_packet_unref(_pack);
 	}
 	return &_param;
 }

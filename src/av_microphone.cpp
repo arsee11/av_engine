@@ -91,6 +91,7 @@ AVParam* AvMicrophone::get()
 {
 	while (true)
 	{
+        av_packet_unref(_pack);
 		if (av_read_frame(_format_ctx, _pack) >= 0)
 		{
 			if (_pack->stream_index == _stream_idx)
@@ -99,7 +100,7 @@ AVParam* AvMicrophone::get()
 				_param.nsamples = (_pack->size/sample_size((SampleFormat)_param.format))
                                 / _format_ctx->streams[_stream_idx]->codecpar->channels;
 
-                av_packet_unref(_pack);
+                
 				break;
 			}
 		}

@@ -82,34 +82,44 @@ void AvFileSink::write(AVPacket* packet)
 
 void AvFileSink::put(AVParam* p)
 {
-	AVPacket *pack = av_packet_alloc();
-	av_init_packet(pack);
-	pack->data = p->data_ptr();
-	pack->size = p->size();
-	pack->pts = p->pts;
-	pack->dts = p->pts;
+	AVPacket *pack = nullptr;
 	if (p->type == MEDIA_AUDIO)
 	{
+	    pack = av_packet_alloc();
+	    pack->pts = p->pts;
+	    pack->dts = p->pts;
 		av_packet_rescale_ts(pack, AVRational{ 1, p->fps}, _audio_stream->time_base);
 		pack->stream_index = _audio_stream->id;
 	}
 	else if(p->type == MEDIA_VIDEO)
 	{
+	    pack = av_packet_alloc();
+	    pack->pts = p->pts;
+	    pack->dts = p->pts;
+		av_packet_rescale_ts(pack, AVRational{ 1, p->fps}, _audio_stream->time_base);
 		av_packet_rescale_ts(pack, AVRational{ 1, p->fps}, _video_stream->time_base);
 		pack->stream_index = _video_stream->id;
 	}
 	else
 		throw AvException("error MediaType", __FILE__, __LINE__);
 
+    if(pack != nullptr)
+    {
+	    pack->data = p->data_ptr();
+	    pack->size = p->size();
+    }
 
 	try {
 		write(pack);
 	}
 	catch (AvFileSinkException& e){
 		av_log_output(LOGL_ERROR, e.what());
-		return;
 	}
 	
+
+    if(pack != nullptr)
+        av_packet_free(&pack);
+
 	return;
 	
 }
@@ -135,7 +145,13 @@ void AvFileSink::open()
 
 void AvFileSink::close()
 {
-	int ret = av_write_trailer(_format_ctx);
-	avformat_free_context(_format_ctx);
-	_format_ctx = NULL;
+    if(_format_ctx != nullptr)
+    {
+	    int ret = av_write_trailer(_format_ctx);
+        if(_format_ctx->pb != nullptr)
+            avio_close(_format_ctx->pb);
+
+	    avformat_free_context(_format_ctx);
+	    _format_ctx = nullptr;
+    }
 }

@@ -63,7 +63,7 @@ bool AvVideoDecodeFilter::transform(AVParam* p)
 	}
 
 	av_packet_free(&packet);
-	av_frame_unref(frame);
+	av_frame_free(&frame);
 	return true;
 }
 
@@ -147,4 +147,10 @@ bool AvVideoDecodeFilter::open(const CodecInfo& ci)
 	_param.format = ci.pix_format;
 	_param.type = MediaType::MEDIA_VIDEO;
 	return true;
+}
+
+void AvVideoDecodeFilter::close()
+{
+    if(_codec_ctx != nullptr)
+        avcodec_free_context(&_codec_ctx);
 }

@@ -24,6 +24,7 @@ using namespace std;
 #include <av_microphone.h>
 #include <av_log.h>
 
+#ifdef _MSC_VER
 #include <Windows.h>
 string ANSItoUTF8(const char* strAnsi)
 {
@@ -64,7 +65,12 @@ string UTF8toANSI(const char* strUTF8)
 	delete[]wszBuffer;
 	return s1;
 }
+#endif //_MSC_VER
 
+
+
+#define AUDIO
+//#define VIDEO 
 int main(int argc, char* argv[])
 {
 	av_init();
@@ -74,26 +80,29 @@ int main(int argc, char* argv[])
 		std::string fname = {"test.asf"};
 		std::vector<AvStreamInfo> ss;
 
-		/*
+#ifdef VIDEO
 		int w=320, h=240;
 		CodecID vc=CodecID::H264;
 		ss.push_back(AvStreamInfo{ vc, MediaType::MEDIA_VIDEO,w,h});
-		*/
+#endif
 
+#ifdef AUDIO 
 		CodecID ac = CodecID::PCMA;
 		SampleFormat af=SampleFormat::S16;
 		int sr=8000;
+        int nchn=1;
 		AvStreamInfo as;
 		as.codecid=ac;
 		as.media_type=MediaType::MEDIA_AUDIO;
 		as.ai.sample_rate=sr;
-		as.ai.channel=1;
+		as.ai.channel=nchn;
 		as.ai.sample_format=af;
         ss.push_back(as);
+#endif
 
 		AvFileSink* avfile = AvFileSink::create(ss, fname); 
 
-		/*
+#ifdef VIDEO
 		AvVideoEncodeFilter* ef = AvVideoEncodeFilter::create(vc, 30, w*h*3, 10*2, avfile); 
 		AvFrameScaleFilter * pf = AvFrameScaleFilter::create(PixelFormat::FORMAT_YUV420, w, h, ef);
 		
@@ -114,11 +123,12 @@ int main(int argc, char* argv[])
 			AvVideoDecodeFilter* df = AvVideoDecodeFilter::create(c.codec(), pf);
 			c.setNext(df);
 		}
-		*/
+#endif //VIDEO
 
+#ifdef AUDIO 
 		AvAudioEncodeFilter* aef = AvAudioEncodeFilter::create(ac, avfile);
-		aef->open(sr, 1, af);
-		AvResampleFilter* rf = AvResampleFilter::create(1, sr, af, aef);
+		aef->open(sr, nchn, af);
+		AvResampleFilter* rf = AvResampleFilter::create(nchn, sr, af, aef);
 	
 		AvMicrophone m(rf);
 
@@ -133,19 +143,33 @@ int main(int argc, char* argv[])
 		m.open("hw:1", 48000, 16, 1);
 #endif
 
-		for(int i=0; i<300; i++)
+#endif //AUDIO
+
+		for(int i=0; i<1000; i++)
         {
+
+#ifdef AUDIO 
             m.read();
-            //c.read();
+#endif
+#ifdef VIDEO 
+            c.read();
+#endif
         }
        
+#ifdef AUDIO 
 		m.close();
-		//c.close();
+#endif
+#ifdef VIDEO 
+		c.close();
+#endif
+        rf->destroy();
+        aef->destroy();
 		avfile->destroy();
 	}
 	catch (AvException& e) {
 		cout << e.what() << endl;
 	}
+    
 
 	return 0;
 }

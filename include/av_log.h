@@ -20,8 +20,8 @@ extern void av_set_logger(const log_callback_t& logger);
 extern void stdout_log(LogLevel l, const char* str);
 
 class Logger;
-extern Logger& av_log_info();
-extern Logger& av_log_error();
+extern Logger& av_log_info(const std::string& file=__FILE__, int line=__LINE__);
+extern Logger& av_log_error(const std::string& file=__FILE__, int line=__LINE__);
 
 struct end_log
 {
@@ -37,13 +37,15 @@ public:
     Logger& operator<<(unsigned int val);
     Logger& operator<<(long val);
     Logger& operator<<(unsigned long val);
-    Logger& operator<<(int64_t val);
+    //Logger& operator<<(int64_t val);
     Logger& operator<<(float val);
     Logger& operator<<(double val);
     Logger& operator<<(const end_log&);
     
     void clear(){ _str_buf.clear(); }
     
+    std::string file;
+    int line;
 private:
     std::string _str_buf;
     LogLevel _level;

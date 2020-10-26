@@ -18,6 +18,8 @@ public:
 		return new AvAudioEncodeFilter(cid, next_filter); 
 	}
 
+	void destroy() { delete this; }
+
 	bool open(int sr, int nb_channels, SampleFormat format);
 	void close();
 
