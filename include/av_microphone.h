@@ -32,13 +32,12 @@ public:
     void close();
     
 	AVParam* get()override;
+	CodecInfo codec_info();
 
 private:
     AVFormatContext* _format_ctx = nullptr;
     int _stream_idx;
     AVPacket* _pack = nullptr;
-
-
 };
 
 #endif /* AvMicrophone_H */

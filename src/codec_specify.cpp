@@ -7,14 +7,14 @@ PixelFormat ffmpeg2format(AVPixelFormat f)
 {
     switch (f) {
         case AV_PIX_FMT_RGB24: return FORMAT_RGB24;
-        case AV_PIX_FMT_YUV420P: return FORMAT_YUV420;
-        case AV_PIX_FMT_YUV422P: return FORMAT_YUV422;
-        case AV_PIX_FMT_YUV444P: return FORMAT_YUV444;
+        case AV_PIX_FMT_YUV420P: return FORMAT_YUV420P;
+        case AV_PIX_FMT_YUV422P: return FORMAT_YUV422P;
+        case AV_PIX_FMT_YUV444P: return FORMAT_YUV444P;
         case AV_PIX_FMT_YUYV422: return FORMAT_YUYV422;
         case AV_PIX_FMT_UYVY422: return FORMAT_UYVY422;
-        case AV_PIX_FMT_YUVJ420P: return FORMAT_YUVJ420;
-        case AV_PIX_FMT_YUVJ422P: return FORMAT_YUVJ422;
-        case AV_PIX_FMT_YUVJ444P: return FORMAT_YUVJ444;
+        case AV_PIX_FMT_YUVJ420P: return FORMAT_YUVJ420P;
+        case AV_PIX_FMT_YUVJ422P: return FORMAT_YUVJ422P;
+        case AV_PIX_FMT_YUVJ444P: return FORMAT_YUVJ444P;
 
         default:
             return FORMAT_NONE;
@@ -66,13 +66,13 @@ AVPixelFormat _2ffmpeg_format(PixelFormat f)
     switch (f)
 	{
         case FORMAT_RGB24: return AV_PIX_FMT_RGB24;
-        case FORMAT_YUV420: return AV_PIX_FMT_YUV420P;
-        case FORMAT_YUV422: return AV_PIX_FMT_YUV422P;
+        case FORMAT_YUV420P: return AV_PIX_FMT_YUV420P;
+        case FORMAT_YUV422P: return AV_PIX_FMT_YUV422P;
         case FORMAT_YUYV422: return AV_PIX_FMT_YUYV422;
         case FORMAT_UYVY422: return AV_PIX_FMT_UYVY422;
-        case FORMAT_YUVJ420: return AV_PIX_FMT_YUVJ420P;
-        case FORMAT_YUVJ422: return AV_PIX_FMT_YUVJ422P;
-        case FORMAT_YUVJ444: return AV_PIX_FMT_YUVJ444P;
+        case FORMAT_YUVJ420P: return AV_PIX_FMT_YUVJ420P;
+        case FORMAT_YUVJ422P: return AV_PIX_FMT_YUVJ422P;
+        case FORMAT_YUVJ444P: return AV_PIX_FMT_YUVJ444P;
 
         default: return AV_PIX_FMT_NONE;
     }

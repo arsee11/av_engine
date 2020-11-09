@@ -68,7 +68,6 @@ bool AvMicrophone::open(const char* dev, int sr, int sample_size, int channels)
 	_param.type = MEDIA_AUDIO;
 	_param.codecid = _ffmpeg2codec(par->codec_id);
     _pack = av_packet_alloc();
-
 	return true;    
 }
 
@@ -107,4 +106,14 @@ AVParam* AvMicrophone::get()
 	}
 
 	return &_param;
+}
+
+CodecInfo AvMicrophone::codec_info()
+{
+	CodecInfo ci; 
+	ci.codec = _param.codecid;
+	ci.sr = _param.sr;
+	ci.sp_format = static_cast<SampleFormat>(_param.format);
+	ci.nchn = _param.nchn;
+	return ci; 
 }

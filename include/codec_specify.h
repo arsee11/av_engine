@@ -10,75 +10,75 @@ extern "C"
 
 enum CodecID
 {
-	/*video*/
-	CODEC_ID_NONE,
+    /*video*/
+    CODEC_ID_NONE, //raw video
     H264,
-	MPEG4,
-	MSMPEG4V3,
-	MJPEG,
+    MPEG4,
+    MSMPEG4V3,
+    MJPEG,
 
-	/*audio*/
-	S16LE=1000,
-	S16BE,
-	MP3,
-	AAC,
-	G729,
-	WMAV2,
-	PCMU,
-	PCMA
+    /*audio*/
+    S16LE=1000,
+    S16BE,
+    MP3,
+    AAC,
+    G729,
+    WMAV2,
+    PCMU,
+    PCMA
 };
 
 enum PixelFormat
 {
     FORMAT_NONE=-1,
     FORMAT_RGB24,
-    FORMAT_YUV420,
-    FORMAT_YUV422,
-    FORMAT_YUV444,
+    FORMAT_YUV420P,
+    FORMAT_YUV422P,
+    FORMAT_YUV444P,
     FORMAT_YUYV422,
     FORMAT_UYVY422,
-    FORMAT_YUVJ420,
-    FORMAT_YUVJ422,
-    FORMAT_YUVJ444
+    FORMAT_YUVJ420P,
+    FORMAT_YUVJ422P,
+    FORMAT_YUVJ444P
 };
 
 enum SampleFormat
 {
-	NONE = -1,
-	U8,
-	S16,
-	FLT,
-	U8P,
-	S16P,
-	FLTP
+    NONE = -1,
+    U8,
+    S16,
+    FLT,
+    U8P,
+    S16P,
+    FLTP
 };
 
 enum MediaType
 {
-	MEDIA_NONE = -1,
-	MEDIA_AUDIO,
-	MEDIA_VIDEO
+    MEDIA_NONE = -1,
+    MEDIA_AUDIO,
+    MEDIA_VIDEO
 };
 
 struct CodecInfo
 {
-	CodecID codec;
-	MediaType codec_type;  
-	void* codecpar;
-	union {
-		struct {
-			int w;  //video frame width
-			int h;	//video frame height
-			int fps;//video frame rate
-			PixelFormat pix_format;
-		};
-		struct {
-			int sr; //audio smaple_rate
-			int nchn;//number of audio channels.
-			int nsamples;//mumber of smaples per channel.
-			SampleFormat sp_format;
-		};
-	};
+    CodecID codec;
+    MediaType codec_type;
+    void* codecpar;
+    union {
+        struct {
+            int w;  //video frame width
+            int h;	//video frame height
+            int fps;//video frame rate
+            PixelFormat pix_format;
+        };
+        struct {
+            int sr; //audio smaple_rate
+            int nchn;//number of audio channels.
+            int nsamples;//mumber of smaples per channel.
+            SampleFormat sp_format;
+        };
+    };
 };
 
 AVCodecID _2ffmpeg_id(CodecID cid);

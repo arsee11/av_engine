@@ -16,9 +16,9 @@ public:
     {
     }
     	
-	void setNext(Transformation<Param>* nf){ _next_filter=nf; }
+    void setNext(Transformation<Param>* nf){ _next_filter=nf; }
     void put(Param* p)override{
-	    _param.clear();
+        _param.clear();
         if( this->transform(p) )
         {
             if(_next_filter != nullptr)
@@ -26,16 +26,16 @@ public:
         }
     }
     
-	Param* get()override{
-		return &_param;
-	}
+    Param* get()override{
+        return &_param;
+    }
 
 protected:
     virtual bool transform(Param* p)=0;
-	Param _param;
+    Param _param;
     
 private:
-	Transformation<Param>* _next_filter;
+    Transformation<Param>* _next_filter;
 };
 
 #endif /* FILTER_H */

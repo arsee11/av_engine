@@ -37,7 +37,7 @@ typedef struct Param {
 	}	
 
 	size_t size(){ return _size; }	
-	unsigned char* data_ptr(){ return _buf; }
+        unsigned char* data_ptr(){ return _buf; }
 	void clear(){ _buf = nullptr; _size = 0; }
 
 	void copyParams(const Param& o){
@@ -56,7 +56,7 @@ typedef struct Param {
 	Param& operator=(const Param&)=delete;
 
 private:
-	unsigned char* _buf=nullptr;
+        unsigned char* _buf=nullptr;
 	size_t _size=0;
 }AVParam;
 

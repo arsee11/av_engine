@@ -33,17 +33,12 @@ public:
     void close();
 
 	AVParam* get()override;
-    CodecID codec() { return _param.codecid;  }
-    int width()const{ return _width; }
-    int height()const{ return _height; }
+	CodecInfo codec_info();
 
 private:
     std::string _device;
     AVFormatContext *_format_ctx=NULL;
     int _video_stream_idx = -1;
-    int _width=0;
-    int _height=0;
-    int _framerate=30;
     bool _is_opened=false;
     AVPacket* _pack = nullptr;
 

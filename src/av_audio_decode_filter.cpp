@@ -126,6 +126,7 @@ bool AvAudioDecodeFilter::open(CodecID cid, int sr, int channels, SampleFormat s
 	}
 
 	_param.format = sample_fmt;
+	_param.codecid= S16LE;
 	_param.sr = sr;
 	_param.nchn= channels;
 	_param.type = MEDIA_AUDIO;

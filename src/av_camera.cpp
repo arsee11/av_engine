@@ -28,11 +28,10 @@ AvCamera::AvCamera(Transformation<Param>* ts)
 
 AvCamera::AvCamera(int framerate, int width, int height, Transformation<Param>* ts)
 	:Source(ts)
-	,_width(width)
-	,_height(height)
-	,_framerate(framerate)
 {
-	
+	_param.fps = framerate;
+	_param.w = width;
+	_param.h = height;
 }
 
 AvCamera::AvCamera(int framerate, int width, int height)
@@ -43,7 +42,7 @@ AvCamera::AvCamera(int framerate, int width, int height)
 
 bool AvCamera::open(const char* device)
 {
-	return open(device, _framerate, _width, _height);
+	return open(device, _param.fps, _param.w, _param.h);
 }
 
 bool AvCamera::open(const char* device, int framerate, int width, int height)
@@ -100,14 +99,11 @@ bool AvCamera::open(const char* device, int framerate, int width, int height)
         }
     }
 
-    _width = width;
-    _height = height;
-    _framerate = framerate;
-
     _param.codecid = _ffmpeg2codec(_format_ctx->streams[_video_stream_idx]->codecpar->codec_id);
-    _param.w = _width;
-    _param.h = _height;
+    _param.w = width;
+    _param.h = height;
     _param.format = ffmpeg2format( (AVPixelFormat)_format_ctx->streams[_video_stream_idx]->codecpar->format);
+    _param.fps = framerate;
     _param.type = MEDIA_VIDEO;
     _pack = av_packet_alloc();
 
@@ -142,4 +138,15 @@ void AvCamera::close()
     }
     _is_opened = false;
 
+}
+
+CodecInfo AvCamera::codec_info()
+{
+	CodecInfo ci; 
+	ci.codec = _param.codecid;
+	ci.w = _param.w;
+	ci.h = _param.h;
+	ci.pix_format= static_cast<PixelFormat>(_param.format);
+	ci.fps = _param.fps;
+	return ci; 
 }
