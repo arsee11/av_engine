@@ -38,7 +38,7 @@ bool AvFrameScaleFilter::transform(AVParam* p)
         _param.format = p->format;
         _param.w = p->w;
         _param.h = p->h;
-        _param.data(_param.data_ptr(), _param.size());
+        _param.data(p->data_ptr(), p->size());
     }
     
     return true;
