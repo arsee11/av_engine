@@ -10,11 +10,7 @@ PixelFormat ffmpeg2format(AVPixelFormat f)
         case AV_PIX_FMT_YUV420P: return FORMAT_YUV420P;
         case AV_PIX_FMT_YUV422P: return FORMAT_YUV422P;
         case AV_PIX_FMT_YUV444P: return FORMAT_YUV444P;
-        case AV_PIX_FMT_YUYV422: return FORMAT_YUYV422;
-        case AV_PIX_FMT_UYVY422: return FORMAT_UYVY422;
-        case AV_PIX_FMT_YUVJ420P: return FORMAT_YUVJ420P;
-        case AV_PIX_FMT_YUVJ422P: return FORMAT_YUVJ422P;
-        case AV_PIX_FMT_YUVJ444P: return FORMAT_YUVJ444P;
+        case AV_PIX_FMT_NV12: return FORMAT_NV12;
 
         default:
             return FORMAT_NONE;
@@ -26,6 +22,9 @@ AVCodecID _2ffmpeg_id(CodecID cid)
     switch(cid)
     {
         case H264: return AV_CODEC_ID_H264;
+        case H265: return AV_CODEC_ID_HEVC;
+        case VP9: return AV_CODEC_ID_VP9;
+        case AV1: return AV_CODEC_ID_AV1;
 		case MSMPEG4V3: return AV_CODEC_ID_MSMPEG4V3;
 		case MPEG4: return AV_CODEC_ID_MPEG4;
 		case S16LE: return AV_CODEC_ID_PCM_S16LE;
@@ -46,6 +45,9 @@ CodecID _ffmpeg2codec(AVCodecID cid)
 	switch (cid)
 	{
 	case AV_CODEC_ID_H264 : return H264;
+	case AV_CODEC_ID_HEVC: return H265;
+	case AV_CODEC_ID_VP9: return VP9;
+	case AV_CODEC_ID_AV1: return AV1;
 	case AV_CODEC_ID_MSMPEG4V3: return MSMPEG4V3;
 	case AV_CODEC_ID_MPEG4: return MPEG4;
 	case AV_CODEC_ID_PCM_S16LE: return S16LE;
@@ -68,11 +70,8 @@ AVPixelFormat _2ffmpeg_format(PixelFormat f)
         case FORMAT_RGB24: return AV_PIX_FMT_RGB24;
         case FORMAT_YUV420P: return AV_PIX_FMT_YUV420P;
         case FORMAT_YUV422P: return AV_PIX_FMT_YUV422P;
-        case FORMAT_YUYV422: return AV_PIX_FMT_YUYV422;
-        case FORMAT_UYVY422: return AV_PIX_FMT_UYVY422;
-        case FORMAT_YUVJ420P: return AV_PIX_FMT_YUVJ420P;
-        case FORMAT_YUVJ422P: return AV_PIX_FMT_YUVJ422P;
-        case FORMAT_YUVJ444P: return AV_PIX_FMT_YUVJ444P;
+        case FORMAT_YUV444P: return AV_PIX_FMT_YUV444P;
+        case FORMAT_NV12: return AV_PIX_FMT_NV12;
 
         default: return AV_PIX_FMT_NONE;
     }

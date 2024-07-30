@@ -57,7 +57,6 @@ private:
 	void decode(AVFrame* frame, AVPacket* packet);
 
 private:
-
 	CodecID _codec_id;
 	int _sr, _channels;
 	SampleFormat _sample_fmt;

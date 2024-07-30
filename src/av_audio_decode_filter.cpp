@@ -95,7 +95,7 @@ void AvAudioDecodeFilter::close()
 
 bool AvAudioDecodeFilter::open(CodecID cid, int sr, int channels, SampleFormat sample_fmt)
 {
-	AVCodec* codec = avcodec_find_decoder(_2ffmpeg_id(cid));
+	const AVCodec* codec = avcodec_find_decoder(_2ffmpeg_id(cid));
 	if (codec == NULL)
 	{
         av_log_error() << "AvAudioDecodeFilter::open() failed" << end_log();

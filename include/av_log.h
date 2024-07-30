@@ -6,18 +6,18 @@
 #include <functional>
 #include <string>
 
-enum LogLevel
+enum AvLogLevel
 {
 	LOGL_INFO,
 	LOGL_ERROR
 };
 
-extern void av_log_output(LogLevel l, const char* str);
+extern void av_log_output(AvLogLevel l, const char* str);
 
-typedef std::function<void(LogLevel, const char*)> log_callback_t;
+typedef std::function<void(AvLogLevel, const char*)> log_callback_t;
 extern void av_set_logger(const log_callback_t& logger);
 
-extern void stdout_log(LogLevel l, const char* str);
+extern void stdout_log(AvLogLevel l, const char* str);
 
 class Logger;
 extern Logger& av_log_info(const std::string& file=__FILE__, int line=__LINE__);
@@ -30,7 +30,7 @@ struct end_log
 class Logger
 {
 public:
-    Logger(LogLevel l):_level(l){}
+    Logger(AvLogLevel l):_level(l){}
     Logger& operator<<(const char* str);
     Logger& operator<<(const std::string& str);
     Logger& operator<<(int val);
@@ -48,7 +48,7 @@ public:
     int line;
 private:
     std::string _str_buf;
-    LogLevel _level;
+    AvLogLevel _level;
 
 };
 

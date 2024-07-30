@@ -6,7 +6,7 @@
 #include "av_exception.h"
 
 template<class Param>
-class Source :Transformation<Param>
+class Source : public Transformation<Param>
 {
 public:
 	Source(Transformation<Param>* next=nullptr)

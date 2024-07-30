@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.0)
 
 include_directories(${CMAKE_SOURCE_DIR}/third_party/)
 include_directories(${CMAKE_SOURCE_DIR}/third_party/include)
+include_directories(${CMAKE_SOURCE_DIR}/third_party/NvCodec)
 include_directories(${CMAKE_SOURCE_DIR}/include/)
+include_directories(/usr/local/cuda/include/)
 add_compile_options(-g -std=c++11)
 
 message(STATUS "platform: ${CMAKE_SYSTEM}")
@@ -18,3 +20,4 @@ ELSE()
 ENDIF()
 
 add_subdirectory(src)
+add_subdirectory(third_party)

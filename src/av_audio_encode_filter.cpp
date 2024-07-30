@@ -116,7 +116,7 @@ bool AvAudioEncodeFilter::transform(AVParam* p)
 
 bool AvAudioEncodeFilter::open(int sample_rate, int nb_channels, SampleFormat format)
 {
-	AVCodec* codec = avcodec_find_encoder(_2ffmpeg_id(_codec_id));
+	const AVCodec* codec = avcodec_find_encoder(_2ffmpeg_id(_codec_id));
 	if (codec == NULL)
 	{
 		av_log_error()<<"audo encoder no found, codecid:"<<_codec_id<<end_log();
