@@ -93,7 +93,7 @@ public:
      *  data, which has been copied to an input buffer obtained from the
      *  GetNextInputFrame() function.
      */
-    void EncodeFrame(std::vector<std::vector<uint8_t>>& vPacket, NV_ENC_PIC_PARAMS* pPicParams = nullptr) override;
+    void EncodeFrame(std::vector<NvEncOutputFrame>& vPacket, NV_ENC_PIC_PARAMS* pPicParams = nullptr) override;
 
     /**
     *  @brief  This function to flush the encoder queue.
@@ -103,7 +103,7 @@ public:
     *  an encoder session. Video memory buffer pointer containing compressed data
     *  is returned in pOutputBuffer.
     */
-    void EndEncode(std::vector<std::vector<uint8_t>> &vPacket) override;
+    void EndEncode(std::vector<NvEncOutputFrame> &vPacket) override;
 
     /**
     *  @brief  This function is used to destroy the encoder session.
@@ -171,7 +171,7 @@ private:
     *  from the encoder HW. This is called by EncodeFrame() function. If there is buffering enabled, this may return
     *  without any output data.
     */
-    void GetEncodedPacket(std::vector<NV_ENC_OUTPUT_RESOURCE_D3D12*>& vOutputBuffer, std::vector<std::vector<uint8_t>>& vPacket, bool bOutputDelay);
+    void GetEncodedPacket(std::vector<NV_ENC_OUTPUT_RESOURCE_D3D12*>& vOutputBuffer, std::vector<NvEncOutputFrame>& vPacket, bool bOutputDelay);
 
     /**
     *  @brief  This is a private function to release ID3D12Texture2D textures used for encoding.

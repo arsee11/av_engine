@@ -39,22 +39,22 @@
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>
+#include "Logger.h"
 #include <ios>
 #include <sstream>
-#include <fstream>
-#include <iostream>
 #include <thread>
 #include <list>
 #include <vector>
 #include <condition_variable>
 
+extern simplelogger::Logger *logger;
 
 #ifdef __cuda_cuda_h__
 inline bool check(CUresult e, int iLine, const char *szFile) {
     if (e != CUDA_SUCCESS) {
         const char *szErrName = NULL;
         cuGetErrorName(e, &szErrName);
-        std::cerr << "CUDA driver API error " << szErrName << " at line " << iLine << " in file " << szFile<<std::endl;
+        LOG(FATAL) << "CUDA driver API error " << szErrName << " at line " << iLine << " in file " << szFile;
         return false;
     }
     return true;
@@ -64,7 +64,7 @@ inline bool check(CUresult e, int iLine, const char *szFile) {
 #ifdef __CUDA_RUNTIME_H__
 inline bool check(cudaError_t e, int iLine, const char *szFile) {
     if (e != cudaSuccess) {
-            std::cerr << "CUDA runtime API error " << cudaGetErrorName(e) << " at line " << iLine << " in file " << szFile<<std::endl;
+        LOG(FATAL) << "CUDA runtime API error " << cudaGetErrorName(e) << " at line " << iLine << " in file " << szFile;
         return false;
     }
     return true;
@@ -102,7 +102,7 @@ inline bool check(NVENCSTATUS e, int iLine, const char *szFile) {
         "NV_ENC_ERR_RESOURCE_NOT_MAPPED",
     };
     if (e != NV_ENC_SUCCESS) {
-            std::cerr<< "NVENC error " << aszErrName[e] << " at line " << iLine << " in file " << szFile<<std::endl;
+        LOG(FATAL) << "NVENC error " << aszErrName[e] << " at line " << iLine << " in file " << szFile;
         return false;
     }
     return true;
@@ -114,7 +114,7 @@ inline bool check(HRESULT e, int iLine, const char *szFile) {
     if (e != S_OK) {
         std::stringstream stream;
         stream << std::hex << std::uppercase << e;
-        std::cerr<< "HRESULT error 0x" << stream.str() << " at line " << iLine << " in file " << szFile<<std::endl
+        LOG(FATAL) << "HRESULT error 0x" << stream.str() << " at line " << iLine << " in file " << szFile;
         return false;
     }
     return true;
@@ -124,7 +124,7 @@ inline bool check(HRESULT e, int iLine, const char *szFile) {
 #if defined(__gl_h_) || defined(__GL_H__)
 inline bool check(GLenum e, int iLine, const char *szFile) {
     if (e != 0) {
-        std::cerr<< "GLenum error " << e << " at line " << iLine << " in file " << szFile<<std::endl;
+        LOG(ERROR) << "GLenum error " << e << " at line " << iLine << " in file " << szFile;
         return false;
     }
     return true;
@@ -133,16 +133,44 @@ inline bool check(GLenum e, int iLine, const char *szFile) {
 
 inline bool check(int e, int iLine, const char *szFile) {
     if (e < 0) {
-        std::cerr<< "General error " << e << " at line " << iLine << " in file " << szFile<<std::endl;
+        LOG(ERROR) << "General error " << e << " at line " << iLine << " in file " << szFile;
         return false;
     }
     return true;
 }
 
 #define ck(call) check(call, __LINE__, __FILE__)
+#define CudaCheckError()                                                       \
+  do {                                                                         \
+    cudaError err_ = cudaGetLastError();                                       \
+    if (err_ != cudaSuccess) {                                                 \
+      printf("CudaCheckError() failed at: %s:%d\n", __FILE__, __LINE__);       \
+      printf("code: %d ; description: %s\n", err_, cudaGetErrorString(err_));  \
+      exit(1);                                                                 \
+    }                                                                          \
+                                                                               \
+    err_ = cudaDeviceSynchronize();                                            \
+    if (cudaSuccess != err_) {                                                 \
+      printf("CudaCheckError() failed after sync at: %s:%d;\n", __FILE__,      \
+             __LINE__);                                                        \
+      printf("code: %d; description: %s\n", err_, cudaGetErrorString(err_));   \
+      exit(1);                                                                 \
+    }                                                                          \
+  } while (0)
 #define MAKE_FOURCC( ch0, ch1, ch2, ch3 )                               \
                 ( (uint32_t)(uint8_t)(ch0) | ( (uint32_t)(uint8_t)(ch1) << 8 ) |    \
                 ( (uint32_t)(uint8_t)(ch2) << 16 ) | ( (uint32_t)(uint8_t)(ch3) << 24 ) )
+
+
+// sleep for milli-seconds
+inline void NvSleep(unsigned int mSec)
+{
+#if defined  WIN32 || defined _WIN32
+    Sleep(mSec);
+#else
+    usleep(mSec * 1000);
+#endif
+}
 
 /**
 * @brief Wrapper class around std::thread
@@ -211,12 +239,12 @@ public:
             try {
                 pBuf = new uint8_t[(size_t)nSize];
                 if (nSize != st.st_size) {
-                        std::cout<< "File is too large - only " << std::setprecision(4) << 100.0 * nSize / st.st_size << "% is loaded"<<std::endl; 
+                    LOG(WARNING) << "File is too large - only " << std::setprecision(4) << 100.0 * nSize / st.st_size << "% is loaded"; 
                 }
                 break;
             } catch(std::bad_alloc) {
                 if (!bPartial) {
-                        std::cerr<< "Failed to allocate memory in BufferedReader"<<std::endl;
+                    LOG(ERROR) << "Failed to allocate memory in BufferedReader";
                     return;
                 }
                 nSize = (uint32_t)(nSize * 0.9);
@@ -226,7 +254,7 @@ public:
         std::ifstream fpIn(szFileName, std::ifstream::in | std::ifstream::binary);
         if (!fpIn)
         {
-                std::cerr<< "Unable to open input file: " << szFileName<<std::endl;
+            LOG(ERROR) << "Unable to open input file: " << szFileName;
             return;
         }
 
@@ -255,14 +283,21 @@ private:
     uint64_t nSize = 0;
 };
 
+#ifdef __NVCUVID_H__
 /**
 * @brief Template class to facilitate color space conversion
 */
 template<typename T>
 class YuvConverter {
 public:
-    YuvConverter(int nWidth, int nHeight) : nWidth(nWidth), nHeight(nHeight) {
-        pQuad = new T[((nWidth + 1) / 2) * ((nHeight + 1) / 2)];
+    YuvConverter(int nWidth, int nHeight, uint8_t nChromaFormat) :
+        nWidth(nWidth), nHeight(nHeight), nChromaFormat(nChromaFormat)
+    {
+        if (nChromaFormat == cudaVideoChromaFormat_420) {
+            pQuad = new T[((nWidth + 1) / 2) * ((nHeight + 1) / 2)];
+        } else {
+            pQuad = new T[((nWidth + 1) / 2) * nHeight];
+        }
     }
     ~YuvConverter() {
         delete[] pQuad;
@@ -300,7 +335,7 @@ public:
 
         // sizes of source surface plane
         int nSizePlaneY = nPitch * nHeight;
-        int nSizePlaneU = ((nPitch + 1) / 2) * ((nHeight + 1) / 2);
+        int nSizePlaneU = (nChromaFormat == cudaVideoChromaFormat_420) ? (((nPitch + 1) / 2) * ((nHeight + 1) / 2)) : (((nPitch + 1) / 2) * nHeight);
         int nSizePlaneV = nSizePlaneU;
 
         T *puv = pFrame + nSizePlaneY,
@@ -308,7 +343,8 @@ public:
             *pv = puv + nSizePlaneU;
 
         // split chroma from interleave to planar
-        for (int y = 0; y < (nHeight + 1) / 2; y++) {
+        int nChromaHeight = (nChromaFormat == cudaVideoChromaFormat_420) ? (nHeight + 1) / 2 : nHeight;
+        for (int y = 0; y < nChromaHeight; y++) {
             for (int x = 0; x < (nWidth + 1) / 2; x++) {
                 pu[y * ((nPitch + 1) / 2) + x] = puv[y * nPitch + x * 2];
                 pQuad[y * ((nWidth + 1) / 2) + x] = puv[y * nPitch + x * 2 + 1];
@@ -317,7 +353,7 @@ public:
         if (nPitch == nWidth) {
             memcpy(pv, pQuad, nSizePlaneV * sizeof(T));
         } else {
-            for (int i = 0; i < (nHeight + 1) / 2; i++) {
+            for (int i = 0; i < nChromaHeight; i++) {
                 memcpy(pv + ((nPitch + 1) / 2) * i, pQuad + ((nWidth + 1) / 2) * i, ((nWidth + 1) / 2) * sizeof(T));
             }
         }
@@ -325,8 +361,9 @@ public:
 
 private:
     T *pQuad;
-    int nWidth, nHeight;
+    int nWidth, nHeight, nChromaFormat;
 };
+#endif
 
 /**
 * @brief Class for writing IVF format header for AV1 codec
@@ -507,36 +544,63 @@ inline void ValidateResolution(int nWidth, int nHeight) {
 }
 
 template <class COLOR32>
-void Nv12ToColor32(uint8_t *dpNv12, int nNv12Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 0);
+void Nv12ToColor32(uint8_t *dpNv12, int nNv12Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 0, bool video_full_range = 0);
+template <class COLOR24>
+void Nv12ToColor24(uint8_t *dpNv12, int nNv12Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 0, bool video_full_range = 0);
 template <class COLOR64>
-void Nv12ToColor64(uint8_t *dpNv12, int nNv12Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 0);
+void Nv12ToColor64(uint8_t *dpNv12, int nNv12Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 0, bool video_full_range = 0);
 
 template <class COLOR32>
-void P016ToColor32(uint8_t *dpP016, int nP016Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 4);
+void P016ToColor32(uint8_t *dpP016, int nP016Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 4, bool video_full_range = 0);
+template <class COLOR24>
+void P016ToColor24(uint8_t *dpP016, int nP016Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 4, bool video_full_range = 0);
 template <class COLOR64>
-void P016ToColor64(uint8_t *dpP016, int nP016Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 4);
+void P016ToColor64(uint8_t *dpP016, int nP016Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 4, bool video_full_range = 0);
 
 template <class COLOR32>
-void YUV444ToColor32(uint8_t *dpYUV444, int nPitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 0);
+void Nv16ToColor32(uint8_t *dpNv16, int nNv16Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 0, bool video_full_range = 0);
+template <class COLOR24>
+void Nv16ToColor24(uint8_t *dpNv16, int nNv16Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 0, bool video_full_range = 0);
 template <class COLOR64>
-void YUV444ToColor64(uint8_t *dpYUV444, int nPitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 0);
+void Nv16ToColor64(uint8_t *dpNv16, int nNv16Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 0, bool video_full_range = 0);
 
 template <class COLOR32>
-void YUV444P16ToColor32(uint8_t *dpYUV444, int nPitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 4);
+void P216ToColor32(uint8_t *dpP216, int nP216Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 4, bool video_full_range = 0);
 template <class COLOR64>
-void YUV444P16ToColor64(uint8_t *dpYUV444, int nPitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 4);
+void P216ToColor64(uint8_t *dpP216, int nP216Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 4, bool video_full_range = 0);
+template <class COLOR24>
+void P216ToColor24(uint8_t *dpP216, int nP216Pitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 4, bool video_full_range = 0);
 
 template <class COLOR32>
-void Nv12ToColorPlanar(uint8_t *dpNv12, int nNv12Pitch, uint8_t *dpBgrp, int nBgrpPitch, int nWidth, int nHeight, int iMatrix = 0);
-template <class COLOR32>
-void P016ToColorPlanar(uint8_t *dpP016, int nP016Pitch, uint8_t *dpBgrp, int nBgrpPitch, int nWidth, int nHeight, int iMatrix = 4);
+void YUV444ToColor32(uint8_t *dpYUV444, int nPitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 0, bool video_full_range = 0);
+template <class COLOR24>
+void YUV444ToColor24(uint8_t *dpYUV444, int nPitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 0, bool video_full_range = 0);
+template <class COLOR64>
+void YUV444ToColor64(uint8_t *dpYUV444, int nPitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 0, bool video_full_range = 0);
 
 template <class COLOR32>
-void YUV444ToColorPlanar(uint8_t *dpYUV444, int nPitch, uint8_t *dpBgrp, int nBgrpPitch, int nWidth, int nHeight, int iMatrix = 0);
-template <class COLOR32>
-void YUV444P16ToColorPlanar(uint8_t *dpYUV444, int nPitch, uint8_t *dpBgrp, int nBgrpPitch, int nWidth, int nHeight, int iMatrix = 4);
+void YUV444P16ToColor32(uint8_t *dpYUV444, int nPitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 4, bool video_full_range = 0);
+template <class COLOR24>
+void YUV444P16ToColor24(uint8_t *dpYUV444, int nPitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 4, bool video_full_range = 0);
+template <class COLOR64>
+void YUV444P16ToColor64(uint8_t *dpYUV444, int nPitch, uint8_t *dpBgra, int nBgraPitch, int nWidth, int nHeight, int iMatrix = 4, bool video_full_range = 0);
 
-void Bgra64ToP016(uint8_t *dpBgra, int nBgraPitch, uint8_t *dpP016, int nP016Pitch, int nWidth, int nHeight, int iMatrix = 4);
+template <class COLOR32>
+void Nv12ToColorPlanar(uint8_t *dpNv12, int nNv12Pitch, uint8_t *dpBgrp, int nBgrpPitch, int nWidth, int nHeight, int iMatrix = 0, bool video_full_range = 0);
+template <class COLOR32>
+void P016ToColorPlanar(uint8_t *dpP016, int nP016Pitch, uint8_t *dpBgrp, int nBgrpPitch, int nWidth, int nHeight, int iMatrix = 4, bool video_full_range = 0);
+
+template <class COLOR32>
+void Nv16ToColorPlanar(uint8_t *dpNv16, int nNv16Pitch, uint8_t *dpBgrp, int nBgrpPitch, int nWidth, int nHeight, int iMatrix = 0, bool video_full_range = 0);
+template <class COLOR32>
+void P216ToColorPlanar(uint8_t *dpP216, int nP216Pitch, uint8_t *dpBgrp, int nBgrpPitch, int nWidth, int nHeight, int iMatrix = 4, bool video_full_range = 0);
+
+template <class COLOR32>
+void YUV444ToColorPlanar(uint8_t *dpYUV444, int nPitch, uint8_t *dpBgrp, int nBgrpPitch, int nWidth, int nHeight, int iMatrix = 0, bool video_full_range = 0);
+template <class COLOR32>
+void YUV444P16ToColorPlanar(uint8_t *dpYUV444, int nPitch, uint8_t *dpBgrp, int nBgrpPitch, int nWidth, int nHeight, int iMatrix = 4, bool video_full_range = 0);
+
+void Bgra64ToP016(uint8_t *dpBgra, int nBgraPitch, uint8_t *dpP016, int nP016Pitch, int nWidth, int nHeight, int iMatrix = 4, bool video_full_range = 0);
 
 void ConvertUInt8ToUInt16(uint8_t *dpUInt8, uint16_t *dpUInt16, int nSrcPitch, int nDestPitch, int nWidth, int nHeight);
 void ConvertUInt16ToUInt8(uint16_t *dpUInt16, uint8_t *dpUInt8, int nSrcPitch, int nDestPitch, int nWidth, int nHeight);

@@ -8,9 +8,9 @@
 a.out
 *.o
 *.exe
+*.dll
 *.a
 *.so
-Makefile
 
 # Build results
 

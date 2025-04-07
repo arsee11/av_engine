@@ -1,10 +1,27 @@
 ///frame_scaler.cpp
 
 #include "frame_scaler.h"
+#include <fstream>
+
+#define _DUMP 0
+
+#if _DUMP
+
+static void dump_frame(uint8_t* frame_data, size_t frame_size)
+{
+    static std::ofstream fpOut("out.scale", std::ios::out | std::ios::binary);
+
+    fpOut.write(reinterpret_cast<char*>(frame_data), frame_size);
+
+   
+}
+#endif 
 
 void FrameScaler::scale(const uint8_t* data, int len)
 {
-    
+    if (data == nullptr || len == 0) {
+        return;
+    }
     av_image_fill_arrays(_srcFrame->data, _srcFrame->linesize, data,
         convertDeprecatedFormat(_2ffmpeg_format(_src_pix_fmt)),
         _srcWith, _srcHeight, 1
@@ -28,6 +45,10 @@ void FrameScaler::scale(const uint8_t* data, int len)
                             ,_destFrame->linesize
                             ,_2ffmpeg_format(_dst_pix_fmt)
                             ,_dstWith, _dstHeight, 1);
+
+#if _DUMP
+    dump_frame(_dst_frame_data, _dst_frame_size);
+#endif
 
 }
 

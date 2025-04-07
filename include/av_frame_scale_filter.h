@@ -21,13 +21,13 @@ public:
     void destroy(){delete this; }
 
 private:
-    AvFrameScaleFilter(PixelFormat f, int width, int height, 
+    AvFrameScaleFilter(PixelFormat dst_fmt, int dst_width, int dst_height, 
 	Transformation<AVParam>* next_filter=nullptr
 	)
     	:Filter<AVParam>(next_filter)
-    	,_format(f)
-    	,_width(width)
-    	,_height(height)
+    	,_dst_format(dst_fmt)
+    	,_dst_width(dst_width)
+    	,_dst_height(dst_height)
     {
         _param.type = MEDIA_VIDEO;
         _param.codecid = CodecID::CODEC_ID_NONE;
@@ -37,8 +37,8 @@ private:
 
     bool transform(AVParam* p)override;
 
-    PixelFormat _format, _src_format = PixelFormat::FORMAT_NONE;
-    int _width, _height;
+    PixelFormat _dst_format, _src_format = PixelFormat::FORMAT_NONE;
+    int _dst_width, _dst_height;
     FrameScaler* _scaler = nullptr;
     int _src_width = 0, _src_height = 0;
 };

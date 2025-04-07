@@ -1,16 +1,5 @@
 ﻿//audio_player.cpp 
 
-#ifdef _MSC_VER
-#pragma comment(lib, "av_engine.lib")
-#pragma comment(lib, "ws2_32.lib")
-#pragma comment(lib,"avutil.lib")
-#pragma comment(lib,"avcodec.lib")
-#pragma comment(lib,"avformat.lib")
-#pragma comment(lib,"swscale.lib")
-#pragma comment(lib, "avdevice.lib")
-#pragma comment(lib,"sdl2.lib")
-#endif
-
 #include <iostream>
 
 using namespace std;

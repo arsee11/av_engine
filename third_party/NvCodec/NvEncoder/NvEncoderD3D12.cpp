@@ -346,7 +346,7 @@ void NvEncoderD3D12::MapResources(uint32_t bfrIdx)
     m_vMappedOutputBuffers[bfrIdx] = mapInputResourceBitstreamBuffer.mappedResource;
 }
 
-void NvEncoderD3D12::EncodeFrame(std::vector<std::vector<uint8_t>> &vPacket, NV_ENC_PIC_PARAMS *pPicParams)
+void NvEncoderD3D12::EncodeFrame(std::vector<NvEncOutputFrame> &vPacket, NV_ENC_PIC_PARAMS *pPicParams)
 {
     vPacket.clear();
     if (!IsHWEncoderInitialized())
@@ -381,7 +381,7 @@ void NvEncoderD3D12::EncodeFrame(std::vector<std::vector<uint8_t>> &vPacket, NV_
     }
 }
 
-void NvEncoderD3D12::EndEncode(std::vector<std::vector<uint8_t>> &vPacket)
+void NvEncoderD3D12::EndEncode(std::vector<NvEncOutputFrame> &vPacket)
 {
     vPacket.clear();
     if (!IsHWEncoderInitialized())
@@ -394,7 +394,7 @@ void NvEncoderD3D12::EndEncode(std::vector<std::vector<uint8_t>> &vPacket)
     GetEncodedPacket(m_vOutputRsrc, vPacket, false);
 }
 
-void NvEncoderD3D12::GetEncodedPacket(std::vector<NV_ENC_OUTPUT_RESOURCE_D3D12*>& vOutputBuffer, std::vector<std::vector<uint8_t>>& vPacket, bool bOutputDelay)
+void NvEncoderD3D12::GetEncodedPacket(std::vector<NV_ENC_OUTPUT_RESOURCE_D3D12*>& vOutputBuffer, std::vector<NvEncOutputFrame>& vPacket, bool bOutputDelay)
 {
     unsigned int i = 0;
     int iEnd = bOutputDelay ? m_iToSend - m_nOutputDelay : m_iToSend;
@@ -409,21 +409,24 @@ void NvEncoderD3D12::GetEncodedPacket(std::vector<NV_ENC_OUTPUT_RESOURCE_D3D12*>
         uint8_t* pData = (uint8_t*)lockBitstreamData.bitstreamBufferPtr;
         if (vPacket.size() < i + 1)
         {
-            vPacket.push_back(std::vector<uint8_t>());
+            NvEncOutputFrame nvEncOutputFrame;
+            vPacket.push_back(nvEncOutputFrame);
         }
-        vPacket[i].clear();
+        vPacket[i].frame.clear();
         if (m_initializeParams.encodeGUID == NV_ENC_CODEC_AV1_GUID)
         {
             if (m_bWriteIVFFileHeader)
             {
-                m_IVFUtils.WriteFileHeader(vPacket[i], MAKE_FOURCC('A', 'V', '0', '1'), m_initializeParams.encodeWidth, m_initializeParams.encodeHeight, m_initializeParams.frameRateNum, m_initializeParams.frameRateDen, 0xFFFF);
+                m_IVFUtils.WriteFileHeader(vPacket[i].frame, MAKE_FOURCC('A', 'V', '0', '1'), m_initializeParams.encodeWidth, m_initializeParams.encodeHeight, m_initializeParams.frameRateNum, m_initializeParams.frameRateDen, 0xFFFF);
                 m_bWriteIVFFileHeader = false;
             }
 
-            m_IVFUtils.WriteFrameHeader(vPacket[i], lockBitstreamData.bitstreamSizeInBytes, lockBitstreamData.outputTimeStamp);
+            m_IVFUtils.WriteFrameHeader(vPacket[i].frame, lockBitstreamData.bitstreamSizeInBytes, lockBitstreamData.outputTimeStamp);
 
         }
-        vPacket[i].insert(vPacket[i].end(), &pData[0], &pData[lockBitstreamData.bitstreamSizeInBytes]);
+        vPacket[i].frame.insert(vPacket[i].frame.end(), &pData[0], &pData[lockBitstreamData.bitstreamSizeInBytes]);
+        vPacket[i].pictureType = lockBitstreamData.pictureType;
+        vPacket[i].timeStamp = lockBitstreamData.outputTimeStamp;
         i++;
 
         NVENC_API_CALL(m_nvenc.nvEncUnlockBitstream(m_hEncoder, lockBitstreamData.outputBitstream));
@@ -451,7 +454,7 @@ void NvEncoderD3D12::FlushEncoder()
 
     try
     {
-        std::vector<std::vector<uint8_t>> pOutputBuffer;
+        std::vector<NvEncOutputFrame> pOutputBuffer;
         EndEncode(pOutputBuffer);
     }
     catch (...)

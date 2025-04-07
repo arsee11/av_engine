@@ -1,18 +1,5 @@
 // main.cpp 
 
-#ifdef WIN32
-
-#pragma comment(lib, "ws2_32.lib")
-#pragma comment(lib,"avutil.lib")
-#pragma comment(lib,"avcodec.lib")
-#pragma comment(lib,"avformat.lib")
-#pragma comment(lib,"swscale.lib")
-#pragma comment(lib, "jrtplib_d.lib")
-#pragma comment(lib, "avdevice.lib")
-#pragma comment(lib,"sdl2.lib")
-#pragma comment(lib, "av_engine.lib")
-#endif
-
 #include <iostream>
 
 using namespace std;

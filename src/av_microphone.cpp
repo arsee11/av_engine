@@ -97,7 +97,7 @@ AVParam* AvMicrophone::get()
 			{
 				_param.data(_pack->data, _pack->size);
 				_param.nsamples = (_pack->size/sample_size((SampleFormat)_param.format))
-                                / _format_ctx->streams[_stream_idx]->codecpar->channels;
+                                / _format_ctx->streams[_stream_idx]->codecpar->ch_layout.nb_channels;
 
                 
 				break;

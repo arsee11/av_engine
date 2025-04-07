@@ -59,7 +59,7 @@ void AvFileSink::addStream(const AvStreamInfo& s)
 		_audio_stream->codecpar->codec_id = _2ffmpeg_id(s.codecid);
 		_audio_stream->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
         	_audio_stream->codecpar->sample_rate = s.ai.sample_rate;
-        	_audio_stream->codecpar->channels = s.ai.channel;
+        	_audio_stream->codecpar->ch_layout.nb_channels = s.ai.channel;
         	//_audio_stream->codecpar->channel_layout = AV_CH_LAYOUT_STEREO;
         	_audio_stream->codecpar->format = _2ffmpeg_format(s.ai.sample_format);
 		

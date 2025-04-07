@@ -3,6 +3,8 @@
 #include <iostream>
 #include "av_log.h"
 
+#define _DUMP 0
+
 #define nv_ck(r) \
     if(r != CUDA_SUCCESS){ \
         const char* err; \
@@ -20,24 +22,64 @@ PixelFormat nv2format(int f)
             return FORMAT_NONE;
     }
 }
+#if _DUMP
+
+static void dump_frame(AVParam* p, NvDecoder* dec)
+{
+    static std::ofstream fpOut("out.decode", std::ios::out | std::ios::binary);
+    uint8_t* pFrame = p->data_ptr();
+    if (dec->GetWidth() == dec->GetDecodeWidth())
+    {
+        fpOut.write(reinterpret_cast<char*>(pFrame), p->size());
+    }
+    else
+    {
+        // 4:2:0/4:2:2 output width is 2 byte aligned. If decoded width is odd , luma has 1 pixel padding
+        // Remove padding from luma while dumping it to disk
+        // dump luma
+        for (auto i = 0; i < dec->GetHeight(); i++)
+        {
+            fpOut.write(reinterpret_cast<char*>(pFrame), dec->GetDecodeWidth() * dec->GetBPP());
+            pFrame += dec->GetWidth() * dec->GetBPP();
+        }
+        // dump Chroma
+        fpOut.write(reinterpret_cast<char*>(pFrame), dec->GetChromaPlaneSize());
+    }
+}
+#endif 
+
 bool AvVideoDecodeFilterNv::transform(AVParam* p)
 {
-    if(p->type != MEDIA_VIDEO){
+    if(p->type != MEDIA_VIDEO
+       ||p->data_ptr() == nullptr 
+       ||p->size() == 0
+    ){
         return false;
     }
 
     int nframe_returned=0, nframe=0;
-    nframe_returned = _nvdecoder->Decode(p->data_ptr(), p->size());
-    if(nframe != 0 && nframe_returned>0){
-        av_log_info()<<_nvdecoder->GetVideoInfo();
+    nframe_returned = _nvdecoder->Decode(p->data_ptr(), p->size(), 0, p->pts);
+    if (nframe_returned == 0) {
+        return false;
     }
+
+    if (nframe_returned > 1) {
+        av_log_info() << "nvdecoder return " << nframe_returned << " frames."<<end_log();
+    }
+
     for( int i=0; i<nframe_returned; i++){
         uint8_t* frame_data = _nvdecoder->GetFrame();
         int frame_size = _nvdecoder->GetFrameSize();
         _param.data(frame_data, frame_size);
         _param.format = nv2format(_nvdecoder->GetOutputFormat());
+        _param.w = _nvdecoder->GetWidth();
+        _param.h = _nvdecoder->GetHeight();
+#if _DUMP
+        dump_frame(&_param, _nvdecoder.get());
+#endif
+
     }
-    nframe += nframe_returned;
+    
     return true;
 }
 
@@ -83,15 +125,31 @@ bool AvVideoDecodeFilterNv::open(CodecID cid, int w, int h)
 
     Rect crop_rect = {};
     Dim resize_dim = {};
-    _nvdecoder.reset( new NvDecoder (
-                            cu_context, 
-                            false, 
-                            _2nvcodec_id(cid), 
-                            false, 
-                            false, 
-                            &crop_rect, 
-                            &resize_dim, 
-                            false/*bExtractUserSEIMessage*/
+	bool extract_user_SEI_message=false;
+	unsigned int decsurf=0;
+	bool extstream=false;
+	CUstream custream = NULL;
+    
+    if(extstream)
+    {
+        ck(cuCtxPushCurrent(cu_context));
+        ck(cuStreamCreate(&custream, CU_STREAM_DEFAULT));
+    }
+					
+	 _nvdecoder.reset( new NvDecoder (cu_context, 
+							false, 
+							_2nvcodec_id(cid),
+							false, 
+							false, 
+							&crop_rect, 
+							&resize_dim, 
+							extract_user_SEI_message, 
+							0, 
+							0, 
+							1000, 
+							false, 
+							decsurf, 
+							custream
                           )
                     );
 
