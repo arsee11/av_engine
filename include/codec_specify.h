@@ -35,6 +35,7 @@ enum PixelFormat
 {
     FORMAT_NONE=-1,
     FORMAT_RGB24,
+    FORMAT_ARGB,
     FORMAT_YUV420P,
     FORMAT_YUV422P,
     FORMAT_YUV444P,

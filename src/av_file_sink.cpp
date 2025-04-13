@@ -29,6 +29,7 @@ void AvFileSink::addStream(const AvStreamInfo& s)
 {
 	if (s.media_type == MEDIA_VIDEO )
 	{
+		_codec_id = s.codecid;
 		if (_video_stream != nullptr)
 			throw AvFileSinkException("video stream existed", __FILE__, __LINE__);
 	
@@ -41,13 +42,17 @@ void AvFileSink::addStream(const AvStreamInfo& s)
         	_video_stream->codecpar->width = s.vi.width;
        		 _video_stream->codecpar->height = s.vi.height;
         	_video_stream->codecpar->bit_rate = s.vi.width*s.vi.height* 1024;
-        	//_video_stream->codecpar->format = _2ffmpeg_format(s.vi.pixel_format);
+        	_video_stream->codecpar->format = _2ffmpeg_format(s.vi.pixel_format);
+			_video_stream->codecpar->framerate = AVRational{ 1, s.vi.frame_rate };
+			_video_stream->time_base = _video_stream->codecpar->framerate;
+
 
 		_video_stream->id = _format_ctx->nb_streams - 1;
     
 	}
 	else if (s.media_type == MEDIA_AUDIO)
 	{
+		_audio_codec_id = s.codecid;
 		if (_audio_stream != nullptr)
 			throw AvFileSinkException("audio stream existed", __FILE__, __LINE__);
 
@@ -62,6 +67,7 @@ void AvFileSink::addStream(const AvStreamInfo& s)
         	_audio_stream->codecpar->ch_layout.nb_channels = s.ai.channel;
         	//_audio_stream->codecpar->channel_layout = AV_CH_LAYOUT_STEREO;
         	_audio_stream->codecpar->format = _2ffmpeg_format(s.ai.sample_format);
+			_audio_stream->time_base = AVRational{ 1, _audio_stream->codecpar->sample_rate };
 		
 		_audio_stream->id = _format_ctx->nb_streams - 1;
 	}
@@ -96,7 +102,6 @@ void AvFileSink::put(AVParam* p)
 	    pack = av_packet_alloc();
 	    pack->pts = p->pts;
 	    pack->dts = p->pts;
-		av_packet_rescale_ts(pack, AVRational{ 1, p->fps}, _audio_stream->time_base);
 		av_packet_rescale_ts(pack, AVRational{ 1, p->fps}, _video_stream->time_base);
 		pack->stream_index = _video_stream->id;
 	}

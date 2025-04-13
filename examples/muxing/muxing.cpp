@@ -1,19 +1,14 @@
-#ifdef _MSC_VER
-#pragma comment(lib,"avutil.lib")
-#pragma comment(lib,"avcodec.lib")
-#pragma comment(lib,"avformat.lib")
-#pragma comment(lib,"swscale.lib")
-#pragma comment(lib, "avdevice.lib")
-#pragma comment(lib, "swresample.lib")
-#pragma comment(lib, "../../lib/av_engine.lib")
-#endif
-
 using namespace std;
+
+#ifdef _MSC_VER
+#include <Windows.h>
+#endif
 
 #include <iostream>
 
 #include <codec_specify.h>
 #include <av_video_encode_filter.h>
+#include <av_video_encode_filter_nv.h>
 #include <av_audio_encode_filter.h>
 #include <av_video_decode_filter.h>
 #include <av_file_sink.h>
@@ -25,22 +20,21 @@ using namespace std;
 #include <av_log.h>
 
 #ifdef _MSC_VER
-#include <Windows.h>
 string ANSItoUTF8(const char* strAnsi)
 {
-	//»ñÈ¡×ª»»Îª¿í×Ö½ÚºóÐèÒªµÄ»º³åÇø´óÐ¡£¬´´½¨¿í×Ö½Ú»º³åÇø£¬936Îª¼òÌåÖÐÎÄGB2312´úÂëÒ³
+	//ï¿½ï¿½È¡×ªï¿½ï¿½Îªï¿½ï¿½ï¿½Ö½Úºï¿½ï¿½ï¿½Òªï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö½Ú»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½936Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½GB2312ï¿½ï¿½ï¿½ï¿½Ò³
 	int nLen = MultiByteToWideChar(CP_ACP, NULL, strAnsi, -1, NULL, NULL);
 	WCHAR* wszBuffer = new WCHAR[nLen + 1];
 	nLen = MultiByteToWideChar(CP_ACP, NULL, strAnsi, -1, wszBuffer, nLen);
 	wszBuffer[nLen] = 0;
-	//»ñÈ¡×ªÎªUTF8¶à×Ö½ÚºóÐèÒªµÄ»º³åÇø´óÐ¡£¬´´½¨¶à×Ö½Ú»º³åÇø
+	//ï¿½ï¿½È¡×ªÎªUTF8ï¿½ï¿½ï¿½Ö½Úºï¿½ï¿½ï¿½Òªï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö½Ú»ï¿½ï¿½ï¿½ï¿½ï¿½
 	nLen = WideCharToMultiByte(CP_UTF8, NULL, wszBuffer, -1, NULL, NULL, NULL, NULL);
 	CHAR* szBuffer = new CHAR[nLen + 1];
 	nLen = WideCharToMultiByte(CP_UTF8, NULL, wszBuffer, -1, szBuffer, nLen, NULL, NULL);
 	szBuffer[nLen] = 0;
 
 	string s1 = szBuffer;
-	//ÄÚ´æÇåÀí
+	//ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½
 	delete[]wszBuffer;
 	delete[]szBuffer;
 	return s1;
@@ -48,7 +42,7 @@ string ANSItoUTF8(const char* strAnsi)
 
 string UTF8toANSI(const char* strUTF8)
 {
-	//»ñÈ¡×ª»»Îª¶à×Ö½ÚºóÐèÒªµÄ»º³åÇø´óÐ¡£¬´´½¨¶à×Ö½Ú»º³åÇø
+	//ï¿½ï¿½È¡×ªï¿½ï¿½Îªï¿½ï¿½ï¿½Ö½Úºï¿½ï¿½ï¿½Òªï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö½Ú»ï¿½ï¿½ï¿½ï¿½ï¿½
 	int nLen = MultiByteToWideChar(CP_UTF8, NULL, strUTF8, -1, NULL, NULL);
 	WCHAR* wszBuffer = new WCHAR[nLen + 1];
 	nLen = MultiByteToWideChar(CP_UTF8, NULL, strUTF8, -1, wszBuffer, nLen);
@@ -60,7 +54,7 @@ string UTF8toANSI(const char* strUTF8)
 	szBuffer[nLen] = 0;
 
 	string s1 = szBuffer;
-	//ÇåÀíÄÚ´æ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½
 	delete[]szBuffer;
 	delete[]wszBuffer;
 	return s1;
@@ -69,21 +63,27 @@ string UTF8toANSI(const char* strUTF8)
 
 
 
-#define AUDIO
-//#define VIDEO 
+//#define AUDIO
+#define VIDEO 
 int main(int argc, char* argv[])
 {
 	av_init();
     av_set_logger(stdout_log);
 	try {
 
-		std::string fname = {"test.asf"};
+		std::string fname = {"test.mp4"};
 		std::vector<AvStreamInfo> ss;
-
+		int frame_rate = 30;
+		PixelFormat pixfmt = PixelFormat::FORMAT_YUV420P;
 #ifdef VIDEO
-		int w=320, h=240;
+		int w=1920, h=1080;
 		CodecID vc=CodecID::H264;
-		ss.push_back(AvStreamInfo{ vc, MediaType::MEDIA_VIDEO,w,h});
+		AvStreamInfo si{ vc, MediaType::MEDIA_VIDEO };
+		si.vi.width = w;
+		si.vi.height = h;
+		si.vi.frame_rate = frame_rate;
+		si.vi.pixel_format = pixfmt;
+		ss.push_back(si);
 #endif
 
 #ifdef AUDIO 
@@ -103,12 +103,12 @@ int main(int argc, char* argv[])
 		AvFileSink* avfile = AvFileSink::create(ss, fname); 
 
 #ifdef VIDEO
-		AvVideoEncodeFilter* ef = AvVideoEncodeFilter::create(vc, 30, w*h*3, 10*2, avfile); 
-		AvFrameScaleFilter * pf = AvFrameScaleFilter::create(PixelFormat::FORMAT_YUV420, w, h, ef);
+		AvVideoEncodeFilterNV* ef = AvVideoEncodeFilterNV::create(vc, frame_rate, w*h*3, 10*2, avfile);
+		AvFrameScaleFilter * pf = AvFrameScaleFilter::create(pixfmt, w, h, ef);
 		
 		AvCamera c(nullptr);
 #ifdef _MSC_VER
-		c.open("video=USB2.0 HD UVC WebCam", 30, w, h);
+		c.open("video=USB2.0 HD UVC WebCam", frame_rate, 1280, 720);
 #endif
 
 #ifdef LINUX 
@@ -119,8 +119,8 @@ int main(int argc, char* argv[])
 		c.open("0", 30, w, h);
 #endif
 	
-		if (c.codec() != CodecID::CODEC_ID_NONE) {
-			AvVideoDecodeFilter* df = AvVideoDecodeFilter::create(c.codec(), pf);
+		if (c.codec_info().codec != CodecID::CODEC_ID_NONE) {
+			AvVideoDecodeFilter* df = AvVideoDecodeFilter::create(c.codec_info().codec, pf);
 			c.setNext(df);
 		}
 #endif //VIDEO
@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
 		AvMicrophone m(rf);
 
 #ifdef _MSC_VER
-		char* dev = "audio=Âó¿Ë·ç (Realtek(R) Audio)";
+		char* dev = "audio=ï¿½ï¿½Ë·ï¿½ (Realtek(R) Audio)";
 		std::string strdev = ANSItoUTF8(dev);
 		m.open(strdev.c_str(), 44100, 16, 2);
 		
@@ -158,12 +158,13 @@ int main(int argc, char* argv[])
        
 #ifdef AUDIO 
 		m.close();
+		rf->destroy();
+        aef->destroy();
 #endif
 #ifdef VIDEO 
 		c.close();
 #endif
-        rf->destroy();
-        aef->destroy();
+        
 		avfile->destroy();
 	}
 	catch (AvException& e) {

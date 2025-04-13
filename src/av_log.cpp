@@ -75,6 +75,12 @@ Logger& Logger::operator<<(unsigned long val)
     return *this;
 }
 
+Logger& Logger::operator<<(size_t val)
+{
+    _str_buf += t2str(val);
+    return *this;
+}
+
 /*
 Logger& Logger::operator<<(int64_t val)
 {

@@ -12,10 +12,10 @@ class FrameScaler;
 class AvFrameScaleFilter:public Filter<AVParam>
 {
 public:
-    static AvFrameScaleFilter* create(PixelFormat f, int width, int height, 
+    static AvFrameScaleFilter* create(PixelFormat dst_fmt, int dst_width, int dst_height, 
     Transformation<AVParam>* next_filter=nullptr)
     {
-        return new AvFrameScaleFilter(f, width, height, next_filter);
+        return new AvFrameScaleFilter(dst_fmt, dst_width, dst_height, next_filter);
     }
     
     void destroy(){delete this; }

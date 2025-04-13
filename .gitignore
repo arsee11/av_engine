@@ -11,6 +11,10 @@ a.out
 *.dll
 *.a
 *.so
+.vscode
+*.asf
+*.mp4
+.vs/
 
 # Build results
 
