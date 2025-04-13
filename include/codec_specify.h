@@ -16,6 +16,9 @@ enum CodecID
     MPEG4,
     MSMPEG4V3,
     MJPEG,
+    H265,
+    VP9,
+    AV1,
 
     /*audio*/
     S16LE=1000,
@@ -32,14 +35,11 @@ enum PixelFormat
 {
     FORMAT_NONE=-1,
     FORMAT_RGB24,
+    FORMAT_ARGB,
     FORMAT_YUV420P,
     FORMAT_YUV422P,
     FORMAT_YUV444P,
-    FORMAT_YUYV422,
-    FORMAT_UYVY422,
-    FORMAT_YUVJ420P,
-    FORMAT_YUVJ422P,
-    FORMAT_YUVJ444P
+    FORMAT_NV12
 };
 
 enum SampleFormat

@@ -12,3 +12,6 @@ examples/rtp_client and example/width_sdl_player project depends on [SDL](http:/
 Requires c++11 support.
 
 Had compiled & run with g++ 4.8 VS2015 XCode 8.
+
+
+cmake -G "Visual Studio 17 2022" -A x64  -DFFMPEG_DIR="D:\libs\ffmpeg-7.1.1-dev" -DCUDA_DIR="C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.8" ../

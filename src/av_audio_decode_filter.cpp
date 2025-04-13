@@ -37,7 +37,7 @@ bool AvAudioDecodeFilter::transform(AVParam* p)
 	_param.nsamples = _avframe->nb_samples;
 	if (av_sample_fmt_is_planar((AVSampleFormat)_avframe->format))
 	{
-		int nchn = _avframe->channels;
+		int nchn = _avframe->ch_layout.nb_channels;
 		int size = av_samples_get_buffer_size(
 			NULL, nchn, _avframe->nb_samples, (AVSampleFormat)_avframe->format, 1);
 
@@ -95,7 +95,7 @@ void AvAudioDecodeFilter::close()
 
 bool AvAudioDecodeFilter::open(CodecID cid, int sr, int channels, SampleFormat sample_fmt)
 {
-	AVCodec* codec = avcodec_find_decoder(_2ffmpeg_id(cid));
+	const AVCodec* codec = avcodec_find_decoder(_2ffmpeg_id(cid));
 	if (codec == NULL)
 	{
         av_log_error() << "AvAudioDecodeFilter::open() failed" << end_log();
@@ -109,8 +109,7 @@ bool AvAudioDecodeFilter::open(CodecID cid, int sr, int channels, SampleFormat s
 	}
 	
 	_codec_ctx = avcodec_alloc_context3(codec);
-	_codec_ctx->channels=channels;
-	_codec_ctx->channel_layout=av_get_default_channel_layout(channels);
+	av_channel_layout_default(&_codec_ctx->ch_layout, channels);
 	_codec_ctx->sample_fmt=_2ffmpeg_format(sample_fmt);
 	_codec_ctx->sample_rate=sr;
 	if (_codec_ctx == NULL)

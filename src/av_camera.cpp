@@ -51,17 +51,17 @@ bool AvCamera::open(const char* device, int framerate, int width, int height)
 		return true;
 
 #ifdef WIN32
-    AVInputFormat *ifmt=av_find_input_format("dshow");
+    const AVInputFormat *ifmt=av_find_input_format("dshow");
     AVDictionary* options = NULL;
 #endif
 
 #ifdef LINUX 
-    AVInputFormat *ifmt=av_find_input_format("v4l2");
+    const AVInputFormat *ifmt=av_find_input_format("v4l2");
     AVDictionary* options = NULL;
 #endif
 
 #ifdef MACOS
-    AVInputFormat *ifmt=av_find_input_format("avfoundation");
+    const AVInputFormat *ifmt=av_find_input_format("avfoundation");
     AVDictionary* options = NULL;
 #endif
 

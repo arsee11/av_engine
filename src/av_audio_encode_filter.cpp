@@ -38,7 +38,7 @@ bool AvAudioEncodeFilter::transform(AVParam* p)
 
 	AVFrame* tmp_frame = av_frame_alloc();
 	av_samples_fill_arrays(tmp_frame->data, tmp_frame->linesize
-        ,p->data_ptr(), _codec_ctx->channels
+        ,p->data_ptr(), _codec_ctx->ch_layout.nb_channels
         ,p->nsamples, format, 1
     );
 
@@ -48,14 +48,13 @@ bool AvAudioEncodeFilter::transform(AVParam* p)
 
     AVFrame *frame = av_frame_alloc();
 	av_samples_alloc(frame->data, frame->linesize
-        ,_codec_ctx->channels
+        ,_codec_ctx->ch_layout.nb_channels
         ,nsamples, format, 1
     );
 			
 	frame->nb_samples= nsamples;
 	frame->format = format;
-    frame->channels = _codec_ctx->channels;
-	frame->channel_layout = av_get_default_channel_layout(_codec_ctx->channels); 
+	av_channel_layout_default(&frame->ch_layout, _codec_ctx->ch_layout.nb_channels);
 	frame->sample_rate= _sample_rate;
 	
 	bool isok = true;
@@ -66,7 +65,7 @@ bool AvAudioEncodeFilter::transform(AVParam* p)
 	for (i = 0; i + nsamples <= p->nsamples; i += nsamples)
 	{
 		av_samples_copy(frame->data, tmp_frame->data
-            ,0, i, nsamples, _codec_ctx->channels, format
+            ,0, i, nsamples, _codec_ctx->ch_layout.nb_channels, format
         );
 		frame->pts = av_rescale_q(_samples_count, AVRational{ 1, _sample_rate }
             ,_codec_ctx->time_base
@@ -116,7 +115,7 @@ bool AvAudioEncodeFilter::transform(AVParam* p)
 
 bool AvAudioEncodeFilter::open(int sample_rate, int nb_channels, SampleFormat format)
 {
-	AVCodec* codec = avcodec_find_encoder(_2ffmpeg_id(_codec_id));
+	const AVCodec* codec = avcodec_find_encoder(_2ffmpeg_id(_codec_id));
 	if (codec == NULL)
 	{
 		av_log_error()<<"audo encoder no found, codecid:"<<_codec_id<<end_log();
@@ -136,8 +135,8 @@ bool AvAudioEncodeFilter::open(int sample_rate, int nb_channels, SampleFormat fo
 	_codec_ctx->sample_rate = sample_rate;
 	_sample_rate = sample_rate;
 
-	_codec_ctx->channels = nb_channels; 
-	_codec_ctx->channel_layout = av_get_default_channel_layout(nb_channels);
+	av_channel_layout_default(&_codec_ctx->ch_layout, nb_channels);
+	
 	if (avcodec_open2(_codec_ctx, codec, NULL) < 0)
 	{
 		av_log_error()<<"audo encoder open failed, codecid:"<<_codec_id<<end_log();

@@ -61,14 +61,18 @@ bool AvResampleFilter::transform(AVParam* p)
 void AvResampleFilter::open(int in_channels, int in_sr, SampleFormat in_format
 	,int out_channels, int out_sr, SampleFormat out_format)
 {
-	_swr_ctx = swr_alloc_set_opts(NULL
-			,out_channels
-			,_2ffmpeg_format(out_format)
-			,out_sr
-			,in_channels
-			, _2ffmpeg_format(in_format)
-			,in_sr
-			,0, NULL);
+	_swr_ctx = swr_alloc();
+	AVChannelLayout inch_layout;
+	av_channel_layout_default(&inch_layout, in_channels);
+	AVChannelLayout outch_layout;
+	av_channel_layout_default(&outch_layout, out_channels);
+	av_opt_set_chlayout(_swr_ctx, "in_chlayout", &inch_layout, 0);
+	av_opt_set_chlayout(_swr_ctx, "out_chlayout", &outch_layout, 0);
+	av_opt_set_int(_swr_ctx, "in_sample_rate", in_sr, 0);
+	av_opt_set_int(_swr_ctx, "out_sample_rate", out_sr, 0);
+	av_opt_set_sample_fmt(_swr_ctx, "in_sample_fmt", _2ffmpeg_format(in_format), 0);
+	av_opt_set_sample_fmt(_swr_ctx, "out_sample_fmt", _2ffmpeg_format(out_format), 0);
+	
 	if (_swr_ctx == nullptr)
 	{
 		throw AvException("Could not allocate resampler context\n", __FILE__, __LINE__);

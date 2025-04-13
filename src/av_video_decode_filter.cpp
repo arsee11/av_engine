@@ -9,6 +9,10 @@ extern "C" {
 
 bool AvVideoDecodeFilter::transform(AVParam* p)
 {
+    if(p->type != MEDIA_VIDEO){
+        return false;
+    }
+
     if (_codec_ctx == nullptr)
     {
         if (_codec_id == CODEC_ID_NONE)
@@ -66,7 +70,7 @@ bool AvVideoDecodeFilter::transform(AVParam* p)
 
 bool AvVideoDecodeFilter::open(CodecID cid, int w, int h)
 {
-    AVCodec* codec = avcodec_find_decoder(_2ffmpeg_id(cid));
+    const AVCodec* codec = avcodec_find_decoder(_2ffmpeg_id(cid));
     if (codec == NULL)
     {
         av_log_error() << "AvVideoDecodeFilter::open() failed" << end_log();
@@ -113,7 +117,7 @@ bool AvVideoDecodeFilter::open(CodecID cid, int w, int h)
 bool AvVideoDecodeFilter::open(const CodecInfo& ci)
 {
     _codec_id = ci.codec;
-    AVCodec* codec = avcodec_find_decoder(_2ffmpeg_id(_codec_id));
+    const AVCodec* codec = avcodec_find_decoder(_2ffmpeg_id(_codec_id));
     if (codec == NULL)
     {
         av_log_error() << "AvVideoDecodeFilter::open() failed" << end_log();

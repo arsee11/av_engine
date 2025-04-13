@@ -7,7 +7,7 @@
 
 static log_callback_t g_logger = nullptr;
 
-void av_log_output(LogLevel l, const char* str)
+void av_log_output(AvLogLevel l, const char* str)
 {
 	if(g_logger != nullptr)
 		g_logger(l, str);
@@ -18,7 +18,7 @@ void av_set_logger(const log_callback_t& logger)
 	g_logger = logger;
 }
 
-void stdout_log(LogLevel l, const char* str)
+void stdout_log(AvLogLevel l, const char* str)
 {
 	std::string lstr;
 	if (l == LOGL_ERROR)
@@ -70,6 +70,12 @@ Logger& Logger::operator<<(long val)
 }
 
 Logger& Logger::operator<<(unsigned long val)
+{
+    _str_buf += t2str(val);
+    return *this;
+}
+
+Logger& Logger::operator<<(size_t val)
 {
     _str_buf += t2str(val);
     return *this;

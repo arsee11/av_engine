@@ -7,6 +7,7 @@ template<class Param>
 class Transformation
 {
 public:
+    Transformation()=default;
     virtual ~Transformation(){}
     virtual void put(Param* p)=0;
     virtual Param* get()=0;

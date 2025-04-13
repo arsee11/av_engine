@@ -8,9 +8,13 @@
 a.out
 *.o
 *.exe
+*.dll
 *.a
 *.so
-Makefile
+.vscode
+*.asf
+*.mp4
+.vs/
 
 # Build results
 

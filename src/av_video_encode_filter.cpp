@@ -51,7 +51,7 @@ bool AvVideoEncodeFilter::transform(AVParam* p)
 
 bool AvVideoEncodeFilter::open(PixelFormat f, int width, int height, int framerate)
 {
-    AVCodec* codec = avcodec_find_encoder(  _2ffmpeg_id(_codec_id) );
+    const AVCodec* codec = avcodec_find_encoder(  _2ffmpeg_id(_codec_id) );
     if(codec == NULL )
     {
         av_log_error()<<"encoder[id="<<_codec_id<<"] not found"<<end_log();

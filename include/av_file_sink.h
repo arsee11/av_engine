@@ -40,6 +40,8 @@ struct AvStreamInfo
         struct{
             int width;
             int height;
+			int frame_rate;
+			PixelFormat pixel_format;
         }vi;
         struct{
             int sample_rate;

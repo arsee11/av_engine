@@ -14,7 +14,7 @@ AvMicrophone::AvMicrophone(Transformation<Param>* ts)
 bool AvMicrophone::open(const char* dev, int sr, int sample_size, int channels)
 {
 #ifdef _MSC_VER
-    AVInputFormat *ifmt=av_find_input_format("dshow");
+    const AVInputFormat *ifmt=av_find_input_format("dshow");
     AVDictionary* options = NULL;    
     av_dict_set_int(&options, "sample_rate", sr, 0);
 	av_dict_set_int(&options, "sample_size", sample_size, 0);
@@ -23,13 +23,13 @@ bool AvMicrophone::open(const char* dev, int sr, int sample_size, int channels)
 #endif 
 
 #ifdef MACOS
-	AVInputFormat *ifmt = av_find_input_format("avfoundation");
+	const AVInputFormat *ifmt = av_find_input_format("avfoundation");
 	AVDictionary* options = NULL;
 	av_dict_set(&options, "audio_device_index", dev, 0);
 #endif
 
 #ifdef LINUX
-    AVInputFormat *ifmt=av_find_input_format("alsa");
+    const AVInputFormat *ifmt=av_find_input_format("alsa");
     AVDictionary* options = NULL;    
     av_dict_set_int(&options, "sample_rate", sr, 0);
 	av_dict_set_int(&options, "channels", channels, 0);
@@ -97,7 +97,7 @@ AVParam* AvMicrophone::get()
 			{
 				_param.data(_pack->data, _pack->size);
 				_param.nsamples = (_pack->size/sample_size((SampleFormat)_param.format))
-                                / _format_ctx->streams[_stream_idx]->codecpar->channels;
+                                / _format_ctx->streams[_stream_idx]->codecpar->ch_layout.nb_channels;
 
                 
 				break;

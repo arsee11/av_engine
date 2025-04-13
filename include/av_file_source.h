@@ -6,6 +6,7 @@
 extern "C"{
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
+#include <libavcodec/bsf.h>
 }
 
 #ifndef AV_EXCEPTION_H
@@ -54,13 +55,17 @@ private:
 	AvReadRet readp(AVPacket* packet);
 
 private:
-	AVFormatContext* _format_ctx;
+	AVFormatContext* _format_ctx=nullptr;
+	AVBSFContext* _bsfc = nullptr;
 	std::string _name;
 	int _videostream = -1;
     int _audiostream = -1;
+	bool _isMp4H264 = false;
+	bool _isMp4H265 = false;
 
 	std::map<MediaType, CodecInfo> _codec_infos;
 	AVPacket* _pack = nullptr;
+	AVPacket* _pack_read = nullptr;
 };
 
 #endif /*AV_FILE_SOURCE_H*/
